@@ -34,7 +34,7 @@ define([
       appender.append(new LogEvent('spec', LogLevel.info));
       appender.append(new LogEvent('spec', LogLevel.log));
 
-      expect(appender.doAppend.callCount).toEqual(4);
+      expect(appender.doAppend).toHaveBeenCalledXTimes(4);
     });
 
 
@@ -50,7 +50,7 @@ define([
       appender.append(new LogEvent('spec', LogLevel.log));
       appender.append(new LogEvent('spec', 0));
 
-      expect(appender.doAppend.callCount).toEqual(4);
+      expect(appender.doAppend).toHaveBeenCalledXTimes(4);
     });
 
 
@@ -65,7 +65,7 @@ define([
       appender.append(new LogEvent('spec', LogLevel.info));
       appender.append(new LogEvent('spec', LogLevel.log));
 
-      expect(appender.doAppend.callCount).toEqual(3);
+      expect(appender.doAppend).toHaveBeenCalledXTimes(3);
     });
 
 
@@ -80,7 +80,7 @@ define([
       appender.append(new LogEvent('spec', LogLevel.info));
       appender.append(new LogEvent('spec', LogLevel.log));
 
-      expect(appender.doAppend.callCount).toEqual(2);
+      expect(appender.doAppend).toHaveBeenCalledXTimes(2);
     });
 
 
@@ -95,7 +95,7 @@ define([
       appender.append(new LogEvent('spec', LogLevel.info));
       appender.append(new LogEvent('spec', LogLevel.log));
 
-      expect(appender.doAppend.callCount).toEqual(1);
+      expect(appender.doAppend).toHaveBeenCalledXTimes(1);
     });
 
 

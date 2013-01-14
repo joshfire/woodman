@@ -2,8 +2,12 @@
  * @fileoverview Jasmine test runner for the Woodman's library
  *
  * The code uses demo snippets from the AMD Testing project:
- * https://github.com/geddesign/amd-testing
+ *   https://github.com/geddesign/amd-testing
  * ... to make Jasmine and require.js work hand in hand.
+ *
+ * The code also makes use of a couple of matchers from Uxebu's Jasmine
+ * matchers project:
+ *   https://github.com/uxebu/jasmine-matchers
  *
  * Copyright (c) 2013 Joshfire
  * MIT license (see LICENSE file)
@@ -53,6 +57,54 @@ requirejs([
        */
       toEqualOrBeGreatherThan: function (expected) {
         return this.actual >= expected;
+      },
+
+      /**
+       * Returns true when function has been called the expected number of times
+       */
+      toHaveBeenCalledXTimes: function(count) {
+        var callCount = this.actual.callCount;
+        var not = this.isNot ? 'NOT ' : '';
+        this.message = function () {
+          return 'Expected spy "' + this.actual.identity + '" ' + not +
+            'to have been called ' + count + ' times, ' +
+            'but was ' + callCount + '.';
+        };
+        return callCount === count;
+      },
+
+      /**
+       * Returns true when actual object is in the children's array of the
+       * expected object.
+       */
+      toBeChildOf: function (expected) {
+        var children = expected.children || [];
+        var i = 0;
+        var not = this.isNot ? 'NOT ' : '';
+
+        this.message = function () {
+          return 'Expected "' + this.actual.name + '" ' + not +
+            'to be child of ' + expected.name;
+        };
+
+        for (i = 0; i < children.length; i++) {
+          if (children[i] === this.actual) return true;
+        }
+        return false;
+      },
+
+      /**
+       * Returns true when actual object is the parent of the expected object.
+       */
+      toBeParentOf: function (expected) {
+        var not = this.isNot ? 'NOT ' : '';
+
+        this.message = function () {
+          return 'Expected "' + this.actual.name + '" ' + not +
+           'to be a parent of ' + expected.name;
+        };
+
+        return expected.parent === this.actual;
       }
     });
   });

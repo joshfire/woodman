@@ -5,10 +5,17 @@
 
 define([
   '../../lib/logger',
-  '../../lib/loglevel'
-], function (Logger, LogLevel) {
+  '../../lib/loglevel',
+  '../../lib/appender'
+], function (Logger, LogLevel, Appender) {
 
   describe('Logger class', function () {
+
+    it('saves the name passed during instantiation', function () {
+      var logger = new Logger('woodman');
+      expect(logger.name).toEqual('woodman');
+    });
+
 
     it('always calls "trace" when one of the log methods is called', function () {
       var logger = new Logger();
@@ -19,8 +26,9 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.trace.callCount).toEqual(4);
+      expect(logger.trace).toHaveBeenCalledXTimes(4);
     });
+
 
     it('calls "trace" with the right trace level', function () {
       var logger = new Logger();
@@ -51,7 +59,7 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.append.callCount).toEqual(4);
+      expect(logger.append).toHaveBeenCalledXTimes(4);
     });
 
 
@@ -66,7 +74,7 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.append.callCount).toEqual(4);
+      expect(logger.append).toHaveBeenCalledXTimes(4);
     });
 
 
@@ -81,7 +89,7 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.append.callCount).toEqual(3);
+      expect(logger.append).toHaveBeenCalledXTimes(3);
     });
 
 
@@ -96,7 +104,7 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.append.callCount).toEqual(2);
+      expect(logger.append).toHaveBeenCalledXTimes(2);
     });
 
 
@@ -111,7 +119,7 @@ define([
       logger.warn('timber!');
       logger.error('timber!');
 
-      expect(logger.append.callCount).toEqual(1);
+      expect(logger.append).toHaveBeenCalledXTimes(1);
     });
 
 
@@ -130,6 +138,54 @@ define([
     });
 
 
-    // TODO: add tests that check logger hierarchy
+    it('calls the "append" function of its parent when additive', function () {
+      var logger = new Logger();
+      var parentLogger = new Logger();
+      spyOn(parentLogger, 'append');
+
+      logger.parent = parentLogger;
+
+      logger.log('timber!');
+
+      expect(parentLogger.append).toHaveBeenCalledXTimes(1);
+    });
+
+
+    it('does not call the "append" function of its parent if not additive', function () {
+      var logger = new Logger();
+      var parentLogger = new Logger();
+      spyOn(parentLogger, 'append');
+
+      logger.additive = false;
+      logger.parent = parentLogger;
+
+      logger.log('timber!');
+
+      expect(parentLogger.append).not.toHaveBeenCalled();
+    });
+
+
+    it('calls the "append" method of all its appenders', function () {
+      var logger = new Logger();
+      var firstAppender = new Appender('first');
+      var secondAppender = new Appender('second');
+      var thirdAppender = new Appender('third');
+      spyOn(firstAppender, 'append');
+      spyOn(secondAppender, 'append');
+      spyOn(thirdAppender, 'append');
+
+      logger.appenders = [
+        firstAppender,
+        secondAppender,
+        thirdAppender
+      ];
+
+      logger.log('timber!');
+
+      expect(firstAppender.append).toHaveBeenCalledXTimes(1);
+      expect(secondAppender.append).toHaveBeenCalledXTimes(1);
+      expect(thirdAppender.append).toHaveBeenCalledXTimes(1);
+    });
+
   });
 });
