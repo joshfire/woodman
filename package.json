@@ -1,0 +1,28 @@
+{
+  "name" : "woodman",
+  "version" : "0.1.0",
+  "main" : "./lib/woodman-node.js",
+  "user" : "Joshfire",
+  "domain": "joshfire.com",
+  "description": "Extensible JavaScript logger utility loosely based on log4j that runs client-side and server-side",
+  "keywords": [
+    "log4j",
+    "logger"
+  ],
+  "maintainers": [
+    {
+      "name": "Joshfire",
+      "email": "contact@joshfire.com",
+      "web": "http://www.joshfire.com" 
+    } 
+  ],
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "LICENSE"
+    }
+  ],
+  "dependencies": {
+    "requirejs": "2.1.2"
+  }
+}

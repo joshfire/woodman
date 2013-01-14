@@ -1,0 +1,5 @@
+{
+  "name" : "woodman",
+  "version" : "0.1.0",
+  "main" : "./lib/woodman-browser.js"
+}
