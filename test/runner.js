@@ -63,7 +63,7 @@ requirejs([
       /**
        * Returns true when function has been called the expected number of times
        */
-      toHaveBeenCalledXTimes: function(count) {
+      toHaveBeenCalledXTimes: function (count) {
         var callCount = this.actual.callCount;
         var not = this.isNot ? 'NOT ' : '';
         this.message = function () {

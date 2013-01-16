@@ -9,6 +9,9 @@
     "log4j",
     "logger"
   ],
+  "author": {
+    "name": "Joshfire"
+  },
   "maintainers": [
     {
       "name": "Joshfire",
