@@ -34,7 +34,8 @@ requirejs([
   'spec/appender.spec',
   'spec/logger.spec',
   'spec/loggercontext.spec',
-  'spec/logmanager.spec'
+  'spec/logmanager.spec',
+  'spec/config.spec'
 ], function () {
 
   var jasmine = require('./jasmine').jasmine;
@@ -105,6 +106,21 @@ requirejs([
         };
 
         return expected.parent === this.actual;
+      },
+
+      /**
+       * Returns true when actual logger has the expected trace level
+       */
+      toHaveLevel: function (expected) {
+        var not = this.isNot ? 'NOT ' : '';
+
+        this.message = function () {
+          return 'Expected "' + this.actual.name + '" ' + not +
+            'to have trace level ' + expected + ', ' +
+            'but was ' + this.actual.level;
+        };
+
+        return this.actual.level === expected;
       }
     });
   });

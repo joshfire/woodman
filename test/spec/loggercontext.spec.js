@@ -4,8 +4,9 @@
 /*global describe, it, expect*/
 
 define([
-  '../../lib/loggercontext'
-], function (LoggerContext) {
+  '../../lib/loggercontext',
+  '../../lib/loglevel'
+], function (LoggerContext, LogLevel) {
 
   describe('LoggerContext class', function () {
 
@@ -67,5 +68,19 @@ define([
       expect(logger).toBeChildOf(parentLogger);
     });
 
+
+    it('inherits trace levels appropriately', function () {
+      var log = new LoggerContext();
+      log.initialize([
+        {
+          root: true,
+          level: 'warn'
+        }
+      ]);
+      var rootLogger = log.getLogger();
+      var logger = log.getLogger('spec.logger.hierarchy');
+      expect(rootLogger).toHaveLevel(LogLevel.warn);
+      expect(logger).toHaveLevel(LogLevel.warn);
+    });
   });
 });

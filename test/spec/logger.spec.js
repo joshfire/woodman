@@ -13,13 +13,91 @@ define([
 
     it('saves the name passed during instantiation', function () {
       var logger = new Logger('woodman');
+      logger.level = LogLevel.all;
       expect(logger.name).toEqual('woodman');
     });
 
 
+    it('resets internal settings when "reset" is called', function () {
+      var logger = new Logger('woodman');
+      logger.level = LogLevel.all;
+      logger.additive = false;
+      logger.appenders = [
+        'blah'
+      ];
+      logger.reset();
+
+      expect(logger.level).toEqual(LogLevel.inherit);
+      expect(logger.additive).toBeTruthy();
+      expect(logger.appenders).toEqual([]);
+    });
+
+
+    it('sets internal level when "initialize" is called', function () {
+      var logger = new Logger('woodman');
+      logger.initialize({
+        level: 'warn'
+      });
+      expect(logger.level).toEqual(LogLevel.warn);
+    });
+
+
+    it('sets internal level to "inherit" by default', function () {
+      var logger = new Logger('woodman');
+      logger.initialize();
+      expect(logger.level).toEqual(LogLevel.inherit);
+    });
+
+
+    it('sets additivity at initialization', function () {
+      var logger = new Logger('woodman');
+      logger.initialize({
+        level: 'error',
+        additivity: false
+      });
+      expect(logger.additive).toBeFalsy();
+    });
+
+
+    it('keeps additivity at initialization if not provided', function () {
+      var logger = new Logger('woodman');
+      logger.initialize({
+        level: 'error',
+        appenders: [
+          'blah'
+        ]
+      });
+      expect(logger.additive).toBeTruthy();
+    });
+
+
+    it('sets the list of appenders when "initialize" is called', function () {
+      var logger = new Logger('woodman');
+      logger.initialize({
+        appenders: [
+          'blah',
+          'foo'
+        ]
+      });
+      expect(logger.appenders).toEqual([
+        'blah',
+        'foo'
+      ]);
+    });
+
+
+    it('sets internal level to "inherit" by default', function () {
+      var logger = new Logger('woodman');
+      logger.reset();
+      logger.initialize();
+      expect(logger.level).toEqual(LogLevel.inherit);
+    });
+
     it('always calls "trace" when one of the log methods is called', function () {
       var logger = new Logger();
       spyOn(logger, 'trace');
+
+      logger.level = LogLevel.all;
 
       logger.log('timber!');
       logger.info('timber!');
@@ -33,6 +111,8 @@ define([
     it('calls "trace" with the right trace level', function () {
       var logger = new Logger();
       spyOn(logger, 'trace');
+
+      logger.level = LogLevel.all;
 
       logger.log('timber!');
       expect(logger.trace.mostRecentCall.args[0]).toEqual(LogLevel.log);
@@ -143,6 +223,9 @@ define([
       var parentLogger = new Logger();
       spyOn(parentLogger, 'append');
 
+      logger.level = LogLevel.all;
+      parentLogger.level = LogLevel.all;
+
       logger.parent = parentLogger;
 
       logger.log('timber!');
@@ -155,6 +238,9 @@ define([
       var logger = new Logger();
       var parentLogger = new Logger();
       spyOn(parentLogger, 'append');
+
+      logger.level = LogLevel.all;
+      parentLogger.level = LogLevel.all;
 
       logger.additive = false;
       logger.parent = parentLogger;
@@ -174,6 +260,7 @@ define([
       spyOn(secondAppender, 'append');
       spyOn(thirdAppender, 'append');
 
+      logger.level = LogLevel.all;
       logger.appenders = [
         firstAppender,
         secondAppender,
