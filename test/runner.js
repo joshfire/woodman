@@ -24,6 +24,7 @@ global.it = require('./jasmine').it;
 global.expect = require('./jasmine').expect;
 global.spyOn = require('./jasmine').spyOn;
 global.beforeEach = require('./jasmine').beforeEach;
+global.jasmine = require('./jasmine').jasmine;
 
 
 // Retrieve the different suites of tests and run them, reporting results
@@ -32,6 +33,7 @@ requirejs([
   'spec/loglevel.spec',
   'spec/logevent.spec',
   'spec/layout.spec',
+  'spec/lifecycle.spec',
   'spec/appender.spec',
   'spec/logger.spec',
   'spec/loggercontext.spec',

@@ -28,6 +28,7 @@ define([
         level: 'all'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
 
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
@@ -44,6 +45,7 @@ define([
         level: 'log'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
 
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
@@ -60,6 +62,7 @@ define([
         level: 'info'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
       
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
@@ -76,6 +79,7 @@ define([
         level: 'warn'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
       
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
@@ -92,6 +96,7 @@ define([
         level: 'error'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
 
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
@@ -108,6 +113,7 @@ define([
         level: 'off'
       });
       spyOn(appender, 'doAppend');
+      appender.start();
 
       appender.append(new LogEvent('spec', 'error'));
       appender.append(new LogEvent('spec', 'warn'));
