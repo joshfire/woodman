@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Using Woodman with an AMD loader</title>
+  </head>
+  <body>
+    <h1>Using Woodman with an AMD loader</h1>
+
+    <p>This page shows how to use Woodman in Web browser applications that
+      use an AMD loader.</p>
+
+<pre><code>&lt;script type="text/javascript" src="../../node_modules/requirejs/require.js">&lt;/script>
+&lt;script type="text/javascript" src="../../dist/woodman-browser-amd.js">&lt;/script>
+&lt;script type="text/javascript" src="amd.js">&lt;/script></code></pre>
+
+    <p>The <code>amd.js</code> file contains the main call to <code>require</code> and logs a few events to the console:</p>
+
+<pre><code>require(['woodman'], function (woodman) {
+  var config = { ... };
+  woodman.load(config, function (err) {
+    if (err) throw err;
+
+    var logger = woodman.getLogger('browser.main');
+    logger.log('Welcome to Woodman');
+    logger.info('This is an info message');
+    logger.warn('This is a warning');
+    logger.error('This is an error');
+  });
+});</code></pre>
+
+    <p>Open your console to see the result!</p>
+
+    <script type="text/javascript" src="../../node_modules/requirejs/require.js"></script>
+    <script type="text/javascript" src="../../dist/woodman-browser-amd.js"></script>
+    <script type="text/javascript" src="amd.js"></script>
+  </body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Referencing the source code of Woodman from Web browsers</title>
+  </head>
+  <body>
+    <h1>Referencing the source code of Woodman from Web browsers</h1>
+
+    <p>This example references Woodman's browser entry-point directly in the
+      source code using require.js. In particular, it does not use a compiled
+      version of Woodman.</p>
+
+<pre><code>&lt;script type="text/javascript"
+  src="../../node_modules/requirejs/require.js"
+  data-main="source.js">
+&lt;/script></code></pre>
+
+    <p>The <code>source.js</code> file contains the main call to
+      <code>require</code> and logs a few events to the console:</p>
+
+<pre><code>require(['../../lib/woodman-browser'], function (woodman) {
+  var config = { ... };
+  woodman.load(config, function (err) {
+    if (err) throw err;
+
+    var logger = woodman.getLogger('browser.main');
+    logger.log('Welcome to Woodman');
+    logger.info('This is an info message');
+    logger.warn('This is a warning');
+    logger.error('This is an error');
+  });
+});</code></pre>
+
+    <p>Open your console to see the result!</p>
+
+    <script type="text/javascript"
+      src="../../node_modules/requirejs/require.js"
+      data-main="source.js">
+    </script>
+  </body>
+</html>
