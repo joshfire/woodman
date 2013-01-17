@@ -233,6 +233,22 @@ define([
     });
 
 
+    it('calls the "append" function of its parent even if parent is off', function () {
+      var logger = new Logger();
+      var parentLogger = new Logger();
+      spyOn(parentLogger, 'append');
+
+      logger.level = 'all';
+      parentLogger.level = 'off';
+
+      logger.parent = parentLogger;
+
+      logger.log('timber!');
+
+      expect(parentLogger.append).toHaveBeenCalledXTimes(1);
+    });
+
+
     it('does not call the "append" function of its parent if not additive', function () {
       var logger = new Logger();
       var parentLogger = new Logger();
