@@ -111,5 +111,35 @@ define([
       expect(layout.toMessageString(evt)).toMatch(
         /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \[warn\] loggername - timber!$/);
     });
+
+
+    it('supports left padding', function () {
+      var layout = new PatternLayout({
+        pattern: '%5p %c'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      expect(layout.toMessageString(evt)).toEqual(' warn loggername');
+    });
+
+
+    it('supports truncation (from the beginning)', function () {
+      var layout = new PatternLayout({
+        pattern: '%.2p %c'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      expect(layout.toMessageString(evt)).toEqual('rn loggername');
+    });
+
+
+    it('pads and truncates as needed', function () {
+      var layout = new PatternLayout({
+        pattern: '%5p %5.10c'
+      }, loggerContext);
+      var evt = new LogEvent('log', 'warn', 'timber!');
+      expect(layout.toMessageString(evt)).toEqual(' warn   log');
+      evt = new LogEvent('loggername.long', 'warn', 'timber!');
+      expect(layout.toMessageString(evt)).toEqual(' warn rname.long');
+    });
+
   });
 });
