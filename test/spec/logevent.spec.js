@@ -4,9 +4,8 @@
 /*global describe, it, expect*/
 
 define([
-  '../../lib/logevent',
-  '../../lib/loglevel'
-], function (LogEvent, LogLevel) {
+  '../../lib/logevent'
+], function (LogEvent) {
 
   describe('LogEvent class', function () {
 
@@ -26,25 +25,25 @@ define([
 
 
     it('keeps track of the trace level', function () {
-      var level = (new LogEvent('spec', LogLevel.log)).getLevel();
-      expect(level).toEqual(LogLevel.log);
+      var evt = new LogEvent('spec', 'log');
+      expect(evt).toHaveLevel('log');
 
-      level = (new LogEvent('spec', LogLevel.info)).getLevel();
-      expect(level).toEqual(LogLevel.info);
+      evt = new LogEvent('spec', 'info');
+      expect(evt).toHaveLevel('info');
 
-      level = (new LogEvent('spec', LogLevel.warn)).getLevel();
-      expect(level).toEqual(LogLevel.warn);
+      evt = new LogEvent('spec', 'warn');
+      expect(evt).toHaveLevel('warn');
 
-      level = (new LogEvent('spec', LogLevel.error)).getLevel();
-      expect(level).toEqual(LogLevel.error);
+      evt = new LogEvent('spec', 'error');
+      expect(evt).toHaveLevel('error');
     });
 
 
     it('keeps track of messages', function () {
-      var msg = (new LogEvent('spec', LogLevel.log, 'timber!')).getMessage();
+      var msg = (new LogEvent('spec', 'log', 'timber!')).getMessage();
       expect(msg).toEqual('timber!');
 
-      msg = (new LogEvent('spec', LogLevel.log, [
+      msg = (new LogEvent('spec', 'log', [
         'timber!',
         'beware!'
       ])).getMessage();
@@ -56,10 +55,10 @@ define([
 
 
     it('maintains a logical timer', function () {
-      var logEvent = new LogEvent('spec', LogLevel.info, 'timber!');
+      var logEvent = new LogEvent('spec', 'info', 'timber!');
       expect(logEvent.getMillis()).toEqualOrBeGreatherThan(now.getTime());
 
-      var otherLogEvent = new LogEvent('spec', LogLevel.warn, 'timber!');
+      var otherLogEvent = new LogEvent('spec', 'warn', 'timber!');
       expect(otherLogEvent.getMillis()).toEqualOrBeGreatherThan(logEvent.getMillis());
     });
   });

@@ -5,29 +5,28 @@
 
 define([
   '../../lib/logger',
-  '../../lib/loglevel',
   '../../lib/appender'
-], function (Logger, LogLevel, Appender) {
+], function (Logger, Appender) {
 
   describe('Logger class', function () {
 
     it('saves the name passed during instantiation', function () {
       var logger = new Logger('woodman');
-      logger.level = LogLevel.all;
+      logger.level = 'all';
       expect(logger.name).toEqual('woodman');
     });
 
 
     it('resets internal settings when "reset" is called', function () {
       var logger = new Logger('woodman');
-      logger.level = LogLevel.all;
+      logger.level = 'all';
       logger.additive = false;
       logger.appenders = [
         'blah'
       ];
       logger.reset();
 
-      expect(logger.level).toEqual(LogLevel.inherit);
+      expect(logger).toHaveLevel('inherit');
       expect(logger.additive).toBeTruthy();
       expect(logger.appenders).toEqual([]);
     });
@@ -38,14 +37,14 @@ define([
       logger.initialize({
         level: 'warn'
       });
-      expect(logger.level).toEqual(LogLevel.warn);
+      expect(logger).toHaveLevel('warn');
     });
 
 
     it('sets internal level to "inherit" by default', function () {
       var logger = new Logger('woodman');
       logger.initialize();
-      expect(logger.level).toEqual(LogLevel.inherit);
+      expect(logger).toHaveLevel('inherit');
     });
 
 
@@ -90,14 +89,14 @@ define([
       var logger = new Logger('woodman');
       logger.reset();
       logger.initialize();
-      expect(logger.level).toEqual(LogLevel.inherit);
+      expect(logger).toHaveLevel('inherit');
     });
 
     it('always calls "trace" when one of the log methods is called', function () {
       var logger = new Logger();
       spyOn(logger, 'trace');
 
-      logger.level = LogLevel.all;
+      logger.level = 'all';
 
       logger.log('timber!');
       logger.info('timber!');
@@ -112,19 +111,19 @@ define([
       var logger = new Logger();
       spyOn(logger, 'trace');
 
-      logger.level = LogLevel.all;
+      logger.level = 'all';
 
       logger.log('timber!');
-      expect(logger.trace.mostRecentCall.args[0]).toEqual(LogLevel.log);
+      expect(logger.trace.mostRecentCall.args[0]).toEqual('log');
 
       logger.info('timber!');
-      expect(logger.trace.mostRecentCall.args[0]).toEqual(LogLevel.info);
+      expect(logger.trace.mostRecentCall.args[0]).toEqual('info');
 
       logger.warn('timber!');
-      expect(logger.trace.mostRecentCall.args[0]).toEqual(LogLevel.warn);
+      expect(logger.trace.mostRecentCall.args[0]).toEqual('warn');
 
       logger.error('timber!');
-      expect(logger.trace.mostRecentCall.args[0]).toEqual(LogLevel.error);
+      expect(logger.trace.mostRecentCall.args[0]).toEqual('error');
     });
 
 
@@ -132,7 +131,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.all;
+      logger.level = 'all';
 
       logger.log('timber!');
       logger.info('timber!');
@@ -147,7 +146,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.log;
+      logger.level = 'log';
       
       logger.log('timber!');
       logger.info('timber!');
@@ -162,7 +161,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.info;
+      logger.level = 'info';
       
       logger.log('timber!');
       logger.info('timber!');
@@ -177,7 +176,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.warn;
+      logger.level = 'warn';
       
       logger.log('timber!');
       logger.info('timber!');
@@ -192,7 +191,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.error;
+      logger.level = 'error';
       
       logger.log('timber!');
       logger.info('timber!');
@@ -207,7 +206,7 @@ define([
       var logger = new Logger();
       spyOn(logger, 'append');
 
-      logger.level = LogLevel.off;
+      logger.level = 'off';
       
       logger.log('timber!');
       logger.info('timber!');
@@ -223,8 +222,8 @@ define([
       var parentLogger = new Logger();
       spyOn(parentLogger, 'append');
 
-      logger.level = LogLevel.all;
-      parentLogger.level = LogLevel.all;
+      logger.level = 'all';
+      parentLogger.level = 'all';
 
       logger.parent = parentLogger;
 
@@ -239,8 +238,8 @@ define([
       var parentLogger = new Logger();
       spyOn(parentLogger, 'append');
 
-      logger.level = LogLevel.all;
-      parentLogger.level = LogLevel.all;
+      logger.level = 'all';
+      parentLogger.level = 'all';
 
       logger.additive = false;
       logger.parent = parentLogger;
@@ -260,7 +259,7 @@ define([
       spyOn(secondAppender, 'append');
       spyOn(thirdAppender, 'append');
 
-      logger.level = LogLevel.all;
+      logger.level = 'all';
       logger.appenders = [
         firstAppender,
         secondAppender,

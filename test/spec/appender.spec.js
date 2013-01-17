@@ -5,9 +5,8 @@
 
 define([
   '../../lib/appender',
-  '../../lib/logevent',
-  '../../lib/loglevel'
-], function (Appender, LogEvent, LogLevel) {
+  '../../lib/logevent'
+], function (Appender, LogEvent) {
 
   describe('Appender class', function () {
 
@@ -26,14 +25,14 @@ define([
     it('always calls doAppend when fully enabled', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.all
+        level: 'all'
       });
       spyOn(appender, 'doAppend');
 
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).toHaveBeenCalledXTimes(4);
     });
@@ -42,15 +41,14 @@ define([
     it('calls doAppend correctly when enabled at the "log" level', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.log
+        level: 'log'
       });
       spyOn(appender, 'doAppend');
 
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
-      appender.append(new LogEvent('spec', 0));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).toHaveBeenCalledXTimes(4);
     });
@@ -59,14 +57,14 @@ define([
     it('calls doAppend correctly when enabled at the "info" level', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.info
+        level: 'info'
       });
       spyOn(appender, 'doAppend');
       
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).toHaveBeenCalledXTimes(3);
     });
@@ -75,14 +73,14 @@ define([
     it('calls doAppend correctly when enabled at the "warn" level', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.warn
+        level: 'warn'
       });
       spyOn(appender, 'doAppend');
       
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).toHaveBeenCalledXTimes(2);
     });
@@ -91,14 +89,14 @@ define([
     it('calls doAppend correctly when enabled at the "error" level', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.error
+        level: 'error'
       });
       spyOn(appender, 'doAppend');
 
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).toHaveBeenCalledXTimes(1);
     });
@@ -107,14 +105,14 @@ define([
     it('never calls doAppend when disabled', function () {
       var appender = new Appender({
         name: 'spec',
-        level: LogLevel.off
+        level: 'off'
       });
       spyOn(appender, 'doAppend');
 
-      appender.append(new LogEvent('spec', LogLevel.error));
-      appender.append(new LogEvent('spec', LogLevel.warn));
-      appender.append(new LogEvent('spec', LogLevel.info));
-      appender.append(new LogEvent('spec', LogLevel.log));
+      appender.append(new LogEvent('spec', 'error'));
+      appender.append(new LogEvent('spec', 'warn'));
+      appender.append(new LogEvent('spec', 'info'));
+      appender.append(new LogEvent('spec', 'log'));
 
       expect(appender.doAppend).not.toHaveBeenCalled();
     });

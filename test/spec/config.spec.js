@@ -6,9 +6,8 @@
 define([
   '../../lib/appender',
   '../../lib/layout',
-  '../../lib/loggercontext',
-  '../../lib/loglevel'
-], function (Appender, Layout, LoggerContext, LogLevel) {
+  '../../lib/loggercontext'
+], function (Appender, Layout, LoggerContext) {
 
   describe('Logger initialization', function () {
 
@@ -293,10 +292,10 @@ define([
         ]
       });
 
-      expect(logger).toHaveLevel(LogLevel.info);
-      expect(parentLogger).toHaveLevel(LogLevel.warn);
-      expect(greatParentLogger).toHaveLevel(LogLevel.warn);
-      expect(rootLogger).toHaveLevel(LogLevel.error);
+      expect(logger).toHaveLevel('info');
+      expect(parentLogger).toHaveLevel('warn');
+      expect(greatParentLogger).toHaveLevel('warn');
+      expect(rootLogger).toHaveLevel('error');
     });
   });
 });

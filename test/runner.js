@@ -23,6 +23,7 @@ global.describe = require('./jasmine').describe;
 global.it = require('./jasmine').it;
 global.expect = require('./jasmine').expect;
 global.spyOn = require('./jasmine').spyOn;
+global.beforeEach = require('./jasmine').beforeEach;
 
 
 // Retrieve the different suites of tests and run them, reporting results
@@ -116,8 +117,8 @@ requirejs([
 
         this.message = function () {
           return 'Expected "' + this.actual.name + '" ' + not +
-            'to have trace level ' + expected + ', ' +
-            'but was ' + this.actual.level;
+            'to have trace level "' + expected + '", ' +
+            'but was "' + this.actual.level + '"';
         };
 
         return this.actual.level === expected;
