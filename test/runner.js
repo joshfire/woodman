@@ -38,7 +38,8 @@ requirejs([
   'spec/logger.spec',
   'spec/loggercontext.spec',
   'spec/logmanager.spec',
-  'spec/config.spec'
+  'spec/config.spec',
+  'spec/patternlayout.spec'
 ], function () {
 
   var jasmine = require('./jasmine').jasmine;
