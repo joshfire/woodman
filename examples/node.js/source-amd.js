@@ -27,7 +27,7 @@ requirejs(['woodman'], function (woodman) {
   var config = {
     appenders: [
       {
-        type: 'console',
+        type: 'ConsoleAppender',
         name: 'console',
         layout: {
           type: 'pattern',
@@ -50,7 +50,7 @@ requirejs(['woodman'], function (woodman) {
   woodman.load(config, function (err) {
     if (err) throw err;
 
-    var logger = woodman.getLogger('browser.main');
+    var logger = woodman.getLogger('joshfire.woodman.examples.node.source-amd');
     logger.log('Welcome to Woodman');
     logger.info('This is an info message');
     logger.warn('This is a warning');

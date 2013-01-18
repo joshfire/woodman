@@ -24,7 +24,7 @@ var config = {
 woodman.load(config, function (err) {
   if (err) throw err;
 
-  var logger = woodman.getLogger('browser.main');
+  var logger = woodman.getLogger('joshfire.woodman.examples.browser.browser-standalone');
   logger.log('Welcome to Woodman');
   logger.info('This is an info message');
   logger.warn('This is a warning');

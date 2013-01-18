@@ -19,7 +19,7 @@ var woodman = require(__dirname + '/../../dist/woodman');
 var config = {
   appenders: [
     {
-      type: 'console',
+      type: 'ConsoleAppender',
       name: 'console',
       layout: {
         type: 'pattern',
@@ -42,7 +42,7 @@ var config = {
 woodman.load(config, function (err) {
   if (err) throw err;
 
-  var logger = woodman.getLogger('browser.main');
+  var logger = woodman.getLogger('joshfire.woodman.examples.node.standalone');
   logger.log('Welcome to Woodman');
   logger.info('This is an info message');
   logger.warn('This is a warning');
