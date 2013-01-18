@@ -1,4 +1,4 @@
-require(['../../lib/woodman'], function (woodman) {
+require(['woodman'], function (woodman) {
 
   var config = {
     appenders: [
@@ -20,7 +20,6 @@ require(['../../lib/woodman'], function (woodman) {
       }
     ]
   };
-
 
   woodman.load(config, function (err) {
     if (err) throw err;

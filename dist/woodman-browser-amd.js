@@ -1,4 +1,4 @@
-/*! Woodman - v0.1.1 - 2013-01-17 - https://github.com/joshfire/woodman
+/*! Woodman - v0.1.1 - 2013-01-18 - https://github.com/joshfire/woodman
 Copyright 2013 Joshfire; MIT license
 Based on log4j v2.0: http://logging.apache.org/log4j/2.x/
 Portions adapted from log4javascript: http://log4javascript.org/ (copyright Tim Down, Apache License, Version 2.0) */

@@ -1,7 +1,7 @@
 {
   "name" : "woodman",
   "version" : "0.1.1",
-  "main" : "./lib/woodman-node.js",
+  "main" : "./dist/woodman.js",
   "user" : "Joshfire",
   "domain": "joshfire.com",
   "description": "Extensible JavaScript logger utility loosely based on log4j that runs client-side and server-side",

@@ -1,10 +1,10 @@
 /**
- * @fileoverview Example of node.js script that references the source code of
- * the Woodman library directly.
+ * @fileoverview Example of node.js script that references the standalone
+ * distribution of the Woodman library.
  *
  * Woodman uses "amdefine" to ensure compatibility of AMD modules with node.js
  * modules, so require.js is not needed in particular, although possible (see
- * source-amd.js for an example).
+ * amd.js for an example).
  *
  * This method should only really be used for debugging purpose of the Woodman
  * library. Using a compiled version of Woodman is preferred.
@@ -14,7 +14,7 @@
  */
 /*global __dirname*/
 
-var woodman = require(__dirname + '/../../dist/woodman-node');
+var woodman = require(__dirname + '/../../dist/woodman');
 
 var config = {
   appenders: [

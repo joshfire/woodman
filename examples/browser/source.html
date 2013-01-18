@@ -2,14 +2,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Referencing the source code of Woodman from Web browsers</title>
+    <title>Using Woodman's source code directly</title>
   </head>
   <body>
-    <h1>Referencing the source code of Woodman from Web browsers</h1>
+    <h1>Using Woodman's source code directly</h1>
 
-    <p>This example references Woodman's browser entry-point directly in the
-      source code using require.js. In particular, it does not use a compiled
-      version of Woodman.</p>
+    <p>This example references the main entry point of Woodman directly in the
+      source code using require.js. It does not use a compiled version of
+      Woodman in particular. This is typically useful for debugging purpose
+      when authoring appenders or layouts.</p>
 
 <pre><code>&lt;script type="text/javascript"
   src="../../node_modules/requirejs/require.js"
@@ -19,7 +20,7 @@
     <p>The <code>source.js</code> file contains the main call to
       <code>require</code> and logs a few events to the console:</p>
 
-<pre><code>require(['../../lib/woodman-browser'], function (woodman) {
+<pre><code>require(['../../lib/woodman'], function (woodman) {
   var config = { ... };
   woodman.load(config, function (err) {
     if (err) throw err;
