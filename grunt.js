@@ -132,9 +132,8 @@ module.exports = function (grunt) {
             end: 'require(["./woodman"], function (woodman) {\n' +
               ' if (rootdefine) {\n' +
               '  rootdefine(woodman);\n' +
-              ' } else {\n' +
-              '  root.woodman = woodman;\n' +
               ' }\n' +
+              ' root.woodman = woodman;\n' +
               '}, null, true);\n' +
               '}((typeof window !== "undefined") ? window : this, (typeof define === "function") ? define : null));'
           },
