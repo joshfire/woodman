@@ -27,8 +27,11 @@
     }
   ],
   "dependencies": {
+    "amdefine": ">=0.0.4"
+  },
+  "devDependencies": {
+    "socket.io": ">=0.9.13",
     "requirejs": "2.1.2",
-    "amdefine": ">=0.0.4",
     "grunt-contrib-requirejs" : "0.3.4"
   }
 }
