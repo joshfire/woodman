@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Using the disabled version of Woodman</title>
+  </head>
+  <body>
+    <h1>Using the disabled version of Woodman</h1>
+
+    <p>This page uses the disabled shim version of Woodman and thus does not
+      log anything.</p>
+
+<pre><code>&lt;script type="text/javascript" src="../../dist/woodman-disabled.js">&lt;/script>
+&lt;script type="text/javascript" src="standalone.js">&lt;/script></code></pre>
+
+    <p>The disabled distribution exposes Woodman in <code>window.woodman</code>.
+      The <code>standalone.js</code> file can access it directly:</p>
+
+<pre><code>var config = { ... };
+woodman.load(config, function (err) {
+  if (err) throw err;
+
+  var logger = woodman.getLogger('browser.main');
+  logger.log('Welcome to Woodman');
+  logger.info('This is an info message');
+  logger.warn('This is a warning');
+  logger.error('This is an error');
+});
+</code></pre>
+
+    <p>If you open your console, you'll notice that nothing happened.
+      That's on purpose! The disabled distribution is a shim that exposes
+      the same interface as the Woodman library but does not log anything.
+      It is intended to replace the Woodman library in a production environment
+      when the author wants to disable all logs and reduce the size of the
+      resulting code.</p>
+
+    <script type="text/javascript" src="../../dist/woodman-disabled.js"></script>
+    <script type="text/javascript" src="standalone.js"></script>
+  </body>
+</html>
