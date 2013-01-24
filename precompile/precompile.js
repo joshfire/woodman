@@ -29,7 +29,7 @@ var fs = require('fs');
 // opts =>
 // Level Error
 // 0 = comment (in test),
-// 1 = delete all,
+// 1 = delete all console and all woodman references,
 // 2 = keep console.error,
 // 3 = keep warn and error,
 // 4 = keep info, warn and error,
@@ -42,10 +42,10 @@ module.exports = function (input, output, opts, callback) {
   if(!output){
     output = 'a.js';
   }
-  var inputFile = input; // 'precompile/exampleWithWoodman.js'
-  var outputFile = output; // './precompile/exampleForProd.js'
-
+  var inputFile = input;
+  var outputFile = output;
   var levelError = 1;
+
   if(opts){
     if(opts.level && !isNaN(opts.level) && (opts.level >= 0)){
       levelError = opts.level;
@@ -71,16 +71,15 @@ module.exports = function (input, output, opts, callback) {
       return parentNode;
   }
 
+  // Update node which is passed as an argument (comment or delete)
   function makeUpdate( node ){
     if( levelError === 0 ){
-      node.update('// ' + node.source());
+      node.update('/*' + node.source() +'*/');
     }
     if( levelError === 1 ){
       node.update('');
     }
   }
-
-  // console.log("============BEGIN===============");
 
   fs.readFile( inputFile, 'utf8', function (err,data) {
     if (err) throw err;
@@ -89,7 +88,7 @@ module.exports = function (input, output, opts, callback) {
     var instanceConfigName;
     var parentNode;
 
-    // Selecting require (getting instance name), woodman.initialize, woodman.getLogger(getting instance name)
+    // Selecting require (getting instance name), woodman.initialize(getting instance name), woodman.getLogger(getting instance name)
     var output = falafel( data, function (node) {
       if ((node.source() === 'require')) {
         parentNode = searchParentByType( node, 'VariableDeclaration' );
@@ -146,11 +145,9 @@ module.exports = function (input, output, opts, callback) {
       }
     });
 
-    // console.log("*****************");
 
-    // Selecting .log, .info, .warn, .err depending levelError
     levelErrorArray = [ '.error', '.warn', '.info', '.log' ];
-
+    // Selecting .log, .info, .warn, .err depending levelError
     output = falafel( output.toString(), function (node) {
       for(var i = levelError - 1, c = levelErrorArray.length; i < c; i++){
         if (node.source() === instanceLoggerName + levelErrorArray[ i ]) {
@@ -158,7 +155,12 @@ module.exports = function (input, output, opts, callback) {
           var parentNodeVariableDeclaration = searchParentByType( node, 'VariableDeclaration' );
           if(parentNodeExpressionStatement.levelNode <= parentNodeVariableDeclaration.levelNode) {
             parentNode = parentNodeExpressionStatement;
-            parentNode.update('');
+            if( levelError === 0 ){
+              parentNode.update('//' + parentNode.source());
+            }
+            else{
+              parentNode.update('');
+            }
           }
         }
       }
@@ -171,7 +173,9 @@ module.exports = function (input, output, opts, callback) {
           instanceConfigName = node.parent.arguments[0].name;
         }
         var reg = new RegExp(instanceWoodmanName + '.load\\(.+,', "g");
-        node.parent.update(node.parent.source().replace(reg, '(') + '()');
+        if( levelError < 2 ){
+          node.parent.update(node.parent.source().replace(reg, '(') + '()');
+        }
       }
     });
 
@@ -182,13 +186,14 @@ module.exports = function (input, output, opts, callback) {
         makeUpdate( parentNode );
       }
     });
-    // console.log(output.chunks);
 
     // Selecting woodman.start
     output = falafel( output.toString(), function (node) {
       if ((node.source() === instanceWoodmanName + '.start')) {
         var reg = new RegExp(instanceWoodmanName + '.start', "g");
-        node.parent.update(node.parent.source().replace(reg, '') + '()');
+        if( levelError < 2 ){
+          node.parent.update(node.parent.source().replace(reg, '') + '()');
+        }
       }
     });
 

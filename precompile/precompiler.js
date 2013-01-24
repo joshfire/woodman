@@ -21,7 +21,7 @@ if(args.length > 5){
 }
 
 if(input !== ''){
-  precompile(input, output, opts, callback);
+  precompile( input, output, opts, callback );
 }
 else{
   console.error('You need to enter an input file as first argument');
