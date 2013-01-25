@@ -30,6 +30,7 @@
  * var anotherLogger = woodman.getLogger('foo');
  *
  * // Logger variable defined with along with other variables
+ * // (the function keeps the variable but nulls it in that case)
  * var logger = woodman.getLogger('foo'), j=3;
  *
  * // Logger used directly
