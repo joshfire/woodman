@@ -56,6 +56,11 @@
 /*global module*/
 
 var falafel = require('falafel');
+// TODO options en forme "humaine"
+// Parcourir les dossiers aussi PATH
+// Lire la ligne de commande
+
+
 
 // opts =>
 // Level Error
@@ -65,16 +70,20 @@ var falafel = require('falafel');
 // 3 = keep warn and error,
 // 4 = keep info, warn and error,
 // 5 = keep log, info, warn and error,
+// keepLevel = [ log, info, warn, error ];
 module.exports = function (input, opts) {
   if(!input){
     console.error('You need to enter some input source');
     return;
   }
-  var levelError = 1;
+  // var keepLevel = [ 'log', 'info', 'warn', 'error' ];
+  // var keepLevel = [ 'warn', 'error' ];
+  // var keepLevel = [ 'comment' ];
+  var keepLevel = [];
 
   if(opts){
-    if(opts.level && !isNaN(opts.level) && (opts.level >= 0)){
-      levelError = opts.level;
+    if(opts.keepLevel){
+      keepLevel = opts.keepLevel;
     }
   }
 
@@ -99,10 +108,10 @@ module.exports = function (input, opts) {
 
   // Update node which is passed as an argument (comment or delete)
   function makeUpdate( node ){
-    if( levelError === 0 ){
+    if( keepLevel.indexOf('comment') !== -1 ){
       node.update('/*' + node.source() +'*/');
     }
-    if( levelError === 1 ){
+    else if( (keepLevel.indexOf('log') === -1 ) && (keepLevel.indexOf('info') === -1) && (keepLevel.indexOf('warn') === -1) && (keepLevel.indexOf('error') === -1)){
       node.update('');
     }
   }
@@ -149,7 +158,7 @@ module.exports = function (input, opts) {
         }
       }
     }
-    if( levelError < 2 ){
+    if( (keepLevel.indexOf('log') === -1 ) && (keepLevel.indexOf('info') === -1) && (keepLevel.indexOf('warn') === -1) && (keepLevel.indexOf('error') === -1)){
       if (((node.source() === "'woodman'") && (node.type === 'Literal')) || ((node.source() === '"woodman"') && (node.type === 'Literal'))) {
         if(node.parent.type === 'ArrayExpression'){
           node.update("''");
@@ -208,20 +217,21 @@ module.exports = function (input, opts) {
     }
   });
 
-  var levelErrorArray = [ '.error', '.warn', '.info', '.log' ];
-  // Selecting .log, .info, .warn, .err depending levelError
+  // Selecting .log, .info, .warn, .error depending keepLevel array
+  // var keepLevel = [ 'log', 'info', 'warn', 'error' ];
+  var levelErrorArray = [ 'error', 'warn', 'info', 'log' ];
   if (!output.toString()) return '';
   output = falafel( output.toString(), function (node) {
-    for(var i = levelError - 1, c = levelErrorArray.length; i < c; i++){
-      if (node.source() === instanceLoggerName + levelErrorArray[ i ]){
+    for(var i = 0, c = levelErrorArray.length; i < c; i++){
+      if (node.source() === instanceLoggerName + '.' + levelErrorArray[ i ]){
         var parentNodeExpressionStatement = searchParentByType( node, 'ExpressionStatement' );
         var parentNodeVariableDeclaration = searchParentByType( node, 'VariableDeclaration' );
         if(parentNodeExpressionStatement.levelNode <= parentNodeVariableDeclaration.levelNode) {
           parentNode = parentNodeExpressionStatement;
-          if( levelError === 0 ){
+          if( keepLevel.indexOf('comment') !== -1 ){
             parentNode.update('//' + parentNode.source());
           }
-          else{
+          else if( keepLevel.indexOf(levelErrorArray[ i ]) === -1 ){
             parentNode.update('');
           }
         }
@@ -238,7 +248,7 @@ module.exports = function (input, opts) {
         instanceConfigName = node.parent.arguments[0].name;
       }
       var reg = new RegExp(instanceWoodmanName + '.load\\(.+,', "g");
-      if( levelError < 2 ){
+      if( (keepLevel.indexOf('log') === -1 ) && (keepLevel.indexOf('info') === -1) && (keepLevel.indexOf('warn') === -1) && (keepLevel.indexOf('error') === -1)){
         node.parent.update(node.parent.source().replace(reg, '(') + '()');
       }
     }
@@ -258,7 +268,7 @@ module.exports = function (input, opts) {
   output = falafel( output.toString(), function (node) {
     if ((node.source() === instanceWoodmanName + '.start')) {
       var reg = new RegExp(instanceWoodmanName + '.start', "g");
-      if( levelError < 2 ){
+      if( (keepLevel.indexOf('log') === -1 ) && (keepLevel.indexOf('info') === -1) && (keepLevel.indexOf('warn') === -1) && (keepLevel.indexOf('error') === -1)){
         node.parent.update(node.parent.source().replace(reg, '') + '()');
       }
     }
