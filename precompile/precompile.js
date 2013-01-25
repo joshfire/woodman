@@ -112,6 +112,9 @@ module.exports = function (input, opts) {
   var parentNode;
 
   // Selecting require or define (getting instance name), woodman.initialize(getting instance name), woodman.getLogger(getting instance name)
+  if (!input) {
+    return input;
+  }
   var output = falafel( input, function (node) {
     if ((node.source() === 'require')) {
       parentNode = searchParentByType( node, 'VariableDeclaration' );
@@ -153,7 +156,11 @@ module.exports = function (input, opts) {
         }
       }
     }
-      
+
+    // woodman.initialize can exist without require or define for e.g. <script src="woodman.js">
+    if(instanceWoodmanName === undefined){
+      instanceWoodmanName = 'woodman';
+    }
     if ((node.source() === instanceWoodmanName + '.initialize')) {
       if((node.parent.arguments) && (node.parent.arguments[0] !== undefined) && (node.parent.arguments[0].name !== undefined)){
         instanceConfigName = node.parent.arguments[0].name;
@@ -175,7 +182,9 @@ module.exports = function (input, opts) {
           parentNode.update('null');
         }
         else{
-          instanceLoggerName = parentNode.expression.left.name;
+          if(parentNode.expression.type === 'AssignmentExpression'){
+            instanceLoggerName = parentNode.expression.left.name;
+          }
           makeUpdate( parentNode );
         }
       }
@@ -201,9 +210,10 @@ module.exports = function (input, opts) {
 
   var levelErrorArray = [ '.error', '.warn', '.info', '.log' ];
   // Selecting .log, .info, .warn, .err depending levelError
+  if (!output.toString()) return '';
   output = falafel( output.toString(), function (node) {
     for(var i = levelError - 1, c = levelErrorArray.length; i < c; i++){
-      if (node.source() === instanceLoggerName + levelErrorArray[ i ]) {
+      if (node.source() === instanceLoggerName + levelErrorArray[ i ]){
         var parentNodeExpressionStatement = searchParentByType( node, 'ExpressionStatement' );
         var parentNodeVariableDeclaration = searchParentByType( node, 'VariableDeclaration' );
         if(parentNodeExpressionStatement.levelNode <= parentNodeVariableDeclaration.levelNode) {
@@ -221,6 +231,7 @@ module.exports = function (input, opts) {
 
 
   // Selecting woodman.load
+  if (!output.toString()) return '';
   output = falafel( output.toString(), function (node) {
     if ((node.source() === instanceWoodmanName + '.load')) {
       if((node.parent.arguments) && (node.parent.arguments[0] !== undefined) && (node.parent.arguments[0].name !== undefined)){
@@ -233,8 +244,8 @@ module.exports = function (input, opts) {
     }
   });
 
-
   // Selecting configuration
+  if (!output.toString()) return '';
   output = falafel( output.toString(), function (node) {
     if (node.source() === instanceConfigName){
       parentNode = searchParentByType( node, 'VariableDeclaration' );
@@ -243,6 +254,7 @@ module.exports = function (input, opts) {
   });
 
   // Selecting woodman.start
+  if (!output.toString()) return '';
   output = falafel( output.toString(), function (node) {
     if ((node.source() === instanceWoodmanName + '.start')) {
       var reg = new RegExp(instanceWoodmanName + '.start', "g");

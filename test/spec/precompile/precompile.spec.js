@@ -34,7 +34,7 @@ define(function () {
       {
         desc: 'removes reference to Woodman in a define call',
         input: 'define(["blah", "woodman", "foo"], function (b, w, f) {});',
-        ref: 'define(["blah", "", "foo"], function (b, w, f) {});'
+        ref: 'define(["blah", \'\', "foo"], function (b, w, f) {});'
       },
 
       {
@@ -52,7 +52,7 @@ define(function () {
       {
         desc: 'replaces call to woodman.start with callback (global)',
         input: 'woodman.start(function (err) {});',
-        ref: '(function (err) {})()'
+        ref: '(function (err) {})();'
       },
       {
         desc: 'replaces call to woodman.start with callback (require)',
@@ -64,7 +64,7 @@ define(function () {
       {
         desc: 'replaces call to woodman.load with callback (global)',
         input: 'woodman.load({}, function (err) {});',
-        ref: '(function (err) {})()'
+        ref: '( function (err) {})();'
       },
       {
         desc: 'replaces call to woodman.load with callback (require)',
@@ -115,14 +115,14 @@ define(function () {
         desc: 'removes logger declaration if assigned on different line (global)',
         input: 'var logger;' +
           'logger = woodman.getLogger("foo");',
-        ref: ''
+        ref: 'var logger;'
       },
       {
         desc: 'removes logger declaration if assigned on different line (require)',
         input: 'var wood = require("woodman");' +
           'var logger;' +
-          'logger = woodman.getLogger("foo");',
-        ref: ''
+          'logger = wood.getLogger("foo");',
+        ref: 'var logger;'
       },
 
       {

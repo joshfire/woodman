@@ -5,6 +5,7 @@ var args = process.argv;
 var inputFile = '';
 var input = '';
 var outputFile = '';
+var output = '';
 var opts = {};
 var callback;
 
