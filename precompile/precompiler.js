@@ -1,3 +1,4 @@
+var fs = require('fs');
 var precompile = require('./precompile');
 
 var args = process.argv;

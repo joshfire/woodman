@@ -61,9 +61,9 @@ module.exports = function (input, output, opts, callback) {
    */
 
   function searchParentByType( node, nodeType ){
-      parentNode = node;
+      var parentNode = node;
       var levelNode = 0; // Security in while loop
-      while((parentNode.type != nodeType) && (parentNode.parent !== undefined) && (levelNode <= 20)) {
+      while((parentNode.type !== nodeType) && (parentNode.parent !== undefined) && (levelNode <= 20)) {
         levelNode++;
         parentNode = parentNode.parent;
       }
@@ -88,17 +88,51 @@ module.exports = function (input, output, opts, callback) {
     var instanceConfigName;
     var parentNode;
 
-    // Selecting require (getting instance name), woodman.initialize(getting instance name), woodman.getLogger(getting instance name)
+    // Selecting require or define (getting instance name), woodman.initialize(getting instance name), woodman.getLogger(getting instance name)
     var output = falafel( data, function (node) {
       if ((node.source() === 'require')) {
         parentNode = searchParentByType( node, 'VariableDeclaration' );
-        if(parentNode !== undefined){
-          if(parentNode.declarations !== undefined) {
-            instanceWoodmanName = parentNode.declarations[0].id.name;
+        var regex = parentNode.source().search('woodman');
+        if(regex !== -1){
+          if(parentNode !== undefined){
+            if(parentNode.declarations !== undefined) {
+              instanceWoodmanName = parentNode.declarations[0].id.name;
+            }
+            makeUpdate( parentNode );
           }
-          makeUpdate( parentNode );
         }
       }
+
+      if (node.source() === 'define') {
+        var tabDefine = [];
+        var indArray;
+        if(node.parent.arguments !== undefined){
+          if(node.parent.arguments[0].type === 'ArrayExpression'){
+            tabDefine = node.parent.arguments[0];
+            indArray = 0;
+          }
+          if((node.parent.arguments[1] !== undefined ) && (node.parent.arguments[1].type === 'ArrayExpression')){
+            tabDefine = node.parent.arguments[1];
+            indArray = 1;
+          }
+        }
+        for(var i = 0, c = tabDefine.elements.length; i < c; i++){
+          if(tabDefine.elements[i].value.toLowerCase() === 'woodman'){
+            // Get instance of woodman in function parameters
+            instanceWoodmanName = node.parent.arguments[indArray + 1].params[ i ].name;
+          }
+        }
+      }
+
+      if( levelError < 2 ){
+        if (((node.source() === "'woodman'") && (node.type === 'Literal')) || ((node.source() === '"woodman"') && (node.type === 'Literal'))) {
+          if(node.parent.type === 'ArrayExpression'){
+            node.update("''");
+          }
+        }
+      }
+      
+
 
       if ((node.source() === instanceWoodmanName + '.initialize')) {
         if((node.parent.arguments) && (node.parent.arguments[0] !== undefined) && (node.parent.arguments[0].name !== undefined)){
@@ -145,8 +179,7 @@ module.exports = function (input, output, opts, callback) {
       }
     });
 
-
-    levelErrorArray = [ '.error', '.warn', '.info', '.log' ];
+    var levelErrorArray = [ '.error', '.warn', '.info', '.log' ];
     // Selecting .log, .info, .warn, .err depending levelError
     output = falafel( output.toString(), function (node) {
       for(var i = levelError - 1, c = levelErrorArray.length; i < c; i++){
