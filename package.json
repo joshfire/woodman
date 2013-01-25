@@ -32,6 +32,7 @@
   "devDependencies": {
     "socket.io": ">=0.9.13",
     "requirejs": "2.1.2",
-    "grunt-contrib-requirejs" : "0.3.4"
+    "grunt-contrib-requirejs" : "0.3.4",
+    "falafel": "1.0.0"
   }
 }
