@@ -232,7 +232,7 @@ define(function () {
         expect(ref).toBeDefined();
         if (typeof ref === 'undefined') return;
 
-        var output = precompile(input, reftest.opts);
+        var output = precompile(input, reftest.options);
         expect(output).toBe(ref);
       });
     });
