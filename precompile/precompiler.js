@@ -40,7 +40,11 @@ if(!inputFolder) {
 if(args.length > (indexArg + 1)){
   outputFolder = args[indexArg + 1];
 }
-
+/**
+ * Return an array of string containing all files in dir recursively
+ * @param {String} dir a path for e.g. './myFolder/myApp'
+ * @param done callback is optional.
+ */
 var walk = function(dir, done) {
   var results = [];
   fs.readdir(dir, function(err, list) {
@@ -68,24 +72,46 @@ var walk = function(dir, done) {
 var inputFileName;
 var outputFileName;
 
-walk(inputFolder, function( err, result){
-  if (err) throw err;
-  // console.log(result);
-  for(var i = 0, c = result.length; i < c; i++){
-    inputFileName = result[ i ];
-    if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
-      outputFileName = inputFileName.replace(inputFolder, outputFolder);
+fs.stat(inputFolder, function(err, stat) {
+  if ( stat ) {
+    // Case input is a directory
+    if(stat.isDirectory()){
+      walk(inputFolder, function( err, result){
+        if (err) throw err;
+        // console.log(result);
+        for(var i = 0, c = result.length; i < c; i++){
+          inputFileName = result[ i ];
+          if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
+            outputFileName = inputFileName.replace(inputFolder, outputFolder);
 
-      // console.log(inputFileName);
-      input = fs.readFileSync(inputFileName, 'utf8');
-      output = precompile(input, opts);
+            console.log(inputFileName);
+            input = fs.readFileSync(inputFileName, 'utf8');
+            output = precompile(input, opts);
 
+            if (outputFolder) {
+              var dirPath = outputFileName.split('/');
+              dirPath.pop();
+              dirPath = dirPath.join('/');
+              fsExt.mkdirSync( dirPath, 0777, true );
+              fs.writeFileSync(outputFileName, 'utf8');
+            }
+            else {
+              console.log(output);
+            }
+          }
+        }
+      });
+    }
+    // Case input is a file
+    else{
+      inputFileName = inputFolder;
+      if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
+        input = fs.readFileSync(inputFileName, 'utf8');
+        output = precompile(input, opts);
+      }
       if (outputFolder) {
-        var dirPath = outputFileName.split('/');
-        dirPath.pop();
-        dirPath = dirPath.join('/');
-        fsExt.mkdirSync( dirPath, 0777, true );
-        fs.writeFileSync(outputFileName, 'utf8');
+        fs.writeFileSync(outputFolder, 'utf8');
+        console.log('done on ' + outputFolder);
       }
       else {
         console.log(output);
@@ -93,4 +119,3 @@ walk(inputFolder, function( err, result){
     }
   }
 });
-
