@@ -63,14 +63,11 @@ var falafel = require('falafel');
 
 
 // opts =>
-// Level Error
-// 0 = comment (in test),
-// 1 = delete all console and all woodman references,
-// 2 = keep console.error,
-// 3 = keep warn and error,
-// 4 = keep info, warn and error,
-// 5 = keep log, info, warn and error,
-// keepLevel = [ log, info, warn, error ];
+// opts.keepLevel is an array of string which contain level of error to keep for e.g :
+// opts.keepLevel = [ 'log', 'info', 'warn', 'error' ];
+// opts.keepLevel = [ 'warn', 'error' ];
+// opts.keepLevel = [ 'comment' ];
+// default keep nothing and delete every woodman line
 module.exports = function (input, opts) {
   if(!input){
     console.error('You need to enter some input source');
@@ -150,13 +147,16 @@ module.exports = function (input, opts) {
           tabDefine = node.parent.arguments[1];
           indArray = 1;
         }
-      }
-      // Get instance of woodman in function parameters
-      for(var i = 0, c = tabDefine.elements.length; i < c; i++){
-        if(tabDefine.elements[i].value.toLowerCase() === 'woodman'){
-          instanceWoodmanName = node.parent.arguments[indArray + 1].params[ i ].name;
+        // Get instance of woodman in function parameters
+        if(tabDefine.elements){
+          for(var i = 0, c = tabDefine.elements.length; i < c; i++){
+            if(tabDefine.elements[i].value.toLowerCase() === 'woodman'){
+              instanceWoodmanName = node.parent.arguments[indArray + 1].params[ i ].name;
+            }
+          }
         }
       }
+
     }
     if( (keepLevel.indexOf('log') === -1 ) && (keepLevel.indexOf('info') === -1) && (keepLevel.indexOf('warn') === -1) && (keepLevel.indexOf('error') === -1)){
       if (((node.source() === "'woodman'") && (node.type === 'Literal')) || ((node.source() === '"woodman"') && (node.type === 'Literal'))) {

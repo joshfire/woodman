@@ -1,10 +1,11 @@
 var fs = require('fs');
+var fsExt = require('node-fs');
 var precompile = require('./precompile');
 
 var args = process.argv;
-var inputFile = '';
+var inputFolder = '';
 var input = '';
-var outputFile = '';
+var outputFolder = '';
 var output = '';
 var opts = {};
 var callback;
@@ -30,34 +31,66 @@ else{
 
 
 if(args.length > indexArg){
-  inputFile = args[indexArg];
+  inputFolder = args[indexArg];
+}
+if(!inputFolder) {
+  console.error('You need to enter an input as first argument');
+  return;
 }
 if(args.length > (indexArg + 1)){
-  outputFile = args[indexArg + 1];
+  outputFolder = args[indexArg + 1];
 }
 
-// var folder = fs.readdirSync('precompile');
-// if(!folder) return;
-// var inputFileName;
-// for(var i = 0, c = folder.length; i < c; i++){
-//   inputFileName = folder[ i ];
-//   if(inputFileName.indexOf('.js')){
-//     outputFileName = inputFileName;
-//   }
-// }
-// console.log(folder);
+var walk = function(dir, done) {
+  var results = [];
+  fs.readdir(dir, function(err, list) {
+    if (err) return done(err);
+    var i = 0;
+    (function next() {
+      var file = list[i++];
+      if (!file) return done(null, results);
+      file = dir + '/' + file;
+      fs.stat(file, function(err, stat) {
+        if (stat && stat.isDirectory()) {
+          walk(file, function(err, res) {
+            results = results.concat(res);
+            next();
+          });
+        } else {
+          results.push(file);
+          next();
+        }
+      });
+    })();
+  });
+};
 
-if(inputFile !== ''){
-  input = fs.readFileSync(inputFile, 'utf8');
-  output = precompile(input, opts);
+var inputFileName;
+var outputFileName;
 
-  if (outputFile) {
-    fs.writeFileSync(outputFile, output);
+walk(inputFolder, function( err, result){
+  if (err) throw err;
+  // console.log(result);
+  for(var i = 0, c = result.length; i < c; i++){
+    inputFileName = result[ i ];
+    if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
+      outputFileName = inputFileName.replace(inputFolder, outputFolder);
+
+      // console.log(inputFileName);
+      input = fs.readFileSync(inputFileName, 'utf8');
+      output = precompile(input, opts);
+
+      if (outputFolder) {
+        var dirPath = outputFileName.split('/');
+        dirPath.pop();
+        dirPath = dirPath.join('/');
+        fsExt.mkdirSync( dirPath, 0777, true );
+        fs.writeFileSync(outputFileName, 'utf8');
+      }
+      else {
+        console.log(output);
+      }
+    }
   }
-  else {
-    console.log(output);
-  }
-}
-else {
-  console.error('You need to enter an input file as first argument');
-}
+});
+
