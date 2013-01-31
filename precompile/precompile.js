@@ -23,6 +23,7 @@
  * Some cases correctly handled by the precompilation function:
  *
  * // Logger variable defined and assigned on different lines
+ * // (but note the variable declaration is not removed in that case)
  * var logger;
  * logger = woodman.getLogger('foo');
  *
@@ -49,16 +50,28 @@
  * truc.log('info');
  *
  * // Re-assigning the logger variable
- * var logger = woodman.getLoggeR('foo');
+ * var logger = woodman.getLogger('foo');
  * logger = somethingelse;
  * logger.machin = 4;
+ *
+ * Precompilation requires incremental transformations of the initial code:
+ * 1. First pass removes calls to Logger methods log, info, warn, error
+ *  ex: logger.log('blah');
+ * 2. Second pass removes logger instantiation calls
+ *  ex: var logger = woodman.getLogger('foo');
+ * 3. Third pass removes config declarations and calls to woodman
+ *  initialization methods
+ *  ex: woodman.load(config, function (err) { ... })
+ * 4. Fourth pass removes references to the Woodman library:
+ *  ex: var woody = require('woodman');
+ *  ex: define(['woodman'], function (woodman) { ... });
+ * 5. Fifth pass removes Woodman library definition, if found:
+ *  ex: define('woodman', ...);
  */
 /*global module, console*/
 
-var falafel = require('falafel');
-// TODO options en forme "humaine"
-// Parcourir les dossiers aussi PATH
-// Lire la ligne de commande
+var falafel = require('./falafel');
+var _ = require('underscore');
 
 
 /**
@@ -87,6 +100,8 @@ module.exports = function (input, opts) {
   // var keepLevel = ['warn', 'error'];
   opts = opts || {};
   opts.keepLevel = opts.keepLevel || [];
+  opts.globalNames = opts.globalNames || ['woodman'];
+  opts.depNames = opts.depNames || ['woodman', 'joshlib!woodman'];
 
   /**
    * Returns the first ancestor of the given node in the AST tree that has the
@@ -138,178 +153,395 @@ module.exports = function (input, opts) {
     }
   };
 
-  var instanceWoodmanName;
-  var instanceLoggerName;
-  var instanceConfigName;
-  var parentNode;
+  /**
+   * Extend the AST node to insert information about instances of Woodman
+   * that exist at that level.
+   *
+   * The information we're particularly interested in is:
+   * 1. the name(s) of the instance(s) of Woodman defined at that level,
+   * e.g. ['woodman', 'woody', 'wood']
+   * 2. the name(s) of the instance(s) of Loggers defined at that level,
+   * e.g. ['logger', 'loggy', 'dalogger', 'mygreatlogger']
+   *
+   * The function may update the node's ancestors.
+   *
+   * The function is similar in essence to Falafel's "insertHelpers" function.
+   *
+   * @function
+   * @param {Object} node The AST node to extend
+   */
+  var updateContext = function (node) {
+    var parent = null;
+    var scopeParent = null;
+    var interestingNode = null;
 
-  // Selecting require or define (getting instance name),
-  // woodman.initialize(getting instance name),
-  // woodman.getLogger(getting instance name)
-  if (!input) {
-    return input;
-  }
-  var output = falafel(input, function (node) {
-    if ((node.source() === 'require')) {
-      parentNode = searchParentByType(node, 'VariableDeclaration');
-      var regex = parentNode.source().search('woodman');
-      if (regex !== -1) {
-        if (parentNode !== undefined) {
-          if (parentNode.declarations !== undefined) {
-            instanceWoodmanName = parentNode.declarations[0].id.name;
-          }
-          removeCode(parentNode);
+    if (!node) return;
+
+    // Info added to a "woodman" namespace to avoid any kind of conflict
+    // with other propertis of the AST node.
+    node.woodman = node.woodman || {
+      instances: [],
+      loggers: [],
+      configs: []
+    };
+
+    // Helper function that retrieves the concatenation of the given list
+    // on the current node and all of its ancestors
+    node.woodman.getList = function (listName) {
+      var list = [];
+      var parentNode = node;
+      while (parentNode) {
+        if (!parentNode.woodman) {
+          throw new Error('context not set on parent!');
         }
+        list = list.concat(parentNode.woodman[listName]);
+        parentNode = parentNode.parent;
+      }
+      return list;
+    };
+
+    // Helper function that retrieves the list of Woodman instance names
+    // defined at that level
+    node.woodman.getInstances = function () {
+      return node.woodman.getList('instances');
+    };
+
+    // Helper function that retrieves the list of Woodman logger names
+    // defined at that level
+    node.woodman.getLoggers = function () {
+      return node.woodman.getList('loggers');
+    };
+
+    // Helper function that retrieves the list of configuration variables
+    // defined at that level
+    node.woodman.getConfigs = function () {
+      return node.woodman.getList('configs');
+    };
+
+    // Insert global names of Woodman to the root
+    // (they will be available throughout the tree)
+    parent = node.parent;
+    if (!parent) {
+      node.woodman.instances = opts.globalNames;
+      return;
+    }
+
+    scopeParent = searchParentByType(node, 'FunctionExpression') ||
+      searchParentByType(node, 'Program');
+    if (!scopeParent) {
+      throw new Error('Could not find the scope of a node');
+    }
+
+    // We're only looking for calls to "define", "require", "requirejs"
+    // and "woodman" (or similar names) at this step.
+    if (node.type !== 'CallExpression') return;
+    if (!node.callee) return;
+
+    // Check whether the current AST node is a call to "require"
+    if ((node.callee.type === 'Identifier') &&
+      (node.callee.name === 'require')) {
+      if (parent.type !== 'VariableDeclarator') {
+        throw new Error('Direct calls to Woodman function such as' +
+          ' "require(\'woodman\').initialize(...)" are not yet supported');
+      }
+      if (node['arguments'] &&
+          node['arguments'][0] &&
+          (node['arguments'][0].type === 'Literal') &&
+          _.include(opts.depNames, node['arguments'][0].value)) {
+        // The "require" call imports "woodman",
+        // add that declaration to the current scope
+        scopeParent.woodman.instances.push(parent.id.name);
       }
     }
 
-    if (node.source() === 'define') {
-      var tabDefine = [];
+    // Check whether the current AST node is a call to "define" or "requirejs"
+    if ((node.callee.type === 'Identifier') &&
+      ((node.callee.name === 'define') || (node.callee.name === 'requirejs'))) {
+      var tabDefine = {};
       var indArray;
-      if (node.parent['arguments'] !== undefined) {
-        if (node.parent['arguments'][0].type === 'ArrayExpression') {
-          tabDefine = node.parent['arguments'][0];
+      var instanceName = null;
+      if (node['arguments']) {
+        if (node['arguments'][0].type === 'ArrayExpression') {
+          tabDefine = node['arguments'][0];
           indArray = 0;
         }
-        if ((node.parent['arguments'][1] !== undefined ) &&
-            (node.parent['arguments'][1].type === 'ArrayExpression')) {
-          tabDefine = node.parent['arguments'][1];
+        if (node['arguments'][1] &&
+          (node['arguments'][1].type === 'ArrayExpression')) {
+          tabDefine = node['arguments'][1];
           indArray = 1;
         }
+        interestingNode = node['arguments'][indArray + 1];
         // Get instance of woodman in function parameters
         if (tabDefine.elements) {
           for (var i = 0, c = tabDefine.elements.length; i < c; i++) {
-            if (tabDefine.elements[i].value.toLowerCase() === 'woodman') {
-              instanceWoodmanName = node.parent['arguments'][indArray + 1].params[i].name;
+            if (_.include(opts.depNames, tabDefine.elements[i].value)) {
+              instanceName = node['arguments'][indArray + 1].params[i].name;
             }
           }
         }
       }
-    }
-
-    if (opts.keepLevel.length === 0) {
-      if (((node.source() === '\'woodman\'') && (node.type === 'Literal')) ||
-          ((node.source() === '"woodman"') && (node.type === 'Literal'))) {
-        if (node.parent.type === 'ArrayExpression') {
-          node.update('\'\'');
-        }
+      if (instanceName) {
+        interestingNode.woodman = interestingNode.woodman || {
+          instances: [],
+          loggers: [],
+          configs: []
+        };
+        interestingNode.woodman.instances.push(instanceName);
       }
     }
 
-    // woodman.initialize can exist without require or define for e.g. <script src="woodman.js">
-    if (instanceWoodmanName === undefined) {
-      instanceWoodmanName = 'woodman';
-    }
-    if ((node.source() === instanceWoodmanName + '.initialize')) {
-      if ((node.parent['arguments']) &&
-          (node.parent['arguments'][0] !== undefined) &&
-          (node.parent['arguments'][0].name !== undefined)) {
-        instanceConfigName = node.parent['arguments'][0].name;
-      }
-      parentNode = searchParentByType(node, 'ExpressionStatement');
-      if (parentNode !== undefined) {
-        removeCode(parentNode);
-      }
+    // Check whether the current AST node is a Logger instantiation
+    if ((node.callee.type === 'MemberExpression') &&
+      (node.callee.property.name === 'getLogger') &&
+      (parent.type === 'VariableDeclarator') &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      scopeParent.woodman.loggers.push(parent.id.name);
     }
 
-    if (node.source() === instanceWoodmanName + '.getLogger') {
-      var parentNodeExpressionStatement = searchParentByType(node, 'ExpressionStatement');
-      var parentNodeVariableDeclaration = searchParentByType(node, 'VariableDeclaration');
-      if (parentNodeExpressionStatement.levelNode <=
-          parentNodeVariableDeclaration.levelNode) {
-        parentNode = parentNodeExpressionStatement;
-        if (parentNode.expression.expressions !== undefined) {
-          instanceLoggerName = parentNode.expression.expressions[0].left.name;
-          parentNode = searchParentByType(node, 'CallExpression');
-          parentNode.update('null');
-        }
-        else {
-          if (parentNode.expression.type === 'AssignmentExpression') {
-            instanceLoggerName = parentNode.expression.left.name;
-          }
-          removeCode(parentNode);
-        }
+    // Check whether the current AST node is a call to woodman.initialize
+    // or woodman.load and extract the configuration object name
+    if ((node.callee.type === 'MemberExpression') &&
+      _.include(['initialize', 'load'], node.callee.property.name) &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      if (node['arguments'] && node['arguments'][0] &&
+        (node['arguments'][0].type === 'Identifier')) {
+        scopeParent.woodman.configs.push(node['arguments'][0].name);
       }
-      else {
-        parentNode = parentNodeVariableDeclaration;
-        if (parentNode.declarations !== undefined) {
-          instanceLoggerName = parentNode.declarations[0].id.name;
-          // Case when var contains more than one variable declaration
-          // (ex : var log = woodman.getLogger('foo'), j=3;)
-          if (parentNode.declarations.length > 1) {
-            parentNode = searchParentByType(node, 'CallExpression');
-            parentNode.update('null');
+    }
+  };
 
-            parentNode = searchParentByType(node, 'VariableDeclarator');
-            instanceLoggerName = parentNode.id.name;
+  var falafelOpts = {
+    insertAdditionalHelpers: updateContext
+  };
+
+  if (!input) return input;
+
+  // console.log('start', input);
+
+
+  // First pass
+  // ----------
+  // Remove calls to Logger methods log, info, warn, error
+  // ex: logger.log('blah');
+  // console.log('first pass');
+  var loggerMethods = _.difference(
+    ['error', 'warn', 'info', 'log', 'trace'],
+    opts.keepLevel);
+  var output = falafel(input, falafelOpts, function (node) {
+    // Loop over the logger methods to remove
+    _.each(loggerMethods, function (method) {
+      if ((node.type === 'CallExpression') &&
+        (node.callee.type === 'MemberExpression') &&
+        (node.callee.property.name === method)) {
+        if ((node.callee.object.type === 'Identifier') &&
+          _.find(node.woodman.getLoggers(), function (loggerName) {
+            return (node.callee.object.name === loggerName);
+          })) {
+          if (node.parent && node.parent.type === 'ExpressionStatement') {
+            removeCode(node.parent);
           }
           else {
-            removeCode(parentNode);
+            // Replace the call expression with "null", in other words the returned
+            // value of the call to one of these methods
+            node.update('null');
+          }
+        }
+        else if ((node.callee.object.type === 'CallExpression') &&
+          (node.callee.object.callee.type === 'MemberExpression') &&
+          (node.callee.object.callee.property.name === 'getLogger') &&
+          _.find(node.woodman.getInstances(), function (instanceName) {
+            return (node.callee.object.callee.object.name === instanceName);
+          })) {
+          if (node.parent && node.parent.type === 'ExpressionStatement') {
+            removeCode(node.parent);
+          }
+          else {
+            // Replace the call expression with "null", in other words the returned
+            // value of the call to one of these methods
+            node.update('null');
           }
         }
       }
-    }
+    });
   });
+  input = output.toString();
+  // console.log('first pass done', input);
 
-  // Selecting .log, .info, .warn, .error depending keepLevel array
-  // var keepLevel = ['log', 'info', 'warn', 'error'];
-  var levelErrorArray = ['error', 'warn', 'info', 'log'];
-  if (!output.toString()) return '';
-  output = falafel(output.toString(), function (node) {
-    for(var i = 0, c = levelErrorArray.length; i < c; i++) {
-      if (node.source() === instanceLoggerName + '.' + levelErrorArray[i]) {
-        var parentNodeExpressionStatement = searchParentByType(node, 'ExpressionStatement');
-        var parentNodeVariableDeclaration = searchParentByType(node, 'VariableDeclaration');
-        if (parentNodeExpressionStatement.levelNode <=
-            parentNodeVariableDeclaration.levelNode) {
-          parentNode = parentNodeExpressionStatement;
-          if (opts.comment) {
-            parentNode.update('/*' + parentNode.source() + '*/');
-          }
-          else if (opts.keepLevel.indexOf(levelErrorArray[i]) === -1) {
-            parentNode.update('');
-          }
-        }
+  // Stop here if we were to keep some calls to Logger methods,
+  // the references to Woodman are still needed in that case.
+  if (opts.keepLevel.length > 0) return input;
+
+
+  // Second pass
+  // ----------
+  // Remove logger instantiation calls
+  // ex: var logger = woodman.getLogger('foo');
+  // console.log('second pass');
+  output = falafel(input, falafelOpts, function (node) {
+    if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'MemberExpression') &&
+      (node.callee.property.name === 'getLogger') &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      if ((node.parent.type === 'VariableDeclarator') &&
+        node.parent.parent &&
+        (node.parent.parent.type === 'VariableDeclaration') &&
+        (node.parent.parent.declarations.length === 1)) {
+        // "Classic" one-var declaration, remove the whole line
+        // ex: var logger = woodman.getLogger();
+        removeCode(node.parent.parent);
+      }
+      else if ((node.parent.type === 'AssignmentExpression') &&
+        node.parent.parent) {
+        // Retrieved logger is assigned to an existing variable,
+        // remove the whole expression
+        // ex: logger = woodman.getLogger();
+        removeCode(node.parent.parent);
+      }
+      else if ((node.parent.type === 'MemberExpression') &&
+          node.parent.parent &&
+          (node.parent.parent.type === 'CallExpression')) {
+        // Logger method called immediately, remove the whole thing
+        // ex: woodman.getLogger('foo').log('bar');
+        removeCode(node.parent.parent);
+      }
+      else {
+        // The call to "getLogger" appears among other statements,
+        // replace with "null"
+        // ex: var foo = 'bar', logger = woodman.getLogger(), k = 0;
+        node.update('null');
       }
     }
   });
+  input = output.toString();
+  // console.log('second pass done', input);
 
 
-  // Selecting woodman.load
-  if (!output.toString()) return '';
-  output = falafel(output.toString(), function (node) {
-    if ((node.source() === instanceWoodmanName + '.load')) {
-      if (node.parent['arguments'] &&
-          (node.parent['arguments'][0] !== undefined) &&
-          (node.parent['arguments'][0].name !== undefined)) {
-        instanceConfigName = node.parent['arguments'][0].name;
-      }
-      var reg = new RegExp(instanceWoodmanName + '.load\\(.+,', 'g');
-      if (opts.keepLevel.length === 0) {
-        node.parent.update(node.parent.source().replace(reg, '(') + '()');
-      }
+  // Third pass
+  // ----------
+  // Remove config objects and calls to woodman initialization methods
+  // ex: woodman.load(config, function (err) { ... })
+  // console.log('third pass');
+  output = falafel(input, falafelOpts, function (node) {
+    var reg = null;
+    if ((node.type === 'VariableDeclarator') &&
+      (node.id.type === 'Identifier')) {
+      // console.log(node.woodman.getConfigs());
     }
-  });
-
-  // Selecting configuration
-  if (!output.toString()) return '';
-  output = falafel(output.toString(), function (node) {
-    if (node.source() === instanceConfigName) {
-      parentNode = searchParentByType(node, 'VariableDeclaration');
-      removeCode(parentNode);
-    }
-  });
-
-  // Selecting woodman.start
-  if (!output.toString()) return '';
-  output = falafel(output.toString(), function (node) {
-    if ((node.source() === instanceWoodmanName + '.start')) {
-      var reg = new RegExp(instanceWoodmanName + '.start', 'g');
-      if (opts.keepLevel.length === 0) {
-        node.parent.update(node.parent.source().replace(reg, '') + '()');
+    if ((node.type === 'VariableDeclarator') &&
+      (node.id.type === 'Identifier') &&
+      _.include(node.woodman.getConfigs(), node.id.name)) {
+      if ((node.parent.type === 'VariableDeclaration') &&
+        (node.parent.declarations.length === 1)) {
+        // "Classic" one-var declaration, remove the whole line
+        // ex: var config = {};
+        removeCode(node.parent);
+      }
+      else {
+        // Definition part of other definitions, probably, replace with "null"
+        // ex: var k = 0, config = {};
+        node.update(node.id.name + ' = null');
       }
     }
+    else if ((node.type === 'AssignmentExpression') &&
+      (node.left.type === 'Identifier') &&
+      _.include(node.woodman.getConfigs(), node.left.name)) {
+      removeCode(node.parent);
+    }
+    else if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'MemberExpression') &&
+      (node.callee.property.name === 'load') &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      reg = new RegExp(node.callee.object.name + '\\.load\\(.+,');
+      node.update(node.source().replace(reg, '(') + '()');
+    }
+    else if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'MemberExpression') &&
+      (node.callee.property.name === 'start') &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      reg = new RegExp(node.callee.object.name + '\\.start');
+      node.update(node.source().replace(reg, '') + '()');
+    }
+    else if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'MemberExpression') &&
+      (node.callee.property.name === 'initialize') &&
+      _.find(node.woodman.getInstances(), function (instanceName) {
+        return (node.callee.object.name === instanceName);
+      })) {
+      removeCode(node.parent);
+    }
   });
+  input = output.toString();
+  // console.log('third pass done', input);
+
+
+  // Fourth pass
+  // ----------
+  // Remove references to the Woodman library
+  // ex: var woody = require('woodman');
+  // ex: define(['woodman'], function (woodman) { ... });
+  // console.log('fourth pass');
+  output = falafel(input, falafelOpts, function (node) {
+    if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'Identifier') &&
+      (node.callee.name === 'require') &&
+      (node.parent.type === 'VariableDeclarator') &&
+      node['arguments'] && node['arguments'][0] &&
+      (node['arguments'][0].type === 'Literal') &&
+      _.include(opts.depNames, node['arguments'][0].value)) {
+      if (node.parent.parent &&
+        (node.parent.parent.type === 'VariableDeclaration') &&
+        (node.parent.parent.declarations.length === 1)) {
+        // "Classic" one-var declaration, remove the whole line
+        // ex: var config = {};
+        removeCode(node.parent.parent);
+      }
+      else {
+        // Declaration is part of a multiple declaration statement,
+        // replace with "null"
+        node.update(node.id.name + ' = null');
+      }
+    }
+    else if ((node.type === 'Literal') &&
+      _.include(opts.depNames, node.value) &&
+      node.parent && (node.parent.type === 'ArrayExpression') &&
+      node.parent.parent && (node.parent.parent.type === 'CallExpression') &&
+      (node.parent.parent.callee.type === 'Identifier') &&
+      ((node.parent.parent.callee.name === 'define') ||
+        (node.parent.parent.callee.name === 'requirejs'))) {
+      node.update('\'\'');
+    }
+  });
+  input = output.toString();
+  // console.log('fourth pass done', input);
+
+
+  // Fifth pass
+  // ----------
+  // Remove Woodman module if found in the code
+  // ex: define('woodman', function () { ... });
+  // console.log('fifth pass');
+  output = falafel(input, falafelOpts, function (node) {
+    if ((node.type === 'CallExpression') &&
+      (node.callee.type === 'Identifier') &&
+      (node.callee.name === 'define') &&
+      node['arguments'] && node['arguments'][0] &&
+      (node['arguments'][0].type === 'Literal') &&
+      _.include(opts.depNames, node['arguments'][0].value)) {
+      removeCode(node.parent);
+    }
+  });
+  input = output.toString();
+  // console.log('fifth pass done', input);
 
   return output.toString();
 };

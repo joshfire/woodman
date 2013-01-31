@@ -48,6 +48,13 @@ define(function () {
           'wood.initialize({});',
         ref: ''
       },
+      {
+        desc: 'removes call to woodman.initialize (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.initialize({});' +
+          '});',
+        ref: 'define([\'\'], function (wood) {});'
+      },
 
       {
         desc: 'replaces call to woodman.start with callback (global)',
@@ -59,6 +66,13 @@ define(function () {
         input: 'var wood = require("woodman");' +
           'wood.start(function (err) {});',
         ref: '(function (err) {})();'
+      },
+      {
+        desc: 'replaces call to woodman.start with callback (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.start(function (err) {});' +
+          '});',
+        ref: 'define([\'\'], function (wood) {(function (err) {})();});'
       },
 
       {
@@ -72,6 +86,13 @@ define(function () {
           'wood.load({}, function (err) {});',
         ref: '( function (err) {})();'
       },
+      {
+        desc: 'replaces call to woodman.load with callback (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.load({}, function (err) {});' +
+          '});',
+        ref: 'define([\'\'], function (wood) {( function (err) {})();});'
+      },
 
       {
         desc: 'removes logger declaration (global)',
@@ -83,6 +104,13 @@ define(function () {
         input: 'var wood = require("woodman");' +
           'var logger = wood.getLogger();',
         ref: ''
+      },
+      {
+        desc: 'removes logger declaration (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var logger = wood.getLogger();' +
+          '});',
+        ref: 'define([\'\'], function (wood) {});'
       },
 
       {
@@ -98,6 +126,14 @@ define(function () {
           'var woody = wood.getLogger();',
         ref: ''
       },
+      {
+        desc: 'removes logger declaration whatever its name (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var log = wood.getLogger();' +
+          'var woody = wood.getLogger();' +
+          '});',
+        ref: 'define([\'\'], function (wood) {});'
+      },
 
       {
         desc: 'nulls logger declaration among other declarations (global)',
@@ -110,19 +146,38 @@ define(function () {
           'var blah = {}, woodman = wood.getLogger(), foo = "baz";',
         ref: 'var blah = {}, woodman = null, foo = "baz";'
       },
+      {
+        desc: 'nulls logger declaration among other declarations (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var blah = {}, woodman = wood.getLogger(), foo = "baz";' +
+          '});',
+        ref: 'define([\'\'], function (wood) {' +
+          'var blah = {}, woodman = null, foo = "baz";' +
+          '});'
+      },
 
       {
-        desc: 'removes logger declaration if assigned on different line (global)',
+        desc: 'leaves logger declaration if assigned on different line (global)',
         input: 'var logger;' +
           'logger = woodman.getLogger("foo");',
         ref: 'var logger;'
       },
       {
-        desc: 'removes logger declaration if assigned on different line (require)',
+        desc: 'leaves logger declaration if assigned on different line (require)',
         input: 'var wood = require("woodman");' +
           'var logger;' +
           'logger = wood.getLogger("foo");',
         ref: 'var logger;'
+      },
+      {
+        desc: 'leaves logger declaration if assigned on different line (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var logger;' +
+          'logger = wood.getLogger("foo");' +
+          '});',
+        ref: 'define([\'\'], function (wood) {' +
+          'var logger;' +
+          '});'
       },
 
       {
@@ -137,6 +192,15 @@ define(function () {
           'var config = {};' +
           'wood.initialize(config);',
         ref: ''
+      },
+      {
+        desc: 'removes Woodman configuration variable (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var config = {};' +
+          'wood.initialize(config);' +
+          '});',
+        ref: 'define([\'\'], function (wood) {' +
+          '});'
       },
 
       {
@@ -158,16 +222,29 @@ define(function () {
           'logger.error("blah", "foo");',
         ref: ''
       },
+      {
+        desc: 'removes calls to trace functions (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var logger = wood.getLogger("foo");' +
+          'logger.log("blah", "foo");' +
+          'logger.info("blah", "foo");' +
+          'logger.warn("blah", "foo");' +
+          'logger.error("blah", "foo");' +
+          '});',
+        ref: 'define([\'\'], function (wood) {' +
+          '});'
+      },
 
       {
-        desc: 'leaves call to initialize if Woodman used with "require"',
+        desc: 'leaves call to initialize if "woodman" not in globalNames',
         input: 'var wood = require("woodman");' +
           'var config = {};' +
+          'wood.initialize({});' +
           'woodman.initialize(config);',
         ref: 'var config = {};' +
           'woodman.initialize(config);',
         options: {
-          require: true
+          globalNames: []
         }
       },
 
@@ -207,15 +284,36 @@ define(function () {
           'wood.getLogger().log("blah");',
         ref: ''
       },
+      {
+        desc: 'removes direct calls to trace functions (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.getLogger().log("blah");' +
+          '});',
+        ref: 'define([\'\'], function (wood) {' +
+          '});'
+      },
+
+      {
+        desc: 'removes the Woodman library if found (amd)',
+        input: 'define("woodman", function (wood) {' +
+          '});',
+        ref: ''
+      },
 
       {
         desc: 'returns the initial source if it does not reference Woodman',
         input: 'nowoodman.js',
         ref: 'nowoodman-ref.js'
+      },
+
+      {
+        desc: 'manages scopes correctly',
+        input: 'scopes.js',
+        ref: 'scopes-ref.js'
       }
     ];
 
-
+    //reftests = reftests.slice(0, 27);
     reftests.forEach(function (reftest) {
       it(reftest.desc, function () {
         var input = reftest.input;
