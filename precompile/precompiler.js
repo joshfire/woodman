@@ -1,3 +1,4 @@
+/*global process, console*/
 var fs = require('fs');
 var fsExt = require('node-fs');
 var precompile = require('./precompile');
@@ -8,36 +9,35 @@ var input = '';
 var outputFolder = '';
 var output = '';
 var opts = {};
-var callback;
 var indexArg = 0;
 
 // INFO : args[0] == 'node', args[1] == 'precompiler.js'
-var reg = new RegExp('-level.*', "gi");
+var reg = new RegExp('-level.*', 'gi');
 var level = -1;
 var ind;
-for(var i = 0, c = args.length; i < c; i++){
+for (var i = 0, c = args.length; i < c; i++) {
   ind = args[i].search(reg);
-  if(ind !== -1){
+  if (ind !== -1) {
     level = i;
-    opts.keepLevel = args[ i + 1 ].split(',');
+    opts.keepLevel = args[i + 1].split(',');
   }
 }
-if(level !== -1){
+if (level !== -1) {
   indexArg = level + 2;
 }
-else{
+else {
   indexArg = 2;
 }
 
 
-if(args.length > indexArg){
+if (args.length > indexArg) {
   inputFolder = args[indexArg];
 }
-if(!inputFolder) {
+if (!inputFolder) {
   console.error('You need to enter an input as first argument');
   return;
 }
-if(args.length > (indexArg + 1)){
+if (args.length > (indexArg + 1)) {
   outputFolder = args[indexArg + 1];
 }
 /**
@@ -45,18 +45,18 @@ if(args.length > (indexArg + 1)){
  * @param {String} dir a path for e.g. './myFolder/myApp'
  * @param done callback is optional.
  */
-var walk = function(dir, done) {
+var walk = function (dir, done) {
   var results = [];
-  fs.readdir(dir, function(err, list) {
+  fs.readdir(dir, function (err, list) {
     if (err) return done(err);
     var i = 0;
     (function next() {
       var file = list[i++];
       if (!file) return done(null, results);
       file = dir + '/' + file;
-      fs.stat(file, function(err, stat) {
+      fs.stat(file, function (err, stat) {
         if (stat && stat.isDirectory()) {
-          walk(file, function(err, res) {
+          walk(file, function (err, res) {
             results = results.concat(res);
             next();
           });
@@ -72,16 +72,17 @@ var walk = function(dir, done) {
 var inputFileName;
 var outputFileName;
 
-fs.stat(inputFolder, function(err, stat) {
-  if ( stat ) {
+fs.stat(inputFolder, function (err, stat) {
+  if (stat) {
     // Case input is a directory
-    if(stat.isDirectory()){
-      walk(inputFolder, function( err, result){
+    if (stat.isDirectory()) {
+      walk(inputFolder, function (err, result) {
         if (err) throw err;
         // console.log(result);
-        for(var i = 0, c = result.length; i < c; i++){
+        for (var i = 0, c = result.length; i < c; i++) {
           inputFileName = result[ i ];
-          if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
+          if ((inputFileName.indexOf('.js') !== -1) &&
+              (inputFileName.indexOf('.json') === -1)) {
             outputFileName = inputFileName.replace(inputFolder, outputFolder);
 
             console.log(inputFileName);
@@ -92,7 +93,7 @@ fs.stat(inputFolder, function(err, stat) {
               var dirPath = outputFileName.split('/');
               dirPath.pop();
               dirPath = dirPath.join('/');
-              fsExt.mkdirSync( dirPath, 0777, true );
+              fsExt.mkdirSync(dirPath, 0777, true);
               fs.writeFileSync(outputFileName, 'utf8');
             }
             else {
@@ -103,9 +104,10 @@ fs.stat(inputFolder, function(err, stat) {
       });
     }
     // Case input is a file
-    else{
+    else {
       inputFileName = inputFolder;
-      if((inputFileName.indexOf('.js') !== -1) && (inputFileName.indexOf('.json') === -1)){
+      if ((inputFileName.indexOf('.js') !== -1) &&
+          (inputFileName.indexOf('.json') === -1)) {
         input = fs.readFileSync(inputFileName, 'utf8');
         output = precompile(input, opts);
       }
