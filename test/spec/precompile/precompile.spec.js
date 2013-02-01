@@ -310,6 +310,14 @@ define(function () {
         desc: 'manages scopes correctly',
         input: 'scopes.js',
         ref: 'scopes-ref.js'
+      },
+      {
+        desc: 'turns code into comments if so requested',
+        input: 'scopes.js',
+        ref: 'scopes-comments-ref.js',
+        options: {
+          comment: true
+        }
       }
     ];
 

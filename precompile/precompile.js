@@ -132,11 +132,8 @@ module.exports = function (input, opts) {
    * precompiled result, provided precompilation is configured to remove
    * all references to Woodman (empty "keepLevel" option).
    *
-   * Depending on the "comment" option, the function either wraps the
-   * original source code in a JavaScript comment or removes it altogether.
-   * Please note that wrapping the code in a JavaScript comment may have
-   * side-effect (e.g. if the initial code contains "*\/" (without the
-   * backslash) for instance.
+   * Depending on the "comment" option, the function either converts the
+   * original source code to a JavaScript comment or removes it altogether.
    *
    * Important: once this function has been executed, the children of the
    * given node in the AST tree should not be updated in any way.
@@ -146,7 +143,7 @@ module.exports = function (input, opts) {
    */
   var removeCode = function (node) {
     if (opts.comment) {
-      node.update('/*' + node.source() +'*/');
+      node.update(node.source().replace(/^(.*)$/mg, '// $1'));
     }
     else if (opts.keepLevel.length === 0) {
       node.update('');
