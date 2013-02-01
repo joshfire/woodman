@@ -34,7 +34,7 @@ define(function () {
       {
         desc: 'removes reference to Woodman in a define call',
         input: 'define(["blah", "woodman", "foo"], function (b, w, f) {});',
-        ref: 'define(["blah", \'\', "foo"], function (b, w, f) {});'
+        ref: 'define(["blah", \'require\', "foo"], function (b, w, f) {});'
       },
 
       {
@@ -53,7 +53,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'wood.initialize({});' +
           '});',
-        ref: 'define([\'\'], function (wood) {});'
+        ref: 'define([\'require\'], function (wood) {});'
       },
 
       {
@@ -72,7 +72,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'wood.start(function (err) {});' +
           '});',
-        ref: 'define([\'\'], function (wood) {(function (err) {})();});'
+        ref: 'define([\'require\'], function (wood) {(function (err) {})();});'
       },
 
       {
@@ -91,7 +91,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'wood.load({}, function (err) {});' +
           '});',
-        ref: 'define([\'\'], function (wood) {(function (err) {})();});'
+        ref: 'define([\'require\'], function (wood) {(function (err) {})();});'
       },
 
       {
@@ -110,7 +110,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'var logger = wood.getLogger();' +
           '});',
-        ref: 'define([\'\'], function (wood) {});'
+        ref: 'define([\'require\'], function (wood) {});'
       },
 
       {
@@ -132,7 +132,7 @@ define(function () {
           'var log = wood.getLogger();' +
           'var woody = wood.getLogger();' +
           '});',
-        ref: 'define([\'\'], function (wood) {});'
+        ref: 'define([\'require\'], function (wood) {});'
       },
 
       {
@@ -151,7 +151,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'var blah = {}, woodman = wood.getLogger(), foo = "baz";' +
           '});',
-        ref: 'define([\'\'], function (wood) {' +
+        ref: 'define([\'require\'], function (wood) {' +
           'var blah = {}, woodman = null, foo = "baz";' +
           '});'
       },
@@ -175,7 +175,7 @@ define(function () {
           'var logger;' +
           'logger = wood.getLogger("foo");' +
           '});',
-        ref: 'define([\'\'], function (wood) {' +
+        ref: 'define([\'require\'], function (wood) {' +
           'var logger;' +
           '});'
       },
@@ -199,7 +199,7 @@ define(function () {
           'var config = {};' +
           'wood.initialize(config);' +
           '});',
-        ref: 'define([\'\'], function (wood) {' +
+        ref: 'define([\'require\'], function (wood) {' +
           '});'
       },
 
@@ -231,7 +231,7 @@ define(function () {
           'logger.warn("blah", "foo");' +
           'logger.error("blah", "foo");' +
           '});',
-        ref: 'define([\'\'], function (wood) {' +
+        ref: 'define([\'require\'], function (wood) {' +
           '});'
       },
 
@@ -289,7 +289,7 @@ define(function () {
         input: 'define(["woodman"], function (wood) {' +
           'wood.getLogger().log("blah");' +
           '});',
-        ref: 'define([\'\'], function (wood) {' +
+        ref: 'define([\'require\'], function (wood) {' +
           '});'
       },
 

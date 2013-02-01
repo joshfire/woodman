@@ -510,7 +510,11 @@ module.exports = function (input, opts) {
       (node.parent.parent.callee.type === 'Identifier') &&
       ((node.parent.parent.callee.name === 'define') ||
         (node.parent.parent.callee.name === 'requirejs'))) {
-      node.update('\'\'');
+      // The easiest way to remove the dependency here is to replace it with a
+      // dependency on "require" which must exist. Using an empty string does
+      // not work and using the specific "empty:" value only works in require.js
+      // "paths" config.
+      node.update('\'require\'');
     }
   });
   input = output.toString();

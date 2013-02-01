@@ -1,4 +1,4 @@
-requirejs([''], function (woodman) {
+requirejs(['require'], function (woodman) {
   
 
   
@@ -8,7 +8,7 @@ requirejs([''], function (woodman) {
   })();
 });
 
-define([''], function (woodman) {
+define(['require'], function (woodman) {
   (function () {
     
     

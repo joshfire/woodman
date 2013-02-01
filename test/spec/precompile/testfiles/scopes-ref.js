@@ -1,6 +1,6 @@
 
 
-define([''], function (wood) {
+define(['require'], function (wood) {
   
   
   
@@ -8,13 +8,13 @@ define([''], function (wood) {
   
 });
 
-define([''], function (woodman) {
+define(['require'], function (woodman) {
   var wood = {};
   
   var fakelogger = wood.getLogger('logger');
 });
 
-define(['something', ''], function (something, woodman) {
+define(['something', 'require'], function (something, woodman) {
   
   var logger = {};
   logger.log('hello');
@@ -22,7 +22,7 @@ define(['something', ''], function (something, woodman) {
   
 });
 
-define([''], function (woodman) {
+define(['require'], function (woodman) {
   
   (function () {
     

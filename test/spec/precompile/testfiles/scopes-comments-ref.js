@@ -2,7 +2,7 @@
 //   var toto = 'turlututu';
 // });
 
-define([''], function (wood) {
+define(['require'], function (wood) {
   // var logger = wood.getLogger('blah');
   // logger.log('hello');
   // logger.info('world');
@@ -10,13 +10,13 @@ define([''], function (wood) {
   // logger.error('error');
 });
 
-define([''], function (woodman) {
+define(['require'], function (woodman) {
   var wood = {};
   // var logger = woodman.getLogger('logger');
   var fakelogger = wood.getLogger('logger');
 });
 
-define(['something', ''], function (something, woodman) {
+define(['something', 'require'], function (something, woodman) {
   // var realLogger = woodman.getLogger('blah');
   var logger = {};
   logger.log('hello');
@@ -24,7 +24,7 @@ define(['something', ''], function (something, woodman) {
   // realLogger.log('hello');
 });
 
-define([''], function (woodman) {
+define(['require'], function (woodman) {
   // var config = {};
   (function () {
     // var logger = woodman.getLogger();
