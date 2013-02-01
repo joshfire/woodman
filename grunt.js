@@ -26,7 +26,13 @@ module.exports = function (grunt) {
         '<%= grunt.template.today("yyyy-mm-dd") %> - ' +
         '<%= pkg.homepage %>\n' +
         'Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-        ' MIT license */'
+        ' MIT license */',
+      full: '/* Full distribution */',
+      amd: '/* Full distribution, AMD module */',
+      browser: '/* Browser distribution */',
+      'browser-amd': '/* Browser distribution, AMD module */',
+      node: '/* Node.js distribution */',
+      disabled: '/* Disabled distribution */'
     },
     lint: {
       files: [
@@ -43,27 +49,51 @@ module.exports = function (grunt) {
     },
     concat: {
       woodman: {
-        src: ['<banner:meta.banner>', '<file_strip_banner:dist/woodman.js>'],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.full>',
+          '<file_strip_banner:dist/woodman.js>'
+        ],
         dest: 'dist/woodman.js'
       },
       'woodman-amd': {
-        src: ['<banner:meta.banner>', '<file_strip_banner:dist/woodman-amd.js>'],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.amd>',
+          '<file_strip_banner:dist/woodman-amd.js>'
+        ],
         dest: 'dist/woodman-amd.js'
       },
       browser: {
-        src: ['<banner:meta.banner>', '<file_strip_banner:dist/woodman-browser.js>'],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.browser>',
+          '<file_strip_banner:dist/woodman-browser.js>'
+        ],
         dest: 'dist/woodman-browser.js'
       },
       'browser-amd': {
-        src: ['<banner:meta.banner>', '<file_strip_banner:dist/woodman-browser-amd.js>'],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.browser-amd>',
+          '<file_strip_banner:dist/woodman-browser-amd.js>'
+        ],
         dest: 'dist/woodman-browser-amd.js'
       },
       node: {
-        src: ['<banner:meta.banner>', '<file_strip_banner:dist/woodman-node.js>'],
+        src: [
+          '<banner:meta.banner>',
+          '<banner:meta.node>',
+          '<file_strip_banner:dist/woodman-node.js>'
+        ],
         dest: 'dist/woodman-node.js'
       },
       disabled: {
-        src: ['<banner:meta.banner-disabled>', '<file_strip_banner:dist/woodman-disabled.js>'],
+        src: [
+          '<banner:meta.banner-disabled>',
+          '<banner:meta.disabled>',
+          '<file_strip_banner:dist/woodman-disabled.js>'
+        ],
         dest: 'dist/woodman-disabled.js'
       }
     },
@@ -71,26 +101,25 @@ module.exports = function (grunt) {
     /**
      * Woodman compilation task (using require.js optimizer)
      *
-     * Distributions that are defined here:
-     * - woodman: stand-alone distribution that includes all known appenders and
-     * layouts. Some of them may not work depending on the environment. The
-     * Woodman library is exposed as window.woodman (client-side) or
-     * global.woodman (server-side), and as a named "woodman" AMD module if
-     * possible.
-     * - woodman-amd: same as above but the Woodman library is only available
-     * as a "woodman" AMD module and not exposed as window.woodman or
-     * global.woodman.
-     * - browser: stand-alone distribution for browsers. The Woodman library is
-     * exposed in window.woodman. Available appenders are those that work in Web
-     * browsers.
-     * - browser-amd: AMD distribution for browsers. AMD loader required to run.
-     * - node: stand-alone compilation for execution in node.js. Available
-     * appenders are those that work in the node.js environment.
-     * - disabled: stand-alone distribution that includes the Woodman shim. The
-     * shim is exposed as window.woodman (client-side) or global.woodman
-     * (server-side), and as a named "woodman" AMD module if possible.
+     * There are a number of distributions available. Differences between
+     * distributions include:
+     * - the list of appenders and layouts supported by default
+     * - how the Woodman library gets exposed to the global scope
+     * (global variable, named AMD module, anonymous AMD module)
      */
     requirejs: {
+      /**
+       * Global standalone distribution that includes all known appenders and
+       * layouts. Some of them may not work depending on the environment under
+       * which the distribution is run.
+       *
+       * The Woodman library is exposed as window.woodman (client-side) or to
+       * global "this" scope (node.js module) and as a named "woodman" AMD
+       * module if "define" is defined.
+       *
+       * Note the "require" call with the fourth parameter set to "true" to
+       * force synchronous load of modules.
+       */
       woodman: {
         options: {
           wrap: {
@@ -115,17 +144,39 @@ module.exports = function (grunt) {
         }
       },
 
+      /**
+       * Same as above but the Woodman library is only exposed as an anonymous
+       * AMD module.
+       *
+       * In particular, the library does not leak anything to the global scope
+       * in that distribution (but "define" needs to be defined).
+       */
       'woodman-amd': {
         options: {
-          wrap: false,
+          wrap: {
+            start: 'define(function () {\n',
+            end: ' var woodman = null;\n' +
+              ' require(["./woodman"], function (wood) {\n' +
+              '  woodman = wood;\n' +
+              ' }, null, true);\n' +
+              ' return woodman;\n' +
+              '});'
+          },
           baseUrl: 'lib/',
-          name: 'woodman',
+          name: '../deps/almond',
+          include: [ 'woodman' ],
           out: 'dist/woodman-amd.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
         }
       },
 
+      /**
+       * Standalone distribution for browsers. Available appenders are those
+       * that run in Web browsers.
+       *
+       * The Woodman library is exposed as window.woodman in that distribution.
+       */
       browser: {
         options: {
           wrap: {
@@ -143,21 +194,39 @@ module.exports = function (grunt) {
         }
       },
 
+      /**
+       * Same as above but the Woodman library is only exposed as an anonymous
+       * AMD module.
+       *
+       * In particular, the library does not leak anything to the global scope
+       * in that distribution (but "define" needs to be defined).
+       */
       'browser-amd': {
         options: {
           wrap: {
-            start: '',
-            end: 'define("woodman", ["./woodman-browser"], function (woodman) {' +
-              ' return woodman; });'
+            start: 'define(function () {\n',
+            end: ' var woodman = null;\n' +
+              ' require(["./woodman-browser"], function (wood) {\n' +
+              '  woodman = wood;\n' +
+              ' }, null, true);\n' +
+              ' return woodman;\n' +
+              '});'
           },
           baseUrl: 'lib/',
-          name: 'woodman-browser',
+          name: '../deps/almond',
+          include: [ 'woodman-browser' ],
           out: 'dist/woodman-browser-amd.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
         }
       },
 
+      /**
+       * Standalone compilation for execution in node.js. Available appenders
+       * are those that run in the node.js environment.
+       *
+       * The Woodman library is exposed as a regular node.js module.
+       */
       node: {
         options: {
           wrap: {
@@ -174,6 +243,11 @@ module.exports = function (grunt) {
         }
       },
 
+      /**
+       * Global standalone distribution that only includes Woodman's "disabled"
+       * shim, for use in production environments instead of the generic Woodman
+       * distribution to suppress all traces.
+       */
       disabled: {
         options: {
           wrap: {
@@ -230,4 +304,5 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-requirejs');
 
   grunt.registerTask('build', 'requirejs concat');
+  grunt.registerTask('default', 'build');
 };

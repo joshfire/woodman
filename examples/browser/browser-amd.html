@@ -9,13 +9,14 @@
 
     <p>This page uses an AMD loader to run the browser version of Woodman.</p>
 
-<pre><code>&lt;script type="text/javascript" src="../../node_modules/requirejs/require.js">&lt;/script>
-&lt;script type="text/javascript" src="../../dist/woodman-browser-amd.js">&lt;/script>
-&lt;script type="text/javascript" src="browser-amd.js">&lt;/script></code></pre>
+<pre><code>&lt;script type="text/javascript"
+        src="../../node_modules/requirejs/require.js"
+        data-main="amd.js">
+&lt;/script></code></pre>
 
     <p>The <code>browser-amd.js</code> file contains the main call to <code>require</code> and logs a few events to the console:</p>
 
-<pre><code>require(['woodman'], function (woodman) {
+<pre><code>require(['../../dist/woodman-browser'], function (woodman) {
   var config = { ... };
   woodman.load(config, function (err) {
     if (err) throw err;
@@ -30,8 +31,8 @@
 
     <p>Open your console to see the result!</p>
 
-    <script type="text/javascript" src="../../node_modules/requirejs/require.js"></script>
-    <script type="text/javascript" src="../../dist/woodman-browser-amd.js"></script>
-    <script type="text/javascript" src="browser-amd.js"></script>
+    <script type="text/javascript"
+      src="../../node_modules/requirejs/require.js"
+      data-main="amd.js"></script>
   </body>
 </html>

@@ -1,4 +1,4 @@
-require(['woodman'], function (woodman) {
+require(['../../dist/woodman'], function (woodman) {
 
   var config = {
     appenders: [
