@@ -27,14 +27,14 @@
     }
   ],
   "dependencies": {
-    "amdefine": ">=0.0.4"
-  },
-  "devDependencies": {
+    "amdefine": ">=0.0.4",
     "socket.io": ">=0.9.13",
     "requirejs": "2.1.2",
-    "grunt-contrib-requirejs" : "0.3.4",
     "esprima": "1.0.2",
     "node-fs": "0.1.5",
     "underscore": "1.4.4"
+  },
+  "devDependencies": {
+    "grunt-contrib-requirejs" : "0.3.4"
   }
 }
