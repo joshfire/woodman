@@ -237,14 +237,14 @@ module.exports = function (input, opts) {
     // Check whether the current AST node is a call to "require"
     if ((node.callee.type === 'Identifier') &&
       (node.callee.name === 'require')) {
-      if (parent.type !== 'VariableDeclarator') {
-        throw new Error('Direct calls to Woodman function such as' +
-          ' "require(\'woodman\').initialize(...)" are not yet supported');
-      }
       if (node['arguments'] &&
           node['arguments'][0] &&
           (node['arguments'][0].type === 'Literal') &&
           _.include(opts.depNames, node['arguments'][0].value)) {
+        if (parent.type !== 'VariableDeclarator') {
+          throw new Error('Direct calls to Woodman function such as' +
+            ' "require(\'woodman\').initialize(...)" are not yet supported');
+        }
         // The "require" call imports "woodman",
         // add that declaration to the current scope
         scopeParent.woodman.instances.push(parent.id.name);
@@ -427,10 +427,6 @@ module.exports = function (input, opts) {
   output = falafel(input, falafelOpts, function (node) {
     var reg = null;
     if ((node.type === 'VariableDeclarator') &&
-      (node.id.type === 'Identifier')) {
-      // console.log(node.woodman.getConfigs());
-    }
-    if ((node.type === 'VariableDeclarator') &&
       (node.id.type === 'Identifier') &&
       _.include(node.woodman.getConfigs(), node.id.name)) {
       if ((node.parent.type === 'VariableDeclaration') &&
@@ -456,8 +452,7 @@ module.exports = function (input, opts) {
       _.find(node.woodman.getInstances(), function (instanceName) {
         return (node.callee.object.name === instanceName);
       })) {
-      reg = new RegExp(node.callee.object.name + '\\.load\\(.+,');
-      node.update(node.source().replace(reg, '(') + '()');
+      node.update('(' + node['arguments'][1].source() + ')()');
     }
     else if ((node.type === 'CallExpression') &&
       (node.callee.type === 'MemberExpression') &&

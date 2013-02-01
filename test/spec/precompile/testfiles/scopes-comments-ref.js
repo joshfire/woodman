@@ -26,7 +26,7 @@ define(['something', ''], function (something, woodman) {
 
 define([''], function (woodman) {
   // var config = {};
-  ( function () {
+  (function () {
     // var logger = woodman.getLogger();
     // logger.log('test');
   })();

@@ -24,7 +24,7 @@ define(['something', ''], function (something, woodman) {
 
 define([''], function (woodman) {
   
-  ( function () {
+  (function () {
     
     
   })();

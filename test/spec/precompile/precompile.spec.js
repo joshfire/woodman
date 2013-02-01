@@ -78,20 +78,20 @@ define(function () {
       {
         desc: 'replaces call to woodman.load with callback (global)',
         input: 'woodman.load({}, function (err) {});',
-        ref: '( function (err) {})();'
+        ref: '(function (err) {})();'
       },
       {
         desc: 'replaces call to woodman.load with callback (require)',
         input: 'var wood = require("woodman");' +
           'wood.load({}, function (err) {});',
-        ref: '( function (err) {})();'
+        ref: '(function (err) {})();'
       },
       {
         desc: 'replaces call to woodman.load with callback (amd)',
         input: 'define(["woodman"], function (wood) {' +
           'wood.load({}, function (err) {});' +
           '});',
-        ref: 'define([\'\'], function (wood) {( function (err) {})();});'
+        ref: 'define([\'\'], function (wood) {(function (err) {})();});'
       },
 
       {
@@ -270,7 +270,7 @@ define(function () {
           'logger.warn("blah", "foo");' +
           'logger.error("blah", "foo");' +
           '});',
-        ref: '( function () {})();'
+        ref: '(function () {})();'
       },
 
       {
@@ -318,10 +318,15 @@ define(function () {
         options: {
           comment: true
         }
+      },
+      {
+        desc: 'detects configuration objects in load calls correctly',
+        input: 'load.js',
+        ref: 'load-ref.js'
       }
     ];
 
-    //reftests = reftests.slice(0, 27);
+    // reftests = reftests.slice(reftests.length - 1, reftests.length);
     reftests.forEach(function (reftest) {
       it(reftest.desc, function () {
         var input = reftest.input;
