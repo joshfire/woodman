@@ -1,4 +1,4 @@
-/*! Woodman - v0.1.4 - 2013-02-01 - https://github.com/joshfire/woodman
+/*! Woodman - v0.1.6 - 2013-02-06 - https://github.com/joshfire/woodman
 Copyright 2013 Joshfire; MIT license */
 
 /* Disabled distribution */

@@ -154,7 +154,7 @@ module.exports = function (grunt) {
       'woodman-amd': {
         options: {
           wrap: {
-            start: 'define(function () {\n',
+            start: 'define([], function () {\n',
             end: ' var woodman = null;\n' +
               ' require(["./woodman"], function (wood) {\n' +
               '  woodman = wood;\n' +
@@ -204,7 +204,7 @@ module.exports = function (grunt) {
       'browser-amd': {
         options: {
           wrap: {
-            start: 'define(function () {\n',
+            start: 'define([], function () {\n',
             end: ' var woodman = null;\n' +
               ' require(["./woodman-browser"], function (wood) {\n' +
               '  woodman = wood;\n' +
