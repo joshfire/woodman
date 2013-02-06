@@ -125,6 +125,7 @@ define(['woodman'], function (woodman) {
   var logger = woodman.getLogger('loggername');
   logger.log('Using Woodman in an AMD module');
 });
+```
 
 As above, the library needs to be initialized once before it may be used,
 typically in the first module that gets executed (in a Web browser) or within
