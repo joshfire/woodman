@@ -85,7 +85,7 @@ fs.stat(inputFolder, function (err, stat) {
               (inputFileName.indexOf('.json') === -1)) {
             outputFileName = inputFileName.replace(inputFolder, outputFolder);
 
-            console.log(inputFileName);
+            console.log('precompile ' + inputFileName);
             input = fs.readFileSync(inputFileName, 'utf8');
             output = precompile(input, opts);
 
@@ -93,8 +93,8 @@ fs.stat(inputFolder, function (err, stat) {
               var dirPath = outputFileName.split('/');
               dirPath.pop();
               dirPath = dirPath.join('/');
-              fsExt.mkdirSync(dirPath, 0777, true);
-              fs.writeFileSync(outputFileName, 'utf8');
+              fsExt.mkdirSync(dirPath, '0777', true);
+              fs.writeFileSync(outputFileName, output, 'utf8');
             }
             else {
               console.log(output);
@@ -112,7 +112,7 @@ fs.stat(inputFolder, function (err, stat) {
         output = precompile(input, opts);
       }
       if (outputFolder) {
-        fs.writeFileSync(outputFolder, 'utf8');
+        fs.writeFileSync(outputFolder, output, 'utf8');
         console.log('done on ' + outputFolder);
       }
       else {
