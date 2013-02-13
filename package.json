@@ -1,6 +1,6 @@
 {
   "name" : "woodman",
-  "version" : "0.1.6",
+  "version" : "0.1.7",
   "main" : "./dist/woodman.js",
   "user" : "Joshfire",
   "domain": "joshfire.com",
