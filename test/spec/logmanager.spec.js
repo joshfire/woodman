@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the LogManager class
  */
-/*global describe, it, expect, beforeEach*/
+/*global describe, it, expect*/
 
 define([
   '../../lib/logmanager',
@@ -10,24 +10,6 @@ define([
 ], function (LogManager, Appender, Layout) {
 
   describe('LogManager class', function () {
-
-    beforeEach(function () {
-      /**
-       * Returns true when actual level is below the expected trace level
-       */
-      this.addMatchers({
-        toBeStarted: function () {
-          var not = this.isNot ? 'NOT ': '';
-
-          this.message = function () {
-            return 'Expected object ' + not +
-              'to be started';
-          };
-
-          return this.actual.isStarted();
-        }
-      });
-    });
 
     it('returns a Logger instance when getLogger is called', function () {
       var logger = LogManager.getLogger('logger');
@@ -69,9 +51,10 @@ define([
         }
       ], function (err) {
         expect(err).toBeFalsy();
-        var logger = LogManager.getLogger();
-        expect(logger.appenders[0]).toBeStarted();
       });
+
+      var logger = LogManager.getLogger();
+      expect(logger.appenders[0]).toBeStarted();
     });
   });
 

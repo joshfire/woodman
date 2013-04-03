@@ -81,5 +81,56 @@ define([
       expect(rootLogger).toHaveLevel('warn');
       expect(logger).toHaveLevel('warn');
     });
+
+
+    it('initializes even in the absence of a configuration', function () {
+      var log = new LoggerContext();
+      log.initialize();
+      expect(log.createdAppenders.length).toEqual(0);
+    });
+
+
+    it('initializes even if given an empty configuration', function () {
+      var log = new LoggerContext();
+      log.initialize({});
+      expect(log.createdAppenders.length).toEqual(0);
+    });
+
+
+    // Note calls to "start" in the tests below run synchronously so regular
+    // test functions can be used
+
+    it('loads even in the absence of a configuration', function () {
+      var log = new LoggerContext();
+      log.load(null, function (err) {
+        expect(err).toBeFalsy();
+      });
+      expect(log).toBeStarted();
+    });
+
+
+    it('loads even if given an empty configuration', function () {
+      var log = new LoggerContext();
+      log.load({}, function (err) {
+        expect(err).toBeFalsy();
+      });
+      expect(log).toBeStarted();
+    });
+
+
+    it('loads even if config does not reference any appender', function () {
+      var log = new LoggerContext();
+      log.load({
+        loggers: [
+          {
+            name: 'woodman',
+            level: 'off'
+          }
+        ]
+      }, function (err) {
+        expect(err).toBeFalsy();
+      });
+      expect(log).toBeStarted();
+    });
   });
 });

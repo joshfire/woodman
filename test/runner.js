@@ -51,6 +51,30 @@ requirejs([
   jasmine.getEnv().beforeEach(function () {
     this.addMatchers({
       /**
+       * Returns true when object under scrutiny is started
+       */
+      toBeStarted: function () {
+        var not = this.isNot ? 'NOT ' : '';
+        this.message = function () {
+          return 'Expected logger context ' + not +
+            'to be started.';
+        };
+        return this.actual && (this.actual.started === true);
+      },
+
+      /**
+       * Returns true when object under scrutiny is started
+       */
+      toBeStopped: function () {
+        var not = this.isNot ? 'NOT ' : '';
+        this.message = function () {
+          return 'Expected logger context ' + not +
+            'to be stopped.';
+        };
+        return this.actual && (this.actual.started !== true);
+      },
+
+      /**
        * Returns true when object under scrutiny is a number
        */
       toBeNumber: function () {
