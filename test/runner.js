@@ -41,6 +41,7 @@ requirejs([
   'spec/logmanager.spec',
   'spec/config.spec',
   'spec/patternlayout.spec',
+  'spec/jsonlayout.spec',
   'spec/precompile/precompile.spec'
 ], function () {
 
