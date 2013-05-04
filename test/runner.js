@@ -31,6 +31,7 @@ global.jasmine = require('./jasmine').jasmine;
 // to the console.
 requirejs([
   'spec/loglevel.spec',
+  'spec/message.spec',
   'spec/logevent.spec',
   'spec/layout.spec',
   'spec/lifecycle.spec',

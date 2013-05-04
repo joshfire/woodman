@@ -1,11 +1,12 @@
 /**
  * @fileoverview Tests for the LogEvent class
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
 define([
-  '../../lib/logevent'
-], function (LogEvent) {
+  '../../lib/logevent',
+  '../../lib/message'
+], function (LogEvent, Message) {
 
   describe('LogEvent class', function () {
 
@@ -40,8 +41,9 @@ define([
 
 
     it('keeps track of messages', function () {
-      var msg = (new LogEvent('spec', 'log', 'timber!')).getMessage();
-      expect(msg).toEqual('timber!');
+      var message = new Message('timber!');
+      var msg = (new LogEvent('spec', 'log', message)).getMessage();
+      expect(msg).toEqual(message);
 
       msg = (new LogEvent('spec', 'log', [
         'timber!',
@@ -55,10 +57,11 @@ define([
 
 
     it('maintains a logical timer', function () {
-      var logEvent = new LogEvent('spec', 'info', 'timber!');
+      var message = new Message('timber!');
+      var logEvent = new LogEvent('spec', 'info', message);
       expect(logEvent.getMillis()).toEqualOrBeGreatherThan(now.getTime());
 
-      var otherLogEvent = new LogEvent('spec', 'warn', 'timber!');
+      var otherLogEvent = new LogEvent('spec', 'warn', message);
       expect(otherLogEvent.getMillis()).toEqualOrBeGreatherThan(logEvent.getMillis());
     });
   });

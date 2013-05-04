@@ -1,23 +1,70 @@
 /**
  * @fileoverview Tests for the PatternLayout class
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
 define([
   '../../lib/layouts/patternlayout',
   '../../lib/logevent',
-  '../../lib/loggercontext'
-], function (PatternLayout, LogEvent, LoggerContext) {
+  '../../lib/loggercontext',
+  '../../lib/message'
+], function (PatternLayout, LogEvent, LoggerContext, Message) {
 
   describe('PatternLayout class', function () {
     var loggerContext = new LoggerContext();
 
     it('returns the initial object when toLogEvent is called', function () {
       var layout = new PatternLayout({
-        pattern: '%c'
+        pattern: '%logger'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toLogEvent(evt)).toBe(evt);
+    });
+
+
+    it('outputs the logger name (%logger)', function () {
+      var layout = new PatternLayout({
+        pattern: '%logger'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toEqual('loggername');
+    });
+
+
+    it('outputs the date (%date, ISO8601 format)', function () {
+      var layout = new PatternLayout({
+        pattern: '%date'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}$/);
+    });
+
+
+    it('outputs the actual message (%message)', function () {
+      var layout = new PatternLayout({
+        pattern: '%message'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toEqual('timber!');
+    });
+
+
+    it('outputs the trace level (%level)', function () {
+      var layout = new PatternLayout({
+        pattern: '%level'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toEqual('warn');
+    });
+
+
+    it('outputs the number of milliseconds since context was created (%relative)', function () {
+      var layout = new PatternLayout({
+        pattern: '%relative'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var elapsed = evt.getMillis() - loggerContext.getStartTime();
+      expect(layout.toMessageString(evt)).toEqual('' + elapsed);
     });
 
 
@@ -25,7 +72,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%c'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('loggername');
     });
 
@@ -34,7 +81,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%d'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3}$/);
     });
 
@@ -43,7 +90,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%m'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('timber!');
     });
 
@@ -52,7 +99,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%n%m'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('\ntimber!');
     });
 
@@ -61,16 +108,16 @@ define([
       var layout = new PatternLayout({
         pattern: '%m%n'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('timber!');
     });
 
 
-    it('outputs the trace leve (%p)', function () {
+    it('outputs the trace level (%p)', function () {
       var layout = new PatternLayout({
         pattern: '%p'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('warn');
     });
 
@@ -79,7 +126,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%r'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       var elapsed = evt.getMillis() - loggerContext.getStartTime();
       expect(layout.toMessageString(evt)).toEqual('' + elapsed);
     });
@@ -89,7 +136,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%%'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('%');
     });
 
@@ -98,7 +145,7 @@ define([
       var layout = new PatternLayout({
         pattern: 'Woodman is a good logger'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('Woodman is a good logger');
     });
 
@@ -107,9 +154,29 @@ define([
       var layout = new PatternLayout({
         pattern: '%d [%p] %c - %m%n'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toMatch(
         /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} \[warn\] loggername - timber!$/);
+    });
+
+
+    it('highlights parts of the message based on level (%highlight)', function () {
+      var layout = new PatternLayout({
+        pattern: '[%highlight{%level}] %c - %m%n'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'error', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toEqual(
+        '[\u001b[31merror\u001b[0m] loggername - timber!');
+    });
+
+
+    it('highlights parts of the message based on level (%h)', function () {
+      var layout = new PatternLayout({
+        pattern: '[%h{%level}] %c - %m%n'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      expect(layout.toMessageString(evt)).toEqual(
+        '[\u001b[33mwarn\u001b[0m] loggername - timber!');
     });
 
 
@@ -117,7 +184,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%5p %c'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual(' warn loggername');
     });
 
@@ -126,7 +193,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%.2p %c'
       }, loggerContext);
-      var evt = new LogEvent('loggername', 'warn', 'timber!');
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual('rn loggername');
     });
 
@@ -135,7 +202,7 @@ define([
       var layout = new PatternLayout({
         pattern: '%5p %5.10c'
       }, loggerContext);
-      var evt = new LogEvent('log', 'warn', 'timber!');
+      var evt = new LogEvent('log', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual(' warn   log');
       evt = new LogEvent('loggername.long', 'warn', 'timber!');
       expect(layout.toMessageString(evt)).toEqual(' warn rname.long');

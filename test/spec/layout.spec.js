@@ -5,8 +5,9 @@
 
 define([
   '../../lib/layout',
-  '../../lib/logevent'
-], function (Layout, LogEvent) {
+  '../../lib/logevent',
+  '../../lib/message'
+], function (Layout, LogEvent, Message) {
 
   describe('Layout class', function () {
 
@@ -14,13 +15,13 @@ define([
 
 
     it('returns the initial object when toLogEvent is called', function () {
-      var evt = new LogEvent('spec', 'log', 'timber!');
+      var evt = new LogEvent('spec', 'log', new Message('timber!'));
       expect(layout.toLogEvent(evt)).toBe(evt);
     });
 
 
     it('returns a simple string message when toMessageString is called', function () {
-      var evt = new LogEvent('spec', 'log', 'timber!');
+      var evt = new LogEvent('spec', 'log', new Message('timber!'));
       var msg = layout.toMessageString(evt);
       var re = new RegExp('^[0-9]+ log spec timber!');
       expect(msg).toBeTruthy();
