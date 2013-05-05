@@ -1,13 +1,14 @@
 /**
  * @fileoverview Tests on logger configuration
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
 define([
   '../../lib/appender',
   '../../lib/layout',
-  '../../lib/loggercontext'
-], function (Appender, Layout, LoggerContext) {
+  '../../lib/loggercontext',
+  '../../lib/filters/regexfilter'
+], function (Appender, Layout, LoggerContext, RegexFilter) {
 
   describe('Logger initialization', function () {
 
@@ -296,6 +297,201 @@ define([
       expect(parentLogger).toHaveLevel('warn');
       expect(greatParentLogger).toHaveLevel('warn');
       expect(rootLogger).toHaveLevel('error');
+    });
+
+
+    it('sets up context-wide filters', function () {
+      var log = new LoggerContext();
+
+      log.registerAppender('Appender', Appender);
+      log.registerFilter('RegexFilter', RegexFilter);
+      log.registerLayout('Layout', Layout);
+      log.initialize({
+        filters: [
+          {
+            type: 'RegexFilter',
+            regex: 'timber'
+          }
+        ],
+        appenders: [
+          {
+            type: 'Appender',
+            name: 'basic',
+            layout: {
+              type: 'Layout'
+            }
+          }
+        ],
+        loggers: [
+          {
+            root: true,
+            appenders: [
+              'basic'
+            ],
+            level: 'error'
+          },
+          {
+            name: 'spec.loggercontext.hierarchy',
+            level: 'info'
+          },
+          {
+            name: 'spec',
+            level: 'warn'
+          }
+        ]
+      });
+
+      expect(log.filter).not.toBeNull();
+      expect(log.filter).toBeInstanceOf(RegexFilter);
+      expect(log.filter.regex).toEqual(/timber/);
+    });
+
+
+    it('sets up context-wide filters defined as objects', function () {
+      var log = new LoggerContext();
+
+      log.registerAppender('Appender', Appender);
+      log.registerFilter('RegexFilter', RegexFilter);
+      log.registerLayout('Layout', Layout);
+      log.initialize({
+        filters: {
+          RegexFilter: [
+            {
+              regex: 'timber'
+            },
+            {
+              regex: 'hello'
+            }
+          ]
+        },
+        appenders: [
+          {
+            type: 'Appender',
+            name: 'basic',
+            layout: {
+              type: 'Layout'
+            }
+          }
+        ],
+        loggers: [
+          {
+            root: true,
+            appenders: [
+              'basic'
+            ],
+            level: 'error'
+          },
+          {
+            name: 'spec.loggercontext.hierarchy',
+            level: 'info'
+          },
+          {
+            name: 'spec',
+            level: 'warn'
+          }
+        ]
+      });
+
+      expect(log.filter).not.toBeNull();
+      expect(log.filter.filters.length).toEqual(2);
+    });
+
+
+    it('sets up logger filters', function () {
+      var log = new LoggerContext();
+      var logger = null;
+
+      log.registerAppender('Appender', Appender);
+      log.registerFilter('RegexFilter', RegexFilter);
+      log.registerLayout('Layout', Layout);
+      log.initialize({
+        appenders: [
+          {
+            type: 'Appender',
+            name: 'basic',
+            layout: {
+              type: 'Layout'
+            }
+          }
+        ],
+        loggers: [
+          {
+            root: true,
+            appenders: [
+              'basic'
+            ],
+            level: 'error'
+          },
+          {
+            name: 'spec.loggercontext.hierarchy',
+            level: 'info'
+          },
+          {
+            name: 'spec',
+            level: 'warn',
+            filters: [
+              {
+                type: 'RegexFilter',
+                regex: 'timber'
+              }
+            ]
+          }
+        ]
+      });
+
+      logger = log.getLogger('spec');
+      expect(log.filter).toBeNull();
+      expect(logger.filter).not.toBeNull();
+      expect(logger.filter.regex).toEqual(/timber/);
+    });
+
+
+    it('sets up appender filters', function () {
+      var log = new LoggerContext();
+      var logger = null;
+
+      log.registerAppender('Appender', Appender);
+      log.registerFilter('RegexFilter', RegexFilter);
+      log.registerLayout('Layout', Layout);
+      log.initialize({
+        appenders: [
+          {
+            type: 'Appender',
+            name: 'basic',
+            layout: {
+              type: 'Layout'
+            },
+            filters: {
+              RegexFilter: {
+                regex: 'timber'
+              }
+            }
+          }
+        ],
+        loggers: [
+          {
+            root: true,
+            appenders: [
+              'basic'
+            ],
+            level: 'error'
+          },
+          {
+            name: 'spec.loggercontext.hierarchy',
+            level: 'info'
+          },
+          {
+            name: 'spec',
+            level: 'warn'
+          }
+        ]
+      });
+
+      logger = log.getLogger();
+      expect(log.filter).toBeNull();
+      expect(logger.filter).toBeNull();
+      expect(logger.appenders[0].filter).not.toBeNull();
+      expect(logger.appenders[0].filter.regex).toEqual(/timber/);
     });
   });
 });

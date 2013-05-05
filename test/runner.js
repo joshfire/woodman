@@ -154,6 +154,21 @@ requirejs([
         };
 
         return this.actual.level === expected;
+      },
+
+
+      /**
+       * Returns true when actual parameter is an instance of expected class
+       */
+      toBeInstanceOf: function (expected) {
+        var not = this.isNot ? 'NOT ' : '';
+
+        this.message = function () {
+          return 'Expected "' + this.actual + '" ' + not +
+            'to be an instance of "' + expected + '"';
+        };
+
+        return this.actual instanceof expected;
       }
     });
   });
