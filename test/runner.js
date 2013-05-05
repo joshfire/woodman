@@ -42,6 +42,8 @@ requirejs([
   'spec/config.spec',
   'spec/patternlayout.spec',
   'spec/jsonlayout.spec',
+  'spec/regexfilter.spec',
+  'spec/compositefilter.spec',
   'spec/precompile/precompile.spec'
 ], function () {
 
