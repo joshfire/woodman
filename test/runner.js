@@ -44,6 +44,7 @@ requirejs([
   'spec/jsonlayout.spec',
   'spec/regexfilter.spec',
   'spec/compositefilter.spec',
+  'spec/filtering.spec',
   'spec/precompile/precompile.spec'
 ], function () {
 
