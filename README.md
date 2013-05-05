@@ -1,27 +1,28 @@
 # Woodman
 
-**Important:** as of end of January 2013, the Woodman library and documentation
-are not yet complete. In particular, the WebSocket appender needs more love and
-the documentation lacks important details.
+**Important:** as of May 2013, the documentation is not yet complete.
 
 Woodman is a JavaScript logger utility that follows the architecture,
 terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/)
 Apache project. In particular, Woodman features:
-- a **logger hierarchy** that lets users disable certain log statements while
-allowing others to print unhindered.
-- **trace levels** similar to the `console` object (log, info, warn, error)
-- **appenders** that allow to log requests to multiple destinations at once
+- a **logger hierarchy** to organize traces and disable log statements based on
+their module of origin.
+- **trace levels** similar to those exposed by the  `console` object (log, info,
+warn, error)
+- **appenders** that allow to log events to multiple destinations at once
 (the `console` comes in mind, but other destinations such as to a rotating log
 file or to a remote server using Web sockets are possible). New appenders can
 easily be created.
 - **layouts** to specify the format and structure (raw string, CSV, JSON, XML,
 whatever) of the log message sent to an appender. New layouts can easily be
 created.
+- **filters** for more flexibility in the rules that determine which log events
+are eventually sent to a destination and those who are ignored.
 
 Woodman also includes a **precompiler** that removes all traces of Woodman from
 a given JavaScript file. This is typically useful to build a version of an app
 that runs in a production environment where logging is not needed, where bytes
-are counted or where performances need to be at their best.
+are a scarce resource or where performances need to be at their best.
 
 Woodman runs in Web browsers and in node.js applications. The main distribution
 exposes a global `woodman` object if `window` is defined, a node.js module if
@@ -55,10 +56,12 @@ woodman.load(config, function (err) {
 
 The call to `woodman.load` needs to appear **only once** in your application.
 To use Woodman throughout your application once that is done:
+
 1. import Woodman with a call to `require`
 2. retrieve the instance of `Logger` for this module (the name implicitly
 creates a hierarchy among loggers, see below for details)
 3. log events!
+
 ```javascript
 var woodman = require('woodman');
 var logger = woodman.getLogger('path.name');
@@ -70,6 +73,7 @@ logger.error('This is a log message at the error level');
 
 logger.log('Logging', 'multiple', 'parameters', 'is', 'easy');
 logger.log('Logging', { name: 'objects' }, 'as well');
+logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 ```
 
 For a running example, check the [standalone example](examples/node.js/standalone.js)
@@ -113,6 +117,7 @@ logger.error('This is a log message at the error level');
 
 logger.log('Logging', 'multiple', 'parameters', 'is', 'easy');
 logger.log('Logging', { name: 'objects' }, 'as well');
+logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 ```
 
 See the [examples/browser] folder for further examples.
@@ -142,8 +147,21 @@ requirejs(['woodman'], function (woodman) {
 });
 ```
 
-## Woodman configuration
+## Basic concepts
 
+### Loggers
+@@TODO
+
+### Appenders
+@@TODO
+
+### Layouts
+@@TODO
+
+### Filters
+@@TODO
+
+## Woodman configuration
 @@TODO
 
 ## Precompilation
@@ -153,24 +171,16 @@ to appear in production.
 
 @@TODO
 
-## Appenders
-
-@@TODO
-
-## Layouts
-
-@@TODO
-
 ## Why?!?
 "Surely, you've heard about that thing called `console`?", you may ask.
-"Wake up, this is Java*Script*, not *Java*!", you might add. Yes indeed! The
+"Wake up, this is *JavaScript*, not *Java*!", you might add. Yes indeed! The
 `console` is extremely useful to debug an application. It is not quite enough,
 mainly because:
-- There are a number of devices that do not expose any `console` object. Perhaps
-surprisingly, these devices are the ones that you need to support to surf the
-HTML5-in-all-the-things wave. For instance, many connected TVs do not have any
-debugging environment for instance). Using `console` calls is simply not an
-option on these devices.
+- No all devices expose a `console` object. Perhaps surprisingly, the devices
+that do not are the ones that you might want to support to surf the
+HTML5-in-all-the-things wave. For instance, many connected TVs do not expose
+a debugging environment. Using `console` calls is simply not an option on such
+devices.
 - Maintenance of a complex application often involves focusing on a specific
 part of it. To help debugging, you often need to see the *right* logs in your
 console, meaning those from the specific part you're looking at and not from
@@ -178,8 +188,8 @@ other parts of the application that just add noise. The `console` is
 all-or-nothing, you cannot disable logs from certain parts of your application
 without actually removing them from the code.
 - At pre-production phase, you may want to hand over your application to
-beta testers and monitor usage remotely to be able to quickly track down issues
-they may report. You need to save logs to a file or to send them to a remote
+beta testers and monitor usage remotely to be able to track down issues they
+may report. You need to save logs to a file or to send them to a remote
 log server. Said differently, you need to re-route the console to some other
 destination.
 
