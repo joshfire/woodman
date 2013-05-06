@@ -9,15 +9,15 @@ Apache project. In particular, Woodman features:
 their module of origin.
 - **trace levels** similar to those exposed by the  `console` object (log, info,
 warn, error)
-- **appenders** that allow to log events to multiple destinations at once
-(the `console` comes in mind, but other destinations such as to a rotating log
-file or to a remote server using Web sockets are possible). New appenders can
+- **appenders** that allow to change the destination where a log event gets sent
+(the `console` comes in mind, but other destinations such as a rotating log
+file or a remote server using Web sockets are possible). New appenders can
 easily be created.
 - **layouts** to specify the format and structure (raw string, CSV, JSON, XML,
-whatever) of the log message sent to an appender. New layouts can easily be
+whatever) of the log event sent to an appender. New layouts can easily be
 created.
 - **filters** for more flexibility in the rules that determine which log events
-are eventually sent to a destination and those who are ignored.
+get sent to an appender which are ignored.
 
 Woodman also includes a **precompiler** that removes all traces of Woodman from
 a given JavaScript file. This is typically useful to build a version of an app
@@ -57,7 +57,7 @@ woodman.load(config, function (err) {
 The call to `woodman.load` needs to appear **only once** in your application.
 To use Woodman throughout your application once that is done:
 
-1. import Woodman with a call to `require`
+1. import Woodman with a call to `require` if not already done
 2. retrieve the instance of `Logger` for this module (the name implicitly
 creates a hierarchy among loggers, see below for details)
 3. log events!
@@ -65,15 +65,7 @@ creates a hierarchy among loggers, see below for details)
 ```javascript
 var woodman = require('woodman');
 var logger = woodman.getLogger('path.name');
-
 logger.log('This is a log message at the log level');
-logger.info('This is a log message at the info level');
-logger.warn('This is a log message at the warn level');
-logger.error('This is a log message at the error level');
-
-logger.log('Logging', 'multiple', 'parameters', 'is', 'easy');
-logger.log('Logging', { name: 'objects' }, 'as well');
-logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 ```
 
 For a running example, check the [standalone example](examples/node.js/standalone.js)
@@ -109,15 +101,7 @@ woodman.load(config, function (err) {
 Then, from any JavaScript file that composes your app:
 ```javascript
 var logger = woodman.getLogger('path.name');
-
 logger.log('This is a log message at the log level');
-logger.info('This is a log message at the info level');
-logger.warn('This is a log message at the warn level');
-logger.error('This is a log message at the error level');
-
-logger.log('Logging', 'multiple', 'parameters', 'is', 'easy');
-logger.log('Logging', { name: 'objects' }, 'as well');
-logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 ```
 
 See the [examples/browser] folder for further examples.
@@ -147,19 +131,124 @@ requirejs(['woodman'], function (woodman) {
 });
 ```
 
-## Basic concepts
+### Trace functions
+Call the `log`, `info`, `warn`, `error` trace functions on a Logger instance to
+log a message. They mostly behave as those of the usual `console` object,
+meaning that they can take any number of arguments of basically any type.
 
-### Loggers
-@@TODO
+There are a couple of differences though:
 
-### Appenders
-@@TODO
+1. Woodman produces strings. If you pass an object, Woodman will not output the
+object itself but a serialization of that object as a string. Depending on
+whether the object overrides "toString", the serialization is either the result
+of running "toString" or a JSON serialization of the first levels of the object.
 
-### Layouts
-@@TODO
+2. If the first parameter is a string, Woodman replaces the occurrences of `{}`
+in that string with the string serialization of the remaining parameters.
 
-### Filters
-@@TODO
+The code below illustrates these possibilities:
+
+```javascript
+var woodman = require('woodman');
+var logger = woodman.getLogger('path.name');
+
+logger.log('This is a log message at the log level');
+logger.info('This is a log message at the info level');
+logger.warn('This is a log message at the warn level');
+logger.error('This is a log message at the error level');
+
+logger.log('Logging', 'multiple', 'parameters', 'is', 'easy');
+logger.log('Logging', { name: 'objects' }, 'as well');
+logger.log('Woodman supports {} {}', 'parameters', 'substitution');
+```
+
+## Basic concepts and classes
+
+### Logger
+The Logger class is basically the one class that you will interact with in your
+code to use Woodman. It exposes the trace functions used to initiate a log.
+A Logger has a name and links internally to Appenders and Filters that determine
+what the Logger is to do with a log event. Appenders and Filters are created
+once and for all when [Woodman configuration](#Woodman_configuration) is loaded.
+Your code will never deal with Appenders and Filters directly in particular,
+only through configuration directives.
+
+The names of the Logger implicitly create a Logger hierarchy: a logger is an
+ancestor of another one when its name followed by a dot is a prefix of the
+other logger name (e.g. a Logger named `daddy` is an ancestor of one named
+`daddy.baby`). Woodman maintains a root logger named `[root]` at the top of
+the hierarchy.
+
+Although not a requirement, applications will typically instantiate one Logger
+per module to be able to filter logs based on their module of origin. It is
+perfectly ok to create more than one Logger per module although note that
+Woodman keeps a pointer on all created Logger instances, so you should not
+instantiate too many of them (for instance, it is likely not a good idea to
+have a `for` loop that runs thousands of times and creates one Logger at each
+iteration). You may also decide to maintain and use only one Logger throughout
+the application but note that kind of kills to possibility to filter out log
+events that makes Woodman useful in the first place.
+
+From a configuration perspective, a logger:
+
+* needs to have a name
+* may specify a trace level. Log events above that level are ignored.
+* may reference one or more Appenders
+* may reference one or more Filters
+* may be defined as "additive" or not (see configuration part for details)
+
+The following configuration defines a Logger that sends log events at or below
+the `info` level to the console. Log events are formatted using the specified
+pattern:
+
+```json
+{
+  "name": "path.name",
+  "level": "info",
+  "appenders": [
+    {
+      "type": "ConsoleAppender",
+      layout: {
+        type: 'PatternLayout',
+        pattern: '%date [%level] %logger - %message%n'
+      }
+    }
+  ]
+}
+```
+
+From a code perspective, using Loggers in code is as easy as creating one and
+calling one of its trace functions:
+
+```javascript
+var logger = woodman.getLogger('daddy.baby');
+logger.info('Hello');
+```
+
+### Log event
+A LogEvent is the object created internally when the user issues a call to
+one of a Logger's trace functions. It contains the actual message sent to the
+trace function as well as meta-information such as the current date, the name
+of the Logger that created it or the trace level.
+
+Appenders, Filters and Layouts all operate on an instance of the LogEvent class.
+
+### Appender
+Appenders are responsible for delivering LogEvents to their destination. The
+ConsoleAppender is the main appender that more or less all applications will
+use. Other possibilities such as logging to a file or sending events to a remote
+server over Web sockets are possible (although note Woodman only ships with a
+couple of Appenders for the time being).
+
+Appenders are created based on the configuration used to load Woodman.
+
+### Filter
+Filters allow Log events to be evaluated to determine whether they should be
+published.
+
+### Layout
+An Appender uses a Layout to format a LogEvent into a form that meets the needs
+of whatever will be consuming the log event.
 
 ## Woodman configuration
 @@TODO
@@ -171,7 +260,36 @@ to appear in production.
 
 @@TODO
 
-## Why?!?
+## Differences with log4j
+
+## Available distributions
+### Main distribution
+### AMD module
+### Web Browser AMD
+### Web Browser
+### The "disabled" distribution
+### node.js module
+
+## Development
+### Codebase
+#### Architecture
+#### Run tests
+#### Build Woodman
+
+### Extend
+#### Add a new Appender
+#### Add a new Layout
+#### Add a new Filter
+#### Custom log levels
+#### Compile a custom build
+
+### Contribute to Woodman
+
+## About
+### Who
+@@TODO
+
+### Why?!?
 "Surely, you've heard about that thing called `console`?", you may ask.
 "Wake up, this is *JavaScript*, not *Java*!", you might add. Yes indeed! The
 `console` is extremely useful to debug an application. It is not quite enough,
@@ -206,7 +324,7 @@ In the end, log4j provides a very good abstraction over `console` that solves
 the problems raised above for a reasonable cost: that of having to manage a
 `Logger` instance per module.
 
-## Other JavaScript logging libraries
+### Other JavaScript logging libraries
 
 Woodman is not the first logging library written in JavaScript.
 [Winston](https://github.com/flatiron/winston) is a good example of a logging
@@ -224,7 +342,7 @@ loader or not;
 Woodman with selected appenders and layouts.
 - a clean and small public interface to ease the work of the precompiler
 
-## License
+### License
 
 The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE).
 
@@ -233,3 +351,6 @@ The Woodman library uses, extends or was at least partially based on other great
 - [Almond](https://github.com/jrburke/almond), [new BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
 - [log4javascript](http://log4javascript.org/), [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 - and obviously [log4j](http://logging.apache.org), [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
+
+## Changelog
+
