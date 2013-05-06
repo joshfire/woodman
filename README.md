@@ -189,6 +189,14 @@ iteration). You may also decide to maintain and use only one Logger throughout
 the application but note that kind of kills to possibility to filter out log
 events that makes Woodman useful in the first place.
 
+From a code perspective, using Loggers in code is as easy as creating one and
+calling one of its trace functions:
+
+```javascript
+var logger = woodman.getLogger('daddy.baby');
+logger.info('Hello');
+```
+
 From a configuration perspective, a logger:
 
 * needs to have a name
@@ -208,21 +216,13 @@ pattern:
   "appenders": [
     {
       "type": "ConsoleAppender",
-      layout: {
-        type: 'PatternLayout',
-        pattern: '%date [%level] %logger - %message%n'
+      "layout": {
+        "type": "PatternLayout",
+        "pattern": "%date [%level] %logger - %message%n"
       }
     }
   ]
 }
-```
-
-From a code perspective, using Loggers in code is as easy as creating one and
-calling one of its trace functions:
-
-```javascript
-var logger = woodman.getLogger('daddy.baby');
-logger.info('Hello');
 ```
 
 ### Log event
@@ -237,18 +237,104 @@ Appenders, Filters and Layouts all operate on an instance of the LogEvent class.
 Appenders are responsible for delivering LogEvents to their destination. The
 ConsoleAppender is the main appender that more or less all applications will
 use. Other possibilities such as logging to a file or sending events to a remote
-server over Web sockets are possible (although note Woodman only ships with a
-couple of Appenders for the time being).
+server over Web sockets are possible, although note Woodman only ships with a
+couple of Appenders for the time being.
 
-Appenders are created based on the configuration used to load Woodman.
+From a code perspective, Appenders are an internal structure and you should
+never have to interact with an Appender in your code.
+
+From a configuration perspective, an Appender has a type, a Layout to format
+the log event, a log level that determines the levels that the Appender
+processes and is referenced by one or more Loggers. Additional configuration
+parameters may be required depending on the type of Appender. Filters may apply
+at the Appender level as well.
+
+Here is an example of a possible Woodman configuration for an appender that
+sends error messages to a Web socket server as JSON objects provided the
+error message starts with "Alert ze world":
+
+```json
+{
+  "type": "SocketAppender",
+  "url": "http://socketserver.example.org",
+  "level": "error",
+  "layout": {
+    "type": "JSONLayout"
+  },
+  "filters": [
+    {
+      "type": "RegexFilter",
+      "regex": "^Alert ze world"
+    }
+  ]
+}
+```
 
 ### Filter
-Filters allow Log events to be evaluated to determine whether they should be
-published.
+Filters allow LogEvents to be evaluated to determine whether they should be
+published. Filtering rules depend on the type of Filter being used. A typical
+Filter is the RegexFilter that applies a regular expression to the formatted
+message of a LogEvent and takes a decision based on whether the regular
+expression matched or not.
+
+As explained in the
+[log4j documentation](http://logging.apache.org/log4j/2.x/manual/filters.html),
+filters may be attached to different locations:
+
+* Context-wide Filters run before all the other filters. Events that are
+rejected by these filters will not be passed to loggers for further processing.
+Once an event has been accepted by a Context-wide filter it will not be
+evaluated by any other Context-wide Filters nor will the Logger's Level be used
+to filter the event. The event will be evaluated by Logger and Appender Filters
+however.
+* Logger Filters are configured on a specified Logger. These are evaluated after
+the Context-wide Filters and the Log Level for the Logger. Events that are
+rejected by these filters will be discarded and the event will not be passed
+to a parent Logger regardless of the additivity setting.
+* Appender Filters are used to determine if a specific Appender should handle
+the formatting and publication of the event.
+
+(Note Woodman does not support Appender Reference Filters)
+
+From a code perspective, Filters are an internal structure and you should never
+have to interact with a Filter in your code.
+
+From a configuration perspective, a Filter has a type and various configuration
+parameters that depend on the type. Below is an example of a Filter that rejects
+log events that contain the word "borked" and leave the decision to further
+filters otherwise:
+
+```json
+{
+  "type": "RegexFilter",
+  "regex": "(^|\\s)borked(\\s|$)",
+  "match": "deny",
+  "mismatch": "neutral"
+}
+```
 
 ### Layout
-An Appender uses a Layout to format a LogEvent into a form that meets the needs
-of whatever will be consuming the log event.
+A Layout formats a LogEvent into a form that meets the needs of an Appender,
+in most cases a string. The formatted form depends on the type of Layout. A
+typical example is the PatternLayout that takes a pattern string and formats
+a LogEvent according to follow that pattern. Other Layouts are possible although
+note Woodman only ships with a couple of Layouts for the time being.
+
+From a code perspective, Layout are an internal structure and you should never
+have to interact with a Layout in your code.
+
+From a configuration perspective, a Layout has a type and various configuration
+parameters that depend on the type. Below is an example of a Layout that outputs
+a formatted string of the form "date - log level logger name - message":
+
+```json
+{
+  "type": "PatternLayout",
+  "pattern": "%date - %level %logger - %message"
+}
+```
+
+Layouts appear in the `layout` property of an Appender within the configuration.
 
 ## Woodman configuration
 @@TODO
@@ -261,6 +347,15 @@ to appear in production.
 @@TODO
 
 ## Differences with log4j
+
+* Restricted number of Appenders available
+* Restricted number of Layouts available
+* Restricted number of Filters available
+* No support for Appender Reference Filters
+* No support for Markers
+* No support for Plugins
+* Functions may not have the right signature to stick to more
+JavaScript-friendly paradigms
 
 ## Available distributions
 ### Main distribution
@@ -287,7 +382,9 @@ to appear in production.
 
 ## About
 ### Who
-@@TODO
+Woodman has been manufactured on the assembly line by
+[Joshfire Factory](http://factory.joshfire.com) workers to help develop and
+maintain various cross-device Web applications and other backend tools.
 
 ### Why?!?
 "Surely, you've heard about that thing called `console`?", you may ask.
