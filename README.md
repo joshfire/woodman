@@ -6,10 +6,10 @@ Woodman is a JavaScript logger utility that follows the architecture, terminolog
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
 - **trace levels** similar to those exposed by the  `console` object (log, info, warn, error)
 - **appenders** that allow to change the destination where a log event gets sent (the `console` comes in mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
-- **layouts** to specify the format and structure (raw string, CSV, JSON, XML, whatever) of the log event sent to an appender. New layouts can easily be created.
-- **filters** for more flexibility in the rules that determine which log events get sent to an appender which are ignored.
+- **layouts** to specify the format and structure (raw string, CSV, JSON, XML, whatever) of the log events sent to an appender. New layouts can easily be created.
+- **filters** for more flexibility in the rules that determine which log events get sent to an appender and which are ignored.
 
-Woodman also includes a **precompiler** that removes all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best.
+Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best.
 
 Woodman runs in Web browsers and in node.js applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. Other distributions that do not make assumptions about the underlying JavaScript runtime are available.
 
@@ -274,18 +274,18 @@ Layouts appear in the `layout` property of an Appender within the configuration.
 
 ## Woodman configuration
 
-Woodman does absolutely nothing by default. To actually start logging something somewhere, you need to specify what, how and where to log events. This is all done through the configuration of Woodman that you should typically load once and for all when your application is started with code such as:
+In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman that you will typically load once and for all when your application is started with code such as:
 
 ```javascript
 // Initialize Woodman configuration
 var config = {
-  loggers: [
+  "loggers": [
     {
-      root: true,
-      level: 'log',
-      appenders: [
+      "root": true,
+      "level": "log",
+      "appenders": [
         {
-          type: 'ConsoleAppender'
+          "type": "ConsoleAppender"
         }
       ]
     }
@@ -305,34 +305,42 @@ woodman.load(config, function (err) {
 
 ### Configuration outline
 
-Loggers are at the heart of the configuration of Woodman, as can be seen in the example above. The `loggers` property is the only property required in the configuration. It contains a list of Logger definitions. If you want to add a bunch of context-wide filters, you may also add a `filters` property that contains a list of Filter definitions. If you need to share appenders between loggers, add an `appenders` property with a list of Appender definitions and reference the names of these appenders from within the `appenders` property of the Logger definition.
+Loggers are at the heart of the configuration of Woodman. The `loggers` property is the only property required in the configuration. It contains a list of Logger definitions. If you want to add a bunch of context-wide filters, you may also add a `filters` property that contains a list of Filter definitions. If you need to share appenders between loggers, add an `appenders` property with a list of Appender definitions and reference the names of these appenders from within the `appenders` property of the Logger definition.
 
-The following is an example of a configuration object that creates a socket appender used by the root logger to report error traces to a socket server and a console appender used to trace log events at or below the *info* level in the main section of the code. The `base.unstable` Logger traces log events of an hypothetical unstable library at or below the *log* level. These events get sent to the console appender of the `base` Logger through additivity (since `base.unstable` is a child Logger of `base`).
+The following is an example of a configuration object that creates a console appender, a socket appender, a context-wide filter that rejects all log events whose messages contain the word *dummy*, and logging rules for different families of loggers:
 
 ```json
 {
   "appenders": [
     {
       "name": "console",
-      "type": "ConsoleAppender"
+      "type": "ConsoleAppender",
+      "layout": {
+        "type": "PatternLayout",
+        "pattern": "%message"
+      }
     },
     {
       "name": "socket",
       "type": "SocketAppender",
-      "url": "http://socketserver.example.org"
+      "url": "http://socketserver.example.org",
+      "level": "error",
+      "layout": {
+        "type": "JSONLayout"
+      }
     }
   ],
   "filters": [
     {
       "type": "RegexFilter",
-      "regex": "useless",
+      "regex": "(^|\\s)dummy(\\s|$)",
       "match": "deny"
     }
   ],
   "loggers": [
     {
       "root": true,
-      "level": "error",
+      "level": "log",
       "appenders": [
         "socket"
       ]
@@ -345,12 +353,30 @@ The following is an example of a configuration object that creates a socket appe
       ]
     },
     {
-      "name": "base.unstable",
+      "name": "base.lib.unstable",
       "level": "log"
     }
   ]
 }
 ```
+
+To understand what happens when Woodman loads that configuration, keep the following bullet points in mind:
+
+1. Logger names create a hierarchy of loggers, the root Logger being the common ancestor of all loggers. If the code uses a logger whose name does not appear in the configuration, it inherits its level and filter from its closest ancestor that appear in the configuration.
+1. Loggers are additive by default, meaning that, provided a log event passes the level and filter criteria of the Logger, the log event is sent to all the appenders of the Logger ancestors (no matter the level and filter they may define).
+1. Levels and filters specify the **what** to log.
+1. The appenders specificy the **where** to send log events.
+1. The layouts specificy the **how** to format log events.
+
+The best is then to take a few examples of calls to trace functions:
+- `woodman.getLogger('foo').warn('Woodman is great')` does not log anything: the closest ancestor of the `foo` Logger in the configuration is the root Logger which logs everything but the log event eventually gets filtered by its appender which only logs errors.
+- `woodman.getLogger('foo').error('Woodman is great')` sends the log event to the socket appender as a JSON structure.
+- `woodman.getLogger('foo').error('Oh no, a dummy message!')` does not log anything: the context-wide filter detects *dummy* in the message and rejects the log event.
+- `woodman.getLogger('base').warn('Woodman is great')` logs the message to the console.
+- `woodman.getLogger('base.lib.unstable').log('Woodman is great')` logs the message to the console: the trace level for the `base.lib.unstable` Logger is `log`; the appender of the `base` Logger gets called through additivity. Note the appender of the root Logger gets called as well but it does not log anything since the log event is above the error level.
+- `woodman.getLogger('base.lib.something').error('Woodman is great')` logs the message to the console and sends the error to the socket appender as a JSON structure.
+
+Do not worry if that sounds far-fetched at first sight. First, this mechanism is not complex for the sake of being complex: it gives you precise control over the treatment of log events. Second, you will likely just start with a simple *log everything to the console* configuration and adjust settings as your project grows and your needs evolve. More importantly, you'll get used to it ;)
 
 ### Logger definition
 
