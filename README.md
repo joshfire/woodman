@@ -161,44 +161,13 @@ logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 ## Basic concepts and classes
 
 ### Logger
-The Logger class is basically the one class that you will interact with in your code to use Woodman. It exposes the trace functions used to initiate a log. A Logger has a name and links internally to Appenders and Filters that determine what the Logger is to do with a log event. Appenders and Filters are created once and for all when [Woodman configuration](#Woodman_configuration) is loaded. Your code will never deal with Appenders and Filters directly in particular, only through configuration directives.
+The Logger class is the *one* class you will interact with in your code. It exposes the trace functions that you will call to log messages.
+
+A Logger has a name, a level, and may link to a list of Appenders and a Filter. Appenders and Filters are created once and for all when the [Woodman configuration](#Woodman_configuration) is loaded. Your code will never have to deal with Appenders and Filters directly in particular, only through configuration directives.
 
 The names of the Logger implicitly create a Logger hierarchy: a logger is an ancestor of another one when its name followed by a dot is a prefix of the other logger name (e.g. a Logger named `daddy` is an ancestor of one named `daddy.baby`). Woodman maintains a root logger named `[root]` at the top of the hierarchy.
 
 Although not a requirement, applications will typically instantiate one Logger per module to be able to filter logs based on their module of origin. It is perfectly ok to create more than one Logger per module although note that Woodman keeps a pointer on all created Logger instances, so you should not instantiate too many of them (for instance, it is likely not a good idea to have a `for` loop that runs thousands of times and creates one Logger at each iteration). You may also decide to maintain and use only one Logger throughout the application but note that kind of kills to possibility to filter out log events that makes Woodman useful in the first place.
-
-From a code perspective, using Loggers in code is as easy as creating one and calling one of its trace functions:
-
-```javascript
-var logger = woodman.getLogger('daddy.baby');
-logger.info('Hello');
-```
-
-From a configuration perspective, a logger:
-
-* needs to have a name
-* may specify a trace level. Log events above that level are ignored.
-* may reference one or more Appenders
-* may reference one or more Filters
-* may be defined as "additive" or not (see configuration part for details)
-
-The following configuration defines a Logger that sends log events at or below the `info` level to the console. Log events are formatted using the specified pattern:
-
-```json
-{
-  "name": "path.name",
-  "level": "info",
-  "appenders": [
-    {
-      "type": "ConsoleAppender",
-      "layout": {
-        "type": "PatternLayout",
-        "pattern": "%date [%level] %logger - %message%n"
-      }
-    }
-  ]
-}
-```
 
 ### Log event
 A LogEvent is the object created internally when the user issues a call to one of a Logger's trace functions. It contains the actual message sent to the trace function as well as meta-information such as the current date, the name of the Logger that created it or the trace level.
@@ -207,29 +176,6 @@ Appenders, Filters and Layouts all operate on an instance of the LogEvent class.
 
 ### Appender
 Appenders are responsible for delivering LogEvents to their destination. The ConsoleAppender is the main appender that more or less all applications will use. Other possibilities such as logging to a file or sending events to a remote server over Web sockets are possible, although note Woodman only ships with a couple of Appenders for the time being.
-
-From a code perspective, Appenders are an internal structure and you should never have to interact with an Appender in your code.
-
-From a configuration perspective, an Appender has a type, a Layout to format the log event, a log level that determines the levels that the Appender processes and is referenced by one or more Loggers. Additional configuration parameters may be required depending on the type of Appender. Filters may apply at the Appender level as well.
-
-Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
-
-```json
-{
-  "type": "SocketAppender",
-  "url": "http://socketserver.example.org",
-  "level": "error",
-  "layout": {
-    "type": "JSONLayout"
-  },
-  "filters": [
-    {
-      "type": "RegexFilter",
-      "regex": "^Alert ze world"
-    }
-  ]
-}
-```
 
 ### Filter
 Filters allow LogEvents to be evaluated to determine whether they should be published. Filtering rules depend on the type of Filter being used. A typical Filter is the RegexFilter that applies a regular expression to the formatted message of a LogEvent and takes a decision based on whether the regular expression matched or not.
@@ -242,35 +188,8 @@ As explained in the [log4j documentation](http://logging.apache.org/log4j/2.x/ma
 
 (Note Woodman does not support Appender Reference Filters)
 
-From a code perspective, Filters are an internal structure and you should never have to interact with a Filter in your code.
-
-From a configuration perspective, a Filter has a type and various configuration parameters that depend on the type. Below is an example of a Filter that rejects log events that contain the word "borked" and leave the decision to further filters otherwise:
-
-```json
-{
-  "type": "RegexFilter",
-  "regex": "(^|\\s)borked(\\s|$)",
-  "match": "deny",
-  "mismatch": "neutral"
-}
-```
-
 ### Layout
 A Layout formats a LogEvent into a form that meets the needs of an Appender, in most cases a string. The formatted form depends on the type of Layout. A typical example is the PatternLayout that takes a pattern string and formats a LogEvent according to follow that pattern. Other Layouts are possible although note Woodman only ships with a couple of Layouts for the time being.
-
-From a code perspective, Layout are an internal structure and you should never have to interact with a Layout in your code.
-
-From a configuration perspective, a Layout has a type and various configuration parameters that depend on the type. Below is an example of a Layout that outputs a formatted string of the form "date - log level logger name - message":
-
-```json
-{
-  "type": "PatternLayout",
-  "pattern": "%date - %level %logger - %message"
-}
-```
-
-Layouts appear in the `layout` property of an Appender within the configuration.
-
 
 ## Woodman configuration
 
@@ -380,19 +299,81 @@ Do not worry if that sounds far-fetched at first sight. First, this mechanism is
 
 ### Logger definition
 
-@@TODO
+In the configuration, a Logger definition:
+
+* needs to specify the name of the Logger
+* may specify a trace level. Log events above that level are ignored.
+* may reference one or more Appenders
+* may reference one or more Filters
+* may be defined as "additive" or not
+
+The following configuration defines a Logger that sends log events at or below the `info` level to the console. Log events are formatted using the specified pattern:
+
+```json
+{
+  "name": "path.name",
+  "level": "info",
+  "appenders": [
+    {
+      "type": "ConsoleAppender",
+      "layout": {
+        "type": "PatternLayout",
+        "pattern": "%date [%level] %logger - %message%n"
+      }
+    }
+  ]
+}
+```
 
 ### Appender definition
 
-@@TODO
+From a configuration perspective, an Appender has a type, a Layout to format the log event, a log level that determines the levels that the Appender processes and is referenced by one or more Loggers. Additional configuration parameters may be required depending on the type of Appender. Filters may apply at the Appender level as well.
+
+Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
+
+```json
+{
+  "type": "SocketAppender",
+  "url": "http://socketserver.example.org",
+  "level": "error",
+  "layout": {
+    "type": "JSONLayout"
+  },
+  "filters": [
+    {
+      "type": "RegexFilter",
+      "regex": "^Alert ze world"
+    }
+  ]
+}
+```
+
 
 ### Layout definition
 
-@@TODO
+From a configuration perspective, a Layout has a type and various configuration parameters that depend on the type. Below is an example of a Layout that outputs a formatted string of the form "date - log level logger name - message":
+
+```json
+{
+  "type": "PatternLayout",
+  "pattern": "%date - %level %logger - %message"
+}
+```
+
+Layouts appear in the `layout` property of an Appender within the configuration.
 
 ### Filter definition
 
-@@TODO
+From a configuration perspective, a Filter has a type and various configuration parameters that depend on the type. Below is an example of a Filter that rejects log events that contain the word "borked" and leave the decision to further filters otherwise:
+
+```json
+{
+  "type": "RegexFilter",
+  "regex": "(^|\\s)borked(\\s|$)",
+  "match": "deny",
+  "mismatch": "neutral"
+}
+```
 
 ### Alternative configuration format
 
