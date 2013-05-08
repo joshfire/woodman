@@ -35,12 +35,12 @@ Woodman runs in Web browsers and in node.js applications. The main distribution 
   - [Filter definition](#filter-definition)
   - [Alternative configuration format](#alternative-configuration-format)
 - [Precompilation](#precompilation)
-- [Differences with log4j](#differences-with-log4j)
 - [Available distributions](#available-distributions)
 - [Development](#development)
 - [About](#about)
   - [Who](#who)
   - [Why?!?](#why)
+  - [Differences with log4j](#differences-with-log4j)
   - [Other JavaScript logging libraries](#other-javascript-logging-libraries)
   - [License](#license)
 - [Changelog](#changelog)
@@ -387,18 +387,6 @@ While console statements are good for development, you often do not want them to
 @@TODO
 
 
-## Differences with log4j
-
-* Restricted number of Appenders available
-* Restricted number of Layouts available
-* Restricted number of Filters available
-* No support for Appender Reference Filters
-* No support for Markers
-* No support for Plugins
-* Functions may not have the right signature to stick to more
-JavaScript-friendly paradigms
-
-
 ## Available distributions
 ### Main distribution
 ### AMD module
@@ -441,6 +429,17 @@ In the end, `console` is underused in most JavaScript applications. More precise
 The [log4j introduction](http://logging.apache.org/log4j/2.x/manual/index.html) provides a handful of reasons why flexible logging is useful. These reasons are valid whether the underlying language is Java, JavaScript, C, Python...
 
 In the end, log4j provides a very good abstraction over `console` that solves the problems raised above for a reasonable cost: that of having to manage a `Logger` instance per module.
+
+### Differences with log4j
+
+* Restricted number of Appenders available
+* Restricted number of Layouts available
+* Restricted number of Filters available
+* No support for Appender Reference Filters
+* No support for Markers
+* No support for Plugins
+* Functions may not have the right signature to stick to more
+JavaScript-friendly paradigms
 
 ### Other JavaScript logging libraries
 
