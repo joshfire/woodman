@@ -253,7 +253,8 @@ The following is an example of a configuration object that creates a console app
     {
       "type": "RegexFilter",
       "regex": "(^|\\s)dummy(\\s|$)",
-      "match": "deny"
+      "match": "deny",
+      "mismatch": "neutral"
     }
   ],
   "loggers": [
@@ -299,15 +300,16 @@ Do not worry if that sounds far-fetched at first sight. First, this mechanism is
 
 ### Logger definition
 
-In the configuration, a Logger definition:
+A Logger definition contains one or more of the following properties:
 
-* needs to specify the name of the Logger
-* may specify a trace level. Log events above that level are ignored.
-* may reference one or more Appenders
-* may reference one or more Filters
-* may be defined as "additive" or not
+* `additivity`: A boolean flag that determines whether the Logger is additive. Loggers are additive by default. An additive Logger sends the log event it processes to the appenders of its ancestor (up until the root Logger or the first non additive Logger).
+* `appenders`: The list of appenders directly associated with the Logger. See [Appender definition](#appender-definition) for details. The list may be empty.
+* `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Logger processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application. If not specified in the configuration, the list of filters is inherited from the closest ancestor of the Logger in the configuration.
+* `level`: The trace level of the Logger. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off`. If not specified in the configuration, the trace level is inherited from the closest ancestor of the Logger that specifies a trace level in the Logger hierarchy.
+* `name`: The name of the Logger. A string. The property is required except if the `root` property is `true`. Dots in the name are used to build the hierarchy of Loggers.
+* `root`: A special flag that identifies the root Logger. If this flag is set, the `name` property must not be set. The root Logger can appear at most once in the configuration.
 
-The following configuration defines a Logger that sends log events at or below the `info` level to the console. Log events are formatted using the specified pattern:
+The following configuration defines a Logger that sends log events at or below the `info` level to the console, except when the message to log contains the word `dummy`. Log events are formatted using the specified pattern:
 
 ```json
 {
@@ -321,13 +323,28 @@ The following configuration defines a Logger that sends log events at or below t
         "pattern": "%date [%level] %logger - %message%n"
       }
     }
+  ],
+  "filters": [
+    {
+      "type": "RegexFilter",
+      "regex": "(^|\\s)dummy(\\s|$)",
+      "match": "deny",
+      "mismatch": "neutral"
+    }
   ]
 }
 ```
 
 ### Appender definition
 
-From a configuration perspective, an Appender has a type, a Layout to format the log event, a log level that determines the levels that the Appender processes and is referenced by one or more Loggers. Additional configuration parameters may be required depending on the type of Appender. Filters may apply at the Appender level as well.
+An Appender definition contains one or more of the following properties:
+
+* `appendStrings`: Boolean flag that determines whether to log a string formatted from the log event, or the log event itself as an object. Default value is `true`.
+* `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
+* `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
+* `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
+* `type`: The type of the Appender. The property is required. Possible values are `ConsoleAppender` to log events to the console, `SocketAppender` to send log events to a remote Web socket server. More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
+* `url`: The URL of the Web socket server. The property is required for a `SocketAppender`, meaningless otherwise.
 
 Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
 
@@ -343,28 +360,76 @@ Here is an example of a possible Woodman configuration for an appender that send
     {
       "type": "RegexFilter",
       "regex": "^Alert ze world"
+      "match": "accept",
+      "mismatch": "neutral"
     }
   ]
 }
 ```
 
-
 ### Layout definition
 
-From a configuration perspective, a Layout has a type and various configuration parameters that depend on the type. Below is an example of a Layout that outputs a formatted string of the form "date - log level logger name - message":
+A Layout definition contains a `type` property that specifies the type of Layout to use to format the underlying log event. Possible values are `JSONLayout` to log events in a JSON structure and `PatternLayout` to format log events according to a pattern string. More types may be added in the future (see [Add a new Layout](#add-a-new-layout) for details).
+
+Other properties depend on the type of Layout.
+
+#### JSONLayout
+
+A `JSONLayout` formats a log event as a JSON structure. The following properties may be set to fine-tune how the formatting is achieved:
+
+* `compact`: A boolean that determines whether the resulting JSON string is compact or more human readable with tabs and carriage returns. Default value is `false`.
+* `depth`: The depth at which to serialize the message of a log event is the `messageAsObject` flag is set. Default value is `2`.
+* `messageAsObject`: Whether to format the message of a log event as an object or as a string. Default value is `false`.
+
+#### PatternLayout
+
+A `PatternLayout` formats a log event as a string that follows a pattern string. The following properties may be set:
+
+* `pattern`: The pattern string used to format the log event. See below for details.
+* `compactObjects`: A boolean flag that determines whether to serialize objects using a compact form. Default value is false.
+
+The pattern string is composed of literal text and format control expressions called conversion specifiers. A conversion specifier starts with a `%` and is followed by optional *format modifiers* and a *conversion pattern*.
+
+Note that any literal text may be included in the conversion pattern.
+
+The *conversion patterns* supported by the pattern string are based on those defined by the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), but note Woodman only supports the following conversion patterns:
+
+* `c` or `logger`: The name of the Logger
+* `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
+* `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{%level %message}`.
+* `m` or `message`: The log event message.
+* `n`: A newline.
+* `p` or `level`: The level of the log event.
+* `r` or `relative`: The number of milliseconds elapsed since the application started.
+* `%`: The percent sign (i.e. `%%` will produce a single percent sign).
+
+The *format modifiers* control such things as field width, padding, left and right justification. Given a conversion specifier `%-10.25logger`, the layout formats the name of the logger as follows:
+
+1. If the name is less than `10` characters long, the name is right padded with spaces (right because of the initial `-`, it would be left padded in the absence of that character)
+1. If the name is more than `25` characters long, the name is truncated.
+
+All parts are optional. For instance you may specify `%.25logger` to keep only the truncation at 25 characters, or `%15logger` to left pad with spaces when the name is less than 15 characters long.
+
+The following definition describes a possible `PatternLayout`:
 
 ```json
 {
   "type": "PatternLayout",
-  "pattern": "%date - %level %logger - %message"
+  "pattern": "%date{COMPACT} %highlight{%-5level} [%logger] - %message%n"
 }
 ```
 
-Layouts appear in the `layout` property of an Appender within the configuration.
-
 ### Filter definition
 
-From a configuration perspective, a Filter has a type and various configuration parameters that depend on the type. Below is an example of a Filter that rejects log events that contain the word "borked" and leave the decision to further filters otherwise:
+A Filter definition contains a `type` property that specifies the type of Filter to use to filter the underlying log event. The only possible value is `RegexFilter` for the time being to filter log events based on whether the log event message matches a regular expression.
+
+Properties that may be set for a `RegexFilter` filter are:
+* `regex`: The regular expression.
+* `match` or `onMatch`: The decision to take when the regular expression matches the message. Possible values are `accept`, `deny` or `neutral`. Default value is `neutral`.
+* `mismatch` or `onMismatch`: The decision to take when the regular expression does not match the message. Same possible values as the `match` property. Default value is `deny`.
+* `useRawMsg`: If true the regular expression will match the format string of the log event if there is one, otherwise the formatted message will be used. The default value is `false`.
+
+Here is an example
 
 ```json
 {
