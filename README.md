@@ -4,7 +4,7 @@
 
 Woodman is a JavaScript logger utility that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
-- **trace levels** similar to those exposed by the  `console` object (log, info, warn, error)
+- **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
 - **appenders** that allow to change the destination where a log event gets sent (the `console` comes in mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
 - **layouts** to specify the format and structure (raw string, CSV, JSON, XML, whatever) of the log events sent to an appender. New layouts can easily be created.
 - **filters** for more flexibility in the rules that determine which log events get sent to an appender and which are ignored.
@@ -12,6 +12,7 @@ Woodman is a JavaScript logger utility that follows the architecture, terminolog
 Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best.
 
 Woodman runs in Web browsers and in node.js applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. Other distributions that do not make assumptions about the underlying JavaScript runtime are available.
+
 
 ## <a id="toc"></a>Table of Contents
 
@@ -462,7 +463,7 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
         "level": "error",
         "JSONLayout": {}
       }
-    ],
+    },
     "filters": {
       "RegexFilter": {
         "regex": "(^|\\s)dummy(\\s|$)",
@@ -473,24 +474,24 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
     "loggers": {
       "root": {
         "level": "log",
-        "appenders": [
-          "socketserver"
-        ]
+        "appender-ref": {
+          "ref": "socketserver"
+        }
       },
       "logger": [
         {
           "name": "base",
           "level": "info",
-          "appenders": [
-            "console"
-          ]
+          "appender-ref": {
+            "ref": "theconsole"
+          }
         },
         {
           "name": "base.lib.unstable",
           "level": "log"
         }
       }
-    ]
+    }
   }
 }
 ```
