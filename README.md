@@ -490,7 +490,7 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
           "name": "base.lib.unstable",
           "level": "log"
         }
-      }
+      ]
     }
   }
 }
