@@ -13,7 +13,6 @@ Woodman also includes a **precompiler** to remove all traces of Woodman from a g
 
 Woodman runs in Web browsers and in node.js applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. Other distributions that do not make assumptions about the underlying JavaScript runtime are available.
 
-
 ## <a id="toc"></a>Table of Contents
 
 - [Getting started](#getting-started)
@@ -33,7 +32,7 @@ Woodman runs in Web browsers and in node.js applications. The main distribution 
   - [Appender definition](#appender-definition)
   - [Layout definition](#layout-definition)
   - [Filter definition](#filter-definition)
-  - [Alternative configuration format](#alternative-configuration-format)
+  - [Log4j JSON configuration format](#log4j-json-configuration-format)
 - [Precompilation](#precompilation)
 - [Available distributions](#available-distributions)
 - [Development](#development)
@@ -175,10 +174,10 @@ A LogEvent is the object created internally when the user issues a call to one o
 Appenders, Filters and Layouts all operate on an instance of the LogEvent class.
 
 ### Appender
-Appenders are responsible for delivering LogEvents to their destination. The ConsoleAppender is the main appender that more or less all applications will use. Other possibilities such as logging to a file or sending events to a remote server over Web sockets are possible, although note Woodman only ships with a couple of Appenders for the time being.
+Appenders are responsible for delivering LogEvents to their destination. The Console Appender is the main appender that more or less all applications will use. Other possibilities such as logging to a file or sending events to a remote server over Web sockets are possible, although note Woodman only ships with a couple of Appenders for the time being.
 
 ### Filter
-Filters allow LogEvents to be evaluated to determine whether they should be published. Filtering rules depend on the type of Filter being used. A typical Filter is the RegexFilter that applies a regular expression to the formatted message of a LogEvent and takes a decision based on whether the regular expression matched or not.
+Filters allow LogEvents to be evaluated to determine whether they should be published. Filtering rules depend on the type of Filter being used. A typical Filter is the RegexFilter that applies a regular expression to the formatted message of a LogEvent and takes a decision based on whether the regular expression matched or not. The decision may either be *accept* to accept the log event right away, *deny* to reject the log event altogether, or *neutral* to leave the decision to further filters.
 
 As explained in the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/filters.html), filters may be attached to different locations:
 
@@ -191,9 +190,10 @@ As explained in the [log4j documentation](http://logging.apache.org/log4j/2.x/ma
 ### Layout
 A Layout formats a LogEvent into a form that meets the needs of an Appender, in most cases a string. The formatted form depends on the type of Layout. A typical example is the PatternLayout that takes a pattern string and formats a LogEvent according to follow that pattern. Other Layouts are possible although note Woodman only ships with a couple of Layouts for the time being.
 
+
 ## Woodman configuration
 
-In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman that you will typically load once and for all when your application is started with code such as:
+In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman, defined in declarative JavaScript object that can be serialized as JSON. You will typically load le configuration object once and for all when your application is started with code such as:
 
 ```javascript
 // Initialize Woodman configuration
@@ -204,7 +204,7 @@ var config = {
       "level": "log",
       "appenders": [
         {
-          "type": "ConsoleAppender"
+          "type": "Console"
         }
       ]
     }
@@ -232,16 +232,16 @@ The following is an example of a configuration object that creates a console app
 {
   "appenders": [
     {
-      "name": "console",
-      "type": "ConsoleAppender",
+      "name": "theconsole",
+      "type": "Console",
       "layout": {
         "type": "PatternLayout",
         "pattern": "%message"
       }
     },
     {
-      "name": "socket",
-      "type": "SocketAppender",
+      "name": "socketserver",
+      "type": "Socket",
       "url": "http://socketserver.example.org",
       "level": "error",
       "layout": {
@@ -262,14 +262,14 @@ The following is an example of a configuration object that creates a console app
       "root": true,
       "level": "log",
       "appenders": [
-        "socket"
+        "socketserver"
       ]
     },
     {
       "name": "base",
       "level": "info",
       "appenders": [
-        "console"
+        "theconsole"
       ]
     },
     {
@@ -317,7 +317,7 @@ The following configuration defines a Logger that sends log events at or below t
   "level": "info",
   "appenders": [
     {
-      "type": "ConsoleAppender",
+      "type": "Console",
       "layout": {
         "type": "PatternLayout",
         "pattern": "%date [%level] %logger - %message%n"
@@ -343,14 +343,14 @@ An Appender definition contains one or more of the following properties:
 * `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
 * `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
 * `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
-* `type`: The type of the Appender. The property is required. Possible values are `ConsoleAppender` to log events to the console, `SocketAppender` to send log events to a remote Web socket server. More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
-* `url`: The URL of the Web socket server. The property is required for a `SocketAppender`, meaningless otherwise.
+* `type`: The type of the Appender. The property is required. Possible values are `Console` to log events to the console, `Socket` to send log events to a remote Web socket server. More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
+* `url`: The URL of the Web socket server. The property is required for a Socket Appender, meaningless otherwise.
 
 Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
 
 ```json
 {
-  "type": "SocketAppender",
+  "type": "Socket",
   "url": "http://socketserver.example.org",
   "level": "error",
   "layout": {
@@ -440,10 +440,60 @@ Here is an example
 }
 ```
 
-### Alternative configuration format
+### Log4j JSON configuration format
 
-@@TODO
+If you are familiar with log4j, you may have noticed that Woodman's JSON configuration takes some leeway with log4j's [JSON Configuration](http://logging.apache.org/log4j/2.x/manual/configuration.html#JSON). In log4j, the JSON configuration is a direct translation of the XML configuration (where XML tags become property keys). Woodman JSON configuration is intended to be more natural to write for people used to JSON.
 
+That said, Woodman also supports the log4j JSON configuration format, meaning that you may use Appender Filter or Layout types as property keys, if you so wish and start your configuration object with a `configuration` root. For instance, the configuration example presented earlier may also be written as:
+
+```json
+{
+  "configuration": {
+    "appenders": {
+      "Console": {
+        "name": "theconsole",
+        "PatternLayout": {
+          "pattern": "%message"
+        }
+      },
+      "Socket": {
+        "name": "socketserver",
+        "url": "http://socketserver.example.org",
+        "level": "error",
+        "JSONLayout": {}
+      }
+    ],
+    "filters": {
+      "RegexFilter": {
+        "regex": "(^|\\s)dummy(\\s|$)",
+        "match": "deny",
+        "mismatch": "neutral"
+      }
+    },
+    "loggers": {
+      "root": {
+        "level": "log",
+        "appenders": [
+          "socketserver"
+        ]
+      },
+      "logger": [
+        {
+          "name": "base",
+          "level": "info",
+          "appenders": [
+            "console"
+          ]
+        },
+        {
+          "name": "base.lib.unstable",
+          "level": "log"
+        }
+      }
+    ]
+  }
+}
+```
 
 ## Precompilation
 
