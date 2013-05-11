@@ -38,6 +38,11 @@ What now? If that all sounds clear and great, head to the [Getting started](#get
   - [Log4j JSON configuration format](#log4j-json-configuration-format)
 - [Precompilation](#precompilation)
 - [Available distributions](#available-distributions)
+  - [AMD module](#amd-module)
+  - [Web Browser](#web-browser)
+  - [Web Browser AMD](#web-browser-amd)
+  - [node.js module](#node-js-module)
+  - [The "disabled" distribution](#the-disabled-distribution)
 - [Development](#development)
 - [About](#about)
   - [Who](#who)
@@ -590,14 +595,30 @@ logger\['info'\]('Oh no!')
 
 Internally, Woodman's precompiler uses [esprima](http://esprima.org/) to produce the AST and an adapted version of [falafel](https://github.com/substack/node-falafel) to update the code.
 
-## Available distributions
-### Main distribution
-### AMD module
-### Web Browser AMD
-### Web Browser
-### The "disabled" distribution
-### node.js module
 
+## Available distributions
+
+The `dist/` folder in Woodman's repository contains different builds of Woodman. These builds differ by the types of Appenders they support and by the way the library exports itself to the underlying JavaScript runtime environment. If you're desesperatly looking for a distribution that does not yet exist, the [Development](#development) section explains how to build the distribution of Woodman of your dreams.
+
+### Main distribution
+The `dist/woodman.js` file is the main build of Woodman, designed to run *everywhere*. It is the one that you get when you install Woodman through an `npm install` command. The distribution supports the `Console`, `File` and `Socket` appenders (although note the `File` appender de facto cannot be used in a Web browser environment). The `dist/woodman.js` file exports a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. This should make it easy to use Woodman in a vast majority of JavaScript runtime environments.
+
+However, if you're as picky as we are, you may not appreciate the fact that Woodman leaks to the global scope in that distribution when `window` is defined. You may also run into situations where `window`, `define` or `module.exports` exist but do not have their usual meaning. This is where the *AMD module*, *node.js* or *Web browser* distribution might be useful.
+
+### AMD module
+If you want to use Woodman in a project that uses AMD modules, use the `dist/woodman-amd.js` file. This distribution is the same as the main distribution but it only exports Woodman as an AMD module and thus never leaks to the global scope.
+
+### Web Browser
+Similarly, if you want to use Woodman in a project that will only run in Web browsers, the `dist/woodman-browser.js` file contains all that you need. It exports a global `woodman` object and does not contain the code of the `File` Appender since it is useless in that context.
+
+### Web Browser AMD
+If you want to use Woodman in a project that uses AMD modules and only runs in Web browser, the `dist/woodman-browser-amd.js` file is a combinaison of the previous two distributions: it does not support the `File` Appender and exports Woodman as an AMD module.
+
+### node.js module
+If you want to use Woodman in a node.js only project, the `dist/woodman-node.js` file is the same as the main distribution but it only exports Woodman as a node.js module.
+
+### The "disabled" distribution
+The *disabled* distribution is a tiny file (less than 1Kb) that contains a shim of Woodman that simply does nothing. You may want to use that distribution if you cannot or do not want to run Woodman's precompiler on your project for some reason but still would like to silence Woodman in a release version of the project without having to include a full release of Woodman in the mix. By definition, that shim does not support any Appender but equally will not complain if the configuration references types of Appender it does not know anything about. 
 
 ## Development
 ### Codebase
