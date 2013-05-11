@@ -5,13 +5,15 @@
 Woodman is a JavaScript logger utility that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
 - **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
-- **appenders** that allow to change the destination where a log event gets sent (the `console` comes in mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
-- **layouts** to specify the format and structure (raw string, CSV, JSON, XML, whatever) of the log events sent to an appender. New layouts can easily be created.
-- **filters** for more flexibility in the rules that determine which log events get sent to an appender and which are ignored.
+- **appenders** to change the destination where log events are sent without changing the code itself (the `console` comes to mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
+- **layouts** to specify the format and structure of the log events sent to an appender: raw string, CSV, JSON, XML, whatever. New layouts can easily be created.
+- **filters** for more flexibility in the rules that determine which log events are sent to an appender and which are ignored.
 
-Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best.
+Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best. See [Precompilation](#precompilation) for details.
 
-Woodman runs in Web browsers and in node.js applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. Other distributions that do not make assumptions about the underlying JavaScript runtime are available.
+Woodman runs in Web browsers and in node.js applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an AMD module if the `define` function is defined. [Other distributions](#available-distributions) that do not make assumptions about the underlying JavaScript runtime are available.
+
+What now? If that all sounds clear and great, head to the [Getting started](#getting-started) section for a quick hands-on introduction. If you have already started to use Woodman but are lost in configuration, the [Woodman configuration](#woodman-configuration) section will hopefully provide the answers you're looking for. If you're ready to dig in the code to fix a bug or implement a new Appender, Layout or Filter, take a look at the [Development](#development) section. Last but not least, if you cannot help but wonder why Woodman exists at all and how it relates to other similar projects, check the [About](#about) section.
 
 
 ## <a id="toc"></a>Table of Contents
