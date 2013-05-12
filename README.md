@@ -180,6 +180,8 @@ logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 
 ## Basic concepts and classes
 
+In Woodman, a [Logger](#logger) applies [filters](#filter) to a [log event](#log-event) to determine whether to send that event to registered [appenders](#appender) where it will be formatted according to some [layout](#layout). This section goes a bit more into details about these concepts. Interested readers may also check the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/architecture.html).
+
 ### Logger
 The Logger class is the *one* class you will interact with in your code. It exposes the trace functions that you will call to log messages.
 
