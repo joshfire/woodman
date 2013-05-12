@@ -1,13 +1,13 @@
 # Woodman
 
-Woodman is a JavaScript logger utility that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
+Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
 - **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
 - **appenders** to change the destination where log events are sent without changing the code itself (the `console` comes to mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
 - **layouts** to specify the format and structure of the log events sent to an appender: raw string, CSV, JSON, XML, whatever. New layouts can easily be created.
 - **filters** for more flexibility in the rules that determine which log events are sent to an appender and which are ignored.
 
-Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best. See [Precompilation](#precompilation) for details.
+Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file or project. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best. See [Precompilation](#precompilation) for details.
 
 Woodman runs in Web browsers and in [node.js](http://nodejs.org) applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an [AMD module](http://requirejs.org/docs/whyamd.html#amd) if the `define` function is defined. [Other distributions](#available-distributions) that do not make assumptions about the underlying JavaScript runtime are available.
 
@@ -69,7 +69,7 @@ What now? If that all sounds clear and great, [get started](#getting-started) th
 ## Getting started
 
 ### Using Woodman in a node.js application
-Woodman is available as an npm package. To install Woodman in your node.js application:
+Woodman is available as an [npm package](https://npmjs.org/package/woodman). To install Woodman in your node.js application:
 ```
 npm install woodman
 ```
@@ -216,7 +216,7 @@ A Layout formats a LogEvent into a form that meets the needs of an Appender, in 
 
 ## Woodman configuration
 
-In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman, defined in declarative JavaScript object that can be serialized as JSON. You will typically load le configuration object once and for all when your application is started with code such as:
+In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman, defined in a declarative JavaScript object that can be serialized as JSON. You will typically load the configuration object once and for all when your application is started with code such as:
 
 ```javascript
 // Initialize Woodman configuration
@@ -247,7 +247,7 @@ woodman.load(config, function (err) {
 
 ### Configuration outline
 
-Loggers are at the heart of the configuration of Woodman. The `loggers` property is the only property required in the configuration. It contains a list of Logger definitions. If you want to add a bunch of context-wide filters, you may also add a `filters` property that contains a list of Filter definitions. If you need to share appenders between loggers, add an `appenders` property with a list of Appender definitions and reference the names of these appenders from within the `appenders` property of the Logger definition.
+Loggers are at the heart of the configuration of Woodman. The `loggers` property is the only property required in the configuration. It contains a list of [Logger definitions](#logger-definition). If you want to add a bunch of context-wide filters, you may also add a `filters` property that contains a list of [Filter definitions](#filter-definition). If you need to share appenders between loggers, add an `appenders` property with a list of [Appender definitions](#appender-definition) and reference the names of these appenders from within the `appenders` property of the Logger definition.
 
 The following is an example of a configuration object that creates a console appender, a socket appender, a context-wide filter that rejects all log events whose messages contain the word *dummy*, and logging rules for different families of loggers:
 
@@ -366,7 +366,7 @@ An Appender definition contains one or more of the following properties:
 * `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
 * `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
 * `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
-* `type`: The type of the Appender. The property is required. Possible values are `Console` to log events to the console, `Socket` to send log events to a remote Web socket server. More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
+* `type`: The type of the Appender. The property is required. Possible values are `Console` to log events to the console, `Socket` to send log events to a remote Web socket server, or `File` to send log events to a file (provided you are running in a node.js environment). More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
 * `url`: The URL of the Web socket server. The property is required for a Socket Appender, meaningless otherwise.
 
 Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
@@ -467,7 +467,7 @@ Here is an example
 
 If you are familiar with log4j, you may have noticed that Woodman's JSON configuration takes some leeway with log4j's [JSON Configuration](http://logging.apache.org/log4j/2.x/manual/configuration.html#JSON). In log4j, the JSON configuration is a direct translation of the XML configuration (where XML tags become property keys). Woodman JSON configuration is intended to be more natural to write for people used to JSON.
 
-That said, Woodman also supports the log4j JSON configuration format, meaning that you may use Appender Filter or Layout types as property keys, if you so wish and start your configuration object with a `configuration` root. For instance, the configuration example presented earlier may also be written as:
+That said, Woodman also supports the log4j JSON configuration format, meaning that you may use Appender, Filter or Layout types as property keys if you so wish and start your configuration object with a `configuration` root. For instance, the configuration example presented earlier may also be written as:
 
 ```json
 {
@@ -523,12 +523,12 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
 
 When you package your application for release, you may not want that version to log anything, be it only because it is quite useless to log things to a destination that no one will ever see. While it's easy to silence Woodman, leaving the calls to Woodman in the code has a couple of drawbacks:
 
-* Size often matters for a release version. You will typically run a JavaScript minifier to shrink the size of the code to a bare minimum before release. Calls to Woodman take up useful bytes for just about nothing.
-* Speed matters as well and calls to Woodman are regular JavaScript function calls that consume a little bit of time and memory even when they do not do anything.
+* Size often matters for a release version. It is common practice to run a JavaScript minifier to shrink the size of the code to a bare minimum before release. Including Woodman and calls to Woodman take up useful bytes for just about nothing.
+* Speed matters as well and, even though they do not do anything when Woodman is configured not to log anything, calls to Woodman are regular JavaScript function calls that consume a little bit of time and memory.
 
 Not being able to remove logs from the code is probably one of the reasons why most JavaScript libraries do not contain logging traces in the first place. Woodman would not be *that* useful if it could not address that issue. Fortunately, it can!
 
-The *precompiler* can strip your code of all references to Woodman.
+The *precompiler* that comes bundled with Woodman strips your code from all references to Woodman.
 
 ### Run the precompiler
 To run the precompiler on a JavaScript file, clone Woodman's repository to some local folder, run `npm install` on that folder and run the following node.js command:
@@ -582,7 +582,7 @@ var anotherLogger = woodman.getLogger('foo');
 var logger = woodman.getLogger('foo'), j=3;
 
 // Logger used directly
-woodman.getLogger('foo').log('info');
+woodman.getLogger('foo').log('message');
 ```
 
 Some cases that are not correctly handled by the precompilation function,
@@ -590,13 +590,14 @@ and that may generate invalid code in the end:
 
 ```javascript
 // Calling a trace function within another statement
-var l = logger.log('info');
-if (logger.log('info')) {}
+var l = logger.log('message');
+if (logger.log('message')) {}
+if (true) logger.log('message');
 
 // Assigning the logger to another variable
 var logger = woodman.getLogger('foo');
 truc = logger;
-truc.log('info');
+truc.log('message');
 
 // Re-assigning the logger variable
 var logger = woodman.getLogger('foo');
@@ -605,7 +606,7 @@ logger.machin = 4;
 
 // Not using the dot notation to call Logger functions
 var logger = woodman.getLogger('blah');
-logger\['info'\]('Oh no!')
+logger['info']('Oh no!')
 ```
 
 Internally, Woodman's precompiler uses [Esprima](http://esprima.org/) to produce the AST and an adapted version of [Falafel](https://github.com/substack/node-falafel) to update the code.
@@ -744,13 +745,16 @@ LogManager.registerLevel('debug', 'trace');
 LogManager.registerLevel('fatal');
 ```
 
-To actually start logging messages at these new levels, you will need to call the `trace` function directly:
+To actually start logging messages at these new levels, call the `trace` function directly:
 
 ```javascript
 var logger = woodman.getLogger();
 logger.trace('debug', 'Logging a message at the "debug" level');
 logger.trace('fatal', 'Argh!');
 ```
+
+Note that, if you only want to add new levels to use Woodman in a specific application, you may also directly issue calls such as `woodman.registerLevel('fatal');` from anywhere in your code and use these trace levels afterwards. In other words, you do not need to re-build Woodman to add new trace levels.
+
 
 #### Build a custom distribution
 If you want to create your own distribution of Woodman, run the following steps:
@@ -762,9 +766,11 @@ If you want to create your own distribution of Woodman, run the following steps:
 1. Run the build. You're done!
 
 ### Contribute to Woodman
-Did you find a bug? Do you have a new feature to suggest? Great! Use GitHub's [issue tracking system](https://github.com/joshfire/woodman/issues) to report bugs or propose new features.
+Did you find a bug? Do you have a new feature to suggest? Great! Use the [issue tracking system](https://github.com/joshfire/woodman/issues) on GitHub to report bugs or propose new features.
 
-Do you feel like contributing to the code of Woodman? Even better! The best way forward would be to fork the repository, commit the changes in the forked version and send a pull request. Please note the [MIT License](#license) when you do so.
+Do you feel like contributing to the code of Woodman? Even better! The best way forward would be to fork the repository, commit the changes in the forked version and send a pull request. Please note the [MIT License](#license).
+
+Is documentation your thing? Awesome as well! Please get in touch through the [issue tracking system](https://github.com/joshfire/woodman/issues) on GitHub with suggestions to turn the documentation into a pleasant read. Translations welcome as well.
 
 
 ## About
