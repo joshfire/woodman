@@ -13,7 +13,9 @@ define(function (require) {
     filters: [
       {
         type: 'RegexFilter',
-        regex: 'timber'
+        regex: 'timber',
+        match: 'accept',
+        mismatch: 'neutral'
       }
     ],
     appenders: [

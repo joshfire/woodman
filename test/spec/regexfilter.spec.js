@@ -10,23 +10,23 @@ define([
 ], function (RegexFilter, LogEvent, Message) {
 
   describe('RegexFilter class', function () {
-    it('accepts an event that matches the regexp', function () {
+    it('stays neutral for an event that matches the regexp', function () {
       var filter = new RegexFilter({
         regex: '^timber'
       });
       var evt = new LogEvent('spec', 'log', new Message('timber!'));
       var decision = filter.filter(evt);
-      expect(decision).toEqual('accept');
+      expect(decision).toEqual('neutral');
     });
 
 
-    it('stays neutral for an event that does not match the regexp', function () {
+    it('denies an event that does not match the regexp', function () {
       var filter = new RegexFilter({
         regex: 'timber$'
       });
       var evt = new LogEvent('spec', 'log', new Message('timber!'));
       var decision = filter.filter(evt);
-      expect(decision).toEqual('neutral');
+      expect(decision).toEqual('deny');
     });
 
 
@@ -44,17 +44,18 @@ define([
     it('takes the "mismatch" parameter into account', function () {
       var filter = new RegexFilter({
         regex: 'timber$',
-        mismatch: 'deny'
+        mismatch: 'neutral'
       });
       var evt = new LogEvent('spec', 'log', new Message('timber!'));
       var decision = filter.filter(evt);
-      expect(decision).toEqual('deny');
+      expect(decision).toEqual('neutral');
     });
 
 
     it('applies regexp to formatted string', function () {
       var filter = new RegexFilter({
-        regex: '^Hello toto$'
+        regex: '^Hello toto$',
+        match: 'accept'
       });
       var evt = new LogEvent('spec', 'log', new Message(['Hello {}', 'toto']));
       var decision = filter.filter(evt);
@@ -65,7 +66,8 @@ define([
     it('applies regexp to format string when "useRawMsg" is set', function () {
       var filter = new RegexFilter({
         regex: '^Hello \\{\\}$',
-        useRawMsg: true
+        useRawMsg: true,
+        match: 'accept'
       });
       var evt = new LogEvent('spec', 'log', new Message(['Hello {}', 'toto']));
       var decision = filter.filter(evt);

@@ -14,7 +14,8 @@ define([
     it('returns the result of the first filter if it matches', function () {
       var filters = [
         new RegexFilter({
-          regex: '^timber'
+          regex: '^timber',
+          match: 'accept'
         }),
         new RegexFilter({
           regex: 'timber$'
@@ -30,10 +31,14 @@ define([
     it('returns the result of the second filter if it matches', function () {
       var filters = [
         new RegexFilter({
-          regex: 'timber$'
+          regex: 'timber$',
+          match: 'accept',
+          mismatch: 'neutral'
         }),
         new RegexFilter({
-          regex: '^timber'
+          regex: '^timber',
+          match: 'accept',
+          mismatch: 'neutral'
         })
       ];
       var filter = new CompositeFilter(filters);
@@ -63,7 +68,9 @@ define([
     it('skips further filters if event is accepted by a filter', function () {
       var filters = [
         new RegexFilter({
-          regex: '^timber'
+          regex: '^timber',
+          match: 'accept',
+          mismatch: 'neutral'
         }),
         new RegexFilter({
           regex: 'timber$',
