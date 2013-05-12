@@ -35,6 +35,9 @@ What now? If that all sounds clear and great, [get started](#getting-started) th
   - [Filter definition](#filter-definition)
   - [Log4j JSON configuration format](#log4j-json-configuration-format)
 - [Precompilation](#precompilation)
+  - [Run the precompiler](#run-the-precompiler)
+  - [What the precompiler does](#what-the-precompiler-does)
+  - [Limits of the precompiler](#limits-of-the-precompiler)
 - [Available distributions](#available-distributions)
   - [AMD module](#amd-module)
   - [Web Browser](#web-browser)
@@ -526,7 +529,7 @@ Not being able to remove logs from the code is probably one of the reasons why m
 The *precompiler* can strip your code of all references to Woodman.
 
 ### Run the precompiler
-To run the precompiler on a JavaScript file, run the following node.js command:
+To run the precompiler on a JavaScript file, clone Woodman's repository to some local folder, run `npm install` on that folder and run the following node.js command:
 
 ```
 node {PATH TO WOODMAN}/precompile/precompiler.js {JSFILE}
