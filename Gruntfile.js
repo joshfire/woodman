@@ -109,6 +109,10 @@ module.exports = function (grunt) {
               'module.exports && (typeof define !== "function")) {' +
               ' var define = require("amdefine")(module);' +
               '}\n' +
+              'if ((typeof global !== "undefined") && ' +
+              '(typeof require === "function")) {' +
+              ' try { var nodefs = require("fs"); } catch (e) {}' +
+              '}\n' +
               '(function(root, rootdefine) {',
             end: 'require(["./woodman"], function (woodman) {\n' +
               ' if (rootdefine) rootdefine(woodman);\n' +
@@ -137,6 +141,10 @@ module.exports = function (grunt) {
         options: {
           wrap: {
             start: '/*! Full distribution, AMD module */\n' +
+              'if ((typeof global !== "undefined") && ' +
+              '(typeof require === "function")) {' +
+              ' try { var nodefs = require("fs"); } catch (e) {}' +
+              '}\n' +
               'define([], function () {\n',
             end: ' var woodman = null;\n' +
               ' require(["./woodman"], function (wood) {\n' +
@@ -215,7 +223,8 @@ module.exports = function (grunt) {
       node: {
         options: {
           wrap: {
-            start: '/*! Node.js distribution */\n',
+            start: '/*! Node.js distribution */\n' +
+              'var nodefs = require("fs");\n',
             end: 'require(["./woodman-node"], function (woodman) {' +
               ' module.exports = woodman; }, null, true);'
           },
