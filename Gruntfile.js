@@ -5,7 +5,7 @@ module.exports = function (grunt) {
     /**
      * Variable initialized with the contents of the package.json file
      */
-    pkg: '<json:package.json>',
+    pkg: grunt.file.readJSON('package.json'),
 
     /**
      * Meta information used in different tasks
@@ -21,18 +21,7 @@ module.exports = function (grunt) {
         ' MIT license\n' +
         'Based on log4j v2.0: http://logging.apache.org/log4j/2.x/\n' +
         'Portions adapted from log4javascript: http://log4javascript.org/ (copyright Tim Down, Apache License, Version 2.0) ' +
-        '*/',
-      'banner-disabled': '/*! Woodman - v<%= pkg.version %> - ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %> - ' +
-        '<%= pkg.homepage %>\n' +
-        'Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-        ' MIT license */',
-      full: '/* Full distribution */',
-      amd: '/* Full distribution, AMD module */',
-      browser: '/* Browser distribution */',
-      'browser-amd': '/* Browser distribution, AMD module */',
-      node: '/* Node.js distribution */',
-      disabled: '/* Disabled distribution */'
+        '*/\n'
     },
     lint: {
       files: [
@@ -48,51 +37,43 @@ module.exports = function (grunt) {
       ]
     },
     concat: {
+      options: {
+        stripBanners: true,
+        banner: '<%= meta.banner %>'
+      },
       woodman: {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.full>',
-          '<file_strip_banner:dist/woodman.js>'
+          'dist/woodman.js'
         ],
         dest: 'dist/woodman.js'
       },
       'woodman-amd': {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.amd>',
-          '<file_strip_banner:dist/woodman-amd.js>'
+          'dist/woodman-amd.js'
         ],
         dest: 'dist/woodman-amd.js'
       },
       browser: {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.browser>',
-          '<file_strip_banner:dist/woodman-browser.js>'
+          'dist/woodman-browser.js'
         ],
         dest: 'dist/woodman-browser.js'
       },
       'browser-amd': {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.browser-amd>',
-          '<file_strip_banner:dist/woodman-browser-amd.js>'
+          'dist/woodman-browser-amd.js'
         ],
         dest: 'dist/woodman-browser-amd.js'
       },
       node: {
         src: [
-          '<banner:meta.banner>',
-          '<banner:meta.node>',
-          '<file_strip_banner:dist/woodman-node.js>'
+          'dist/woodman-node.js'
         ],
         dest: 'dist/woodman-node.js'
       },
       disabled: {
         src: [
-          '<banner:meta.banner-disabled>',
-          '<banner:meta.disabled>',
-          '<file_strip_banner:dist/woodman-disabled.js>'
+          'dist/woodman-disabled.js'
         ],
         dest: 'dist/woodman-disabled.js'
       }
@@ -123,7 +104,8 @@ module.exports = function (grunt) {
       woodman: {
         options: {
           wrap: {
-            start: 'if ((typeof module !== "undefined") && ' +
+            start: '/*! Full distribution */\n' +
+              'if ((typeof module !== "undefined") && ' +
               'module.exports && (typeof define !== "function")) {' +
               ' var define = require("amdefine")(module);' +
               '}\n' +
@@ -154,7 +136,8 @@ module.exports = function (grunt) {
       'woodman-amd': {
         options: {
           wrap: {
-            start: 'define([], function () {\n',
+            start: '/*! Full distribution, AMD module */\n' +
+              'define([], function () {\n',
             end: ' var woodman = null;\n' +
               ' require(["./woodman"], function (wood) {\n' +
               '  woodman = wood;\n' +
@@ -180,7 +163,8 @@ module.exports = function (grunt) {
       browser: {
         options: {
           wrap: {
-            start: '(function() {',
+            start: '/*! Browser distribution */\n' +
+              '(function() {',
             end: 'require(["./woodman-browser"], function (woodman) {' +
               ' window.woodman = woodman; }, null, true);' +
               '}());'
@@ -204,7 +188,8 @@ module.exports = function (grunt) {
       'browser-amd': {
         options: {
           wrap: {
-            start: 'define([], function () {\n',
+            start: '/*! Browser distribution, AMD module */\n' +
+              'define([], function () {\n',
             end: ' var woodman = null;\n' +
               ' require(["./woodman-browser"], function (wood) {\n' +
               '  woodman = wood;\n' +
@@ -230,7 +215,7 @@ module.exports = function (grunt) {
       node: {
         options: {
           wrap: {
-            start: '',
+            start: '/*! Node.js distribution */\n',
             end: 'require(["./woodman-node"], function (woodman) {' +
               ' module.exports = woodman; }, null, true);'
           },
@@ -251,7 +236,8 @@ module.exports = function (grunt) {
       disabled: {
         options: {
           wrap: {
-            start: '(function(root, rootdefine) {\n' +
+            start: '/*! Disabled distribution */\n' +
+              '(function(root, rootdefine) {\n' +
               'var woodman = null;\n' +
               'var define = function (name, deps, fn) { woodman = fn(); };\n',
             end: '\n' +
@@ -280,29 +266,34 @@ module.exports = function (grunt) {
 
     jshint: {
       options: {
-        "indent": 2,
-        "evil": true,
-        "regexdash": true,
-        "browser": true,
-        "wsh": false,
-        "trailing": true,
-        "sub": true,
-        "undef": true,
-        "eqeqeq": true,
-        "unused": true,
-        "predef": [
-          "require",
-          "define"
+        indent: 2,
+        evil: true,
+        regexdash: true,
+        browser: true,
+        wsh: false,
+        trailing: true,
+        sub: true,
+        undef: true,
+        eqeqeq: true,
+        unused: true,
+        predef: [
+          'require',
+          'define'
         ]
       },
-      globals: {}
+      all: [
+        'Gruntfile.js',
+        'lib/**/*.js'
+      ]
     },
 
     uglify: {}
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
+  grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-jshint');
 
-  grunt.registerTask('build', 'requirejs concat');
+  grunt.registerTask('build', ['jshint', 'requirejs', 'concat']);
   grunt.registerTask('default', 'build');
 };
