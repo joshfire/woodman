@@ -105,7 +105,7 @@ node examples/node.js/standalone.js
 ```
 
 ### Using Woodman in a Web browser
-Using Woodman in a Web browser is essentially the same as using Woodman in a node.js application. To install Woodman, copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application (or [download the file](https://raw.github.com/joshfire/woodman/master/dist/woodman.js). Reference that file from a `script` tag in the HTML page (the tag needs to appear before all scripts that make use of Woodman):
+Using Woodman in a Web browser is essentially the same as using Woodman in a node.js application. To install Woodman, copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application (or [download the file](https://raw.github.com/joshfire/woodman/master/dist/woodman.js)). Reference that file from a `script` tag in the HTML page (the tag needs to appear before all scripts that make use of Woodman):
 ```html
 <script type="text/javascript" src="path-to-js/woodman.js"></script>
 ```
