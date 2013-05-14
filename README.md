@@ -43,6 +43,7 @@ What now? If that all sounds clear and great, [get started](#getting-started) th
   - [Web Browser](#web-browser)
   - [Web Browser AMD](#web-browser-amd)
   - [node.js module](#nodejs-module)
+  - [node.js AMD](#nodejs-amd)
   - [The "disabled" distribution](#the-disabled-distribution)
 - [Development](#development)
   - [Codebase](#codebase)
@@ -632,6 +633,9 @@ If you want to use Woodman in a project that uses AMD modules and only runs in W
 
 ### node.js module
 If you want to use Woodman in a node.js only project, the `dist/woodman-node.js` file is the same as the main distribution but it only exports Woodman as a node.js module.
+
+### node.js AMD
+IF you want to use Woodman in a node.js only project that uses AMD modules, the `dist/woodman-node-amd.js` file is the same as the node.js module but only exports Woodman as an AMD module.
 
 ### The "disabled" distribution
 The *disabled* distribution is a tiny file (less than 1Kb) that contains a shim of Woodman that simply does nothing. You may want to use that distribution if you cannot or do not want to run Woodman's precompiler on your project for some reason but still would like to silence Woodman in a release version of the project without having to include a full release of Woodman in the mix. By definition, that shim does not support any Appender but equally will not complain if the configuration references types of Appender it does not know anything about. 
