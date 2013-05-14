@@ -14,50 +14,72 @@ module.exports = function (grunt) {
       /**
        * Copyright and license banner
        */
-      banner: '/*! Woodman - v<%= pkg.version %> - ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %> - ' +
-        '<%= pkg.homepage %>\n' +
-        'Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
+      banner: '/*!\n' +
+        'Woodman - v<%= pkg.version %> - ' +
+        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+        ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
         ' MIT license\n' +
-        'Based on log4j v2.0: http://logging.apache.org/log4j/2.x/\n' +
-        'Portions adapted from log4javascript: http://log4javascript.org/ (copyright Tim Down, Apache License, Version 2.0) ' +
+        ' <%= pkg.homepage %>\n' +
+        '\n' +
+        'Based on log4j v2.0:\n' +
+        ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
+        ' Apache License, Version 2.0\n' +
+        ' http://logging.apache.org/log4j/2.x/\n' +
+        '\n' +
+        'Includes Almond 0.2.3:\n' +
+        ' Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved\n' +
+        ' Available via the MIT or new BSD license\n' +
+        ' http://github.com/jrburke/almond\n' +
+        '\n' +
+        'May include Socket.IO.js build:0.9.11, development\n' +
+        ' Copyright(c) 2011 LearnBoost <dev@learnboost.com>\n' +
+        ' MIT Licensed\n' +
+        '\n' +
+        'Portions adapted from log4javascript:\n' +
+        ' Copyright Tim Down\n' +
+        ' Apache License, Version 2.0\n' +
+        ' http://log4javascript.org/\n' +
+        '*/\n',
+      disabledBanner: '/*!\n' +
+        'Woodman - v<%= pkg.version %> - ' +
+        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
+        ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
+        ' MIT license\n' +
+        ' <%= pkg.homepage %>\n' +
+        '\n' +
+        'Based on log4j v2.0:\n' +
+        ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
+        ' Apache License, Version 2.0\n' +
+        ' http://logging.apache.org/log4j/2.x/\n' +
         '*/\n'
     },
 
-    concat: {
+
+    /**
+     * Ensures source code follows code guidelines
+     */
+    jshint: {
       options: {
-        stripBanners: true,
-        banner: '<%= meta.banner %>'
+        indent: 2,
+        evil: true,
+        regexdash: true,
+        browser: true,
+        wsh: false,
+        trailing: true,
+        sub: true,
+        undef: true,
+        eqeqeq: true,
+        unused: true,
+        predef: [
+          'require'
+        ]
       },
-      woodman: {
-        src: 'dist/woodman.js',
-        dest: 'dist/woodman.js'
-      },
-      'woodman-amd': {
-        src: 'dist/woodman-amd.js',
-        dest: 'dist/woodman-amd.js'
-      },
-      browser: {
-        src: 'dist/woodman-browser.js',
-        dest: 'dist/woodman-browser.js'
-      },
-      'browser-amd': {
-        src: 'dist/woodman-browser-amd.js',
-        dest: 'dist/woodman-browser-amd.js'
-      },
-      node: {
-        src: 'dist/woodman-node.js',
-        dest: 'dist/woodman-node.js'
-      },
-      'node-amd': {
-        src: 'dist/woodman-node-amd.js',
-        dest: 'dist/woodman-node-amd.js'
-      },
-      disabled: {
-        src: 'dist/woodman-disabled.js',
-        dest: 'dist/woodman-disabled.js'
-      }
+      all: [
+        'Gruntfile.js',
+        'lib/**/*.js'
+      ]
     },
+
 
     /**
      * Woodman compilation task (using require.js optimizer)
@@ -269,27 +291,46 @@ module.exports = function (grunt) {
       }
     },
 
-    jshint: {
+
+    /**
+     * Adds Copyright and license banner to all distributions
+     */
+    concat: {
       options: {
-        indent: 2,
-        evil: true,
-        regexdash: true,
-        browser: true,
-        wsh: false,
-        trailing: true,
-        sub: true,
-        undef: true,
-        eqeqeq: true,
-        unused: true,
-        predef: [
-          'require',
-          'define'
-        ]
+        stripBanners: true,
+        banner: '<%= meta.banner %>'
       },
-      all: [
-        'Gruntfile.js',
-        'lib/**/*.js'
-      ]
+      woodman: {
+        src: 'dist/woodman.js',
+        dest: 'dist/woodman.js'
+      },
+      'woodman-amd': {
+        src: 'dist/woodman-amd.js',
+        dest: 'dist/woodman-amd.js'
+      },
+      browser: {
+        src: 'dist/woodman-browser.js',
+        dest: 'dist/woodman-browser.js'
+      },
+      'browser-amd': {
+        src: 'dist/woodman-browser-amd.js',
+        dest: 'dist/woodman-browser-amd.js'
+      },
+      node: {
+        src: 'dist/woodman-node.js',
+        dest: 'dist/woodman-node.js'
+      },
+      'node-amd': {
+        src: 'dist/woodman-node-amd.js',
+        dest: 'dist/woodman-node-amd.js'
+      },
+      disabled: {
+        options: {
+          banner: '<%= meta.disabledBanner %>'
+        },
+        src: 'dist/woodman-disabled.js',
+        dest: 'dist/woodman-disabled.js'
+      }
     }
   });
 
