@@ -23,19 +23,7 @@ module.exports = function (grunt) {
         'Portions adapted from log4javascript: http://log4javascript.org/ (copyright Tim Down, Apache License, Version 2.0) ' +
         '*/\n'
     },
-    lint: {
-      files: [
-        'grunt.js',
-        'lib/**/*.js',
-        'test/runner.js',
-        'test/spec/*.js'
-      ]
-    },
-    test: {
-      files: [
-        'test/**/*.js'
-      ]
-    },
+
     concat: {
       options: {
         stripBanners: true,
@@ -281,11 +269,6 @@ module.exports = function (grunt) {
       }
     },
 
-    watch: {
-      files: '<config:lint.files>',
-      tasks: 'lint test'
-    },
-
     jshint: {
       options: {
         indent: 2,
@@ -307,9 +290,7 @@ module.exports = function (grunt) {
         'Gruntfile.js',
         'lib/**/*.js'
       ]
-    },
-
-    uglify: {}
+    }
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
