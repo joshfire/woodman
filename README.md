@@ -822,10 +822,11 @@ We decided to start over because we needed:
 The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE).
 
 The Woodman library uses, extends or was at least partially based on other great open-source projects:
-- [RequireJS](http://requirejs.org/), [new BSD or MIT licensed](https://github.com/jrburke/requirejs/blob/master/LICENSE)
-- [Almond](https://github.com/jrburke/almond), [new BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
-- [log4javascript](http://log4javascript.org/), [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
-- and obviously [log4j](http://logging.apache.org), [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
+- [RequireJS](http://requirejs.org/), Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/requirejs/blob/master/LICENSE)
+- [Almond](https://github.com/jrburke/almond), Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
+- [Socket.IO](http://socket.io/), Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed
+- [log4javascript](http://log4javascript.org/), Copyright Tim Down, [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
+- and obviously [log4j](http://logging.apache.org), Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
 
 
 ## Changelog
