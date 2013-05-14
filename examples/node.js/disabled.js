@@ -2,12 +2,9 @@
  * @fileoverview Example of node.js script that references the disabled
  * distribution of the Woodman library.
  *
- * Woodman uses "amdefine" to ensure compatibility of AMD modules with node.js
- * modules, so require.js is not needed in particular.
- *
  * The disabled version of the Woodman library is a no-op implementation of
  * Woodman intended for use in production environments when the author of the
- * app wants to disable all log traces. It is very lightweight (1Kb).
+ * app wants to disable all log traces. It is very lightweight (<1Kb).
  *
  * Copyright (c) 2013 Joshfire
  * MIT license (see LICENSE file)

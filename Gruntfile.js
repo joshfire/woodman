@@ -42,39 +42,31 @@ module.exports = function (grunt) {
         banner: '<%= meta.banner %>'
       },
       woodman: {
-        src: [
-          'dist/woodman.js'
-        ],
+        src: 'dist/woodman.js',
         dest: 'dist/woodman.js'
       },
       'woodman-amd': {
-        src: [
-          'dist/woodman-amd.js'
-        ],
+        src: 'dist/woodman-amd.js',
         dest: 'dist/woodman-amd.js'
       },
       browser: {
-        src: [
-          'dist/woodman-browser.js'
-        ],
+        src: 'dist/woodman-browser.js',
         dest: 'dist/woodman-browser.js'
       },
       'browser-amd': {
-        src: [
-          'dist/woodman-browser-amd.js'
-        ],
+        src: 'dist/woodman-browser-amd.js',
         dest: 'dist/woodman-browser-amd.js'
       },
       node: {
-        src: [
-          'dist/woodman-node.js'
-        ],
+        src: 'dist/woodman-node.js',
         dest: 'dist/woodman-node.js'
       },
+      'node-amd': {
+        src: 'dist/woodman-node-amd.js',
+        dest: 'dist/woodman-node-amd.js'
+      },
       disabled: {
-        src: [
-          'dist/woodman-disabled.js'
-        ],
+        src: 'dist/woodman-disabled.js',
         dest: 'dist/woodman-disabled.js'
       }
     },
@@ -94,9 +86,10 @@ module.exports = function (grunt) {
        * layouts. Some of them may not work depending on the environment under
        * which the distribution is run.
        *
-       * The Woodman library is exposed as window.woodman (client-side) or to
-       * global "this" scope (node.js module) and as a named "woodman" AMD
-       * module if "define" is defined.
+       * The Woodman library is exposed as:
+       * - window.woodman (client-side) or to the global "this" scope (node.js)
+       * - a named AMD module "woodman" if "define" is defined
+       * - a node.js module if "module" is defined
        *
        * Note the "require" call with the fourth parameter set to "true" to
        * force synchronous load of modules.
@@ -105,25 +98,21 @@ module.exports = function (grunt) {
         options: {
           wrap: {
             start: '/*! Full distribution */\n' +
-              'if ((typeof module !== "undefined") && ' +
-              'module.exports && (typeof define !== "function")) {' +
-              ' var define = require("amdefine")(module);' +
-              '}\n' +
-              'if ((typeof global !== "undefined") && ' +
-              '(typeof require === "function")) {' +
-              ' try { var nodefs = require("fs"); } catch (e) {}' +
-              '}\n' +
-              '(function(root, rootdefine) {',
+              '(function(root, rootDefine, rootRequire, rootModule) {\n',
             end: 'require(["./woodman"], function (woodman) {\n' +
-              ' if (rootdefine) rootdefine(woodman);\n' +
-              ' if (root) root.woodman = woodman;\n' +
+              '  if (rootDefine) rootDefine(woodman);\n' +
+              '  if (root) root.woodman = woodman;\n' +
+              '  if (rootModule) rootModule.exports = woodman;\n' +
               '}, null, true);\n' +
-              '}((typeof window !== "undefined") ? window : this,' +
-              ' (typeof define === "function") ? define : null));'
+              '}(((typeof window !== "undefined") ? window : this),' +
+              ' ((typeof define === "function") ? define : null),' +
+              ' ((typeof require === "function") ? require : null),' +
+              ' ((typeof module !== "undefined") ? module : null)' +
+              '));'
           },
           baseUrl: 'lib/',
           name: '../deps/almond',
-          include: [ 'woodman' ],
+          include: ['woodman'],
           out: 'dist/woodman.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
@@ -141,21 +130,17 @@ module.exports = function (grunt) {
         options: {
           wrap: {
             start: '/*! Full distribution, AMD module */\n' +
-              'if ((typeof global !== "undefined") && ' +
-              '(typeof require === "function")) {' +
-              ' try { var nodefs = require("fs"); } catch (e) {}' +
-              '}\n' +
-              'define([], function () {\n',
-            end: ' var woodman = null;\n' +
-              ' require(["./woodman"], function (wood) {\n' +
-              '  woodman = wood;\n' +
-              ' }, null, true);\n' +
-              ' return woodman;\n' +
-              '});'
+              '(function(rootDefine, rootRequire) {\n',
+            end: 'require(["./woodman"], function (woodman) {\n' +
+              '  if (rootDefine) rootDefine(woodman);\n' +
+              '}, null, true);\n' +
+              '}(((typeof define === "function") ? define : null),' +
+              ' ((typeof require === "function") ? require : null))' +
+              ');'
           },
           baseUrl: 'lib/',
           name: '../deps/almond',
-          include: [ 'woodman' ],
+          include: ['woodman'],
           out: 'dist/woodman-amd.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
@@ -172,14 +157,15 @@ module.exports = function (grunt) {
         options: {
           wrap: {
             start: '/*! Browser distribution */\n' +
-              '(function() {',
+              '(function () {\n',
             end: 'require(["./woodman-browser"], function (woodman) {' +
-              ' window.woodman = woodman; }, null, true);' +
+              '  window.woodman = woodman;\n' +
+              '}, null, true);\n' +
               '}());'
           },
           baseUrl: 'lib/',
           name: '../deps/almond',
-          include: [ 'woodman-browser' ],
+          include: ['woodman-browser'],
           out: 'dist/woodman-browser.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
@@ -198,16 +184,16 @@ module.exports = function (grunt) {
           wrap: {
             start: '/*! Browser distribution, AMD module */\n' +
               'define([], function () {\n',
-            end: ' var woodman = null;\n' +
-              ' require(["./woodman-browser"], function (wood) {\n' +
-              '  woodman = wood;\n' +
-              ' }, null, true);\n' +
-              ' return woodman;\n' +
+            end: '  var woodman = null;\n' +
+              '  require(["./woodman-browser"], function (wood) {\n' +
+              '    woodman = wood;\n' +
+              '  }, null, true);\n' +
+              '  return woodman;\n' +
               '});'
           },
           baseUrl: 'lib/',
           name: '../deps/almond',
-          include: [ 'woodman-browser' ],
+          include: ['woodman-browser'],
           out: 'dist/woodman-browser-amd.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
@@ -224,14 +210,41 @@ module.exports = function (grunt) {
         options: {
           wrap: {
             start: '/*! Node.js distribution */\n' +
-              'var nodefs = require("fs");\n',
-            end: 'require(["./woodman-node"], function (woodman) {' +
-              ' module.exports = woodman; }, null, true);'
+              '(function(rootRequire) {\n',
+            end: 'require(["./woodman-node"], function (woodman) {\n' +
+              '  module.exports = woodman; }, null, true);\n' +
+              '}(require));'
           },
           baseUrl: 'lib/',
           name: '../deps/almond',
-          include: [ 'woodman-node' ],
+          include: ['woodman-node'],
           out: 'dist/woodman-node.js',
+          preserveLicenseComments: false,
+          optimize: 'uglify'
+        }
+      },
+
+
+      /**
+       * Same as above but the Woodman library is only exposed as an anonymous
+       * AMD module.
+       */
+      'node-amd': {
+        options: {
+          wrap: {
+            start: '/*! Node.js distribution, AMD module */\n' +
+              '(function(rootDefine, rootRequire) {\n',
+            end: 'require(["./woodman-node"], function (woodman) {\n' +
+              '  if (rootDefine) rootDefine(woodman);\n' +
+              '}, null, true);\n' +
+              '}(((typeof define === "function") ? define : null),' +
+              ' ((typeof require === "function") ? require : null))' +
+              ');'
+          },
+          baseUrl: 'lib/',
+          name: '../deps/almond',
+          include: ['woodman-node'],
+          out: 'dist/woodman-node-amd.js',
           preserveLicenseComments: false,
           optimize: 'uglify'
         }

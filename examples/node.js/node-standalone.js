@@ -2,10 +2,6 @@
  * @fileoverview Example of node.js script that references the node.js
  * distribution of the Woodman library.
  *
- * Woodman uses "amdefine" to ensure compatibility of AMD modules with node.js
- * modules, so require.js is not needed in particular, although possible (see
- * node-amd.js for an example).
- *
  * Copyright (c) 2013 Joshfire
  * MIT license (see LICENSE file)
  */

@@ -2,10 +2,6 @@
  * @fileoverview Example of node.js script that references the standalone
  * distribution of the Woodman library, using require.js
  *
- * Woodman uses "amdefine" to ensure compatibility of AMD modules with node.js
- * modules, so require.js is not stricto senso necessary. See standalone.js for
- * an example that does not use require.js.
- *
  * Copyright (c) 2013 Joshfire
  * MIT license (see LICENSE file)
  */
