@@ -1,5 +1,11 @@
-/*! Woodman - v0.3.0 - 2013-05-13 - https://github.com/joshfire/woodman
-Copyright 2013 Joshfire; MIT license
-Based on log4j v2.0: http://logging.apache.org/log4j/2.x/
-Portions adapted from log4javascript: http://log4javascript.org/ (copyright Tim Down, Apache License, Version 2.0) */
+/*!
+Woodman - v0.4.0 - 2013-05-14
+ Copyright 2013 Joshfire; MIT license
+ https://github.com/joshfire/woodman
+
+Based on log4j v2.0:
+ Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.
+ Apache License, Version 2.0
+ http://logging.apache.org/log4j/2.x/
+*/
 (function(e,t){var n=null,r=function(e,t,r){n=r()};r("woodman-disabled",[],function(){var e=function(){},t=function(){arguments&&arguments.length>0&&arguments[arguments.length-1]()};return{registerAppender:e,registerFilter:e,registerLayout:e,load:t,unload:t,initialize:t,start:t,stop:e,getLogger:function(){return{log:e,info:e,warn:e,error:e}}}}),t?t("woodman",n):typeof module!="undefined"&&module.exports&&(t=require("amdefine")(module),t(n)),e&&(e.woodman=n)})(typeof window!="undefined"?window:this,typeof define=="function"?define:null);
