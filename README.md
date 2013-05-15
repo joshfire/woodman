@@ -1,6 +1,7 @@
 # Woodman
 
 Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
+
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
 - **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
 - **appenders** to change the destination where log events are sent without changing the code itself (the `console` comes to mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
@@ -205,9 +206,9 @@ Filters allow LogEvents to be evaluated to determine whether they should be publ
 
 As explained in the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/filters.html), filters may be attached to different locations:
 
-* Context-wide Filters run before all the other filters. Events that are rejected by these filters will not be passed to loggers for further processing. Once an event has been accepted by a Context-wide filter it will not be evaluated by any other Context-wide Filters nor will the Logger's Level be used to filter the event. The event will be evaluated by Logger and Appender Filters however.
-* Logger Filters are configured on a specified Logger. These are evaluated after the Context-wide Filters and the Log Level for the Logger. Events that are rejected by these filters will be discarded and the event will not be passed to a parent Logger regardless of the additivity setting.
-* Appender Filters are used to determine if a specific Appender should handle the formatting and publication of the event.
+- Context-wide Filters run before all the other filters. Events that are rejected by these filters will not be passed to loggers for further processing. Once an event has been accepted by a Context-wide filter it will not be evaluated by any other Context-wide Filters nor will the Logger's Level be used to filter the event. The event will be evaluated by Logger and Appender Filters however.
+- Logger Filters are configured on a specified Logger. These are evaluated after the Context-wide Filters and the Log Level for the Logger. Events that are rejected by these filters will be discarded and the event will not be passed to a parent Logger regardless of the additivity setting.
+- Appender Filters are used to determine if a specific Appender should handle the formatting and publication of the event.
 
 (Note Woodman does not support Appender Reference Filters)
 
@@ -326,12 +327,12 @@ Do not worry if that sounds far-fetched at first sight. First, this mechanism is
 
 A Logger definition contains one or more of the following properties:
 
-* `additivity`: A boolean flag that determines whether the Logger is additive. Loggers are additive by default. An additive Logger sends the log event it processes to the appenders of its ancestor (up until the root Logger or the first non additive Logger).
-* `appenders`: The list of appenders directly associated with the Logger. See [Appender definition](#appender-definition) for details. The list may be empty.
-* `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Logger processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application. If not specified in the configuration, the list of filters is inherited from the closest ancestor of the Logger in the configuration.
-* `level`: The trace level of the Logger. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off`. If not specified in the configuration, the trace level is inherited from the closest ancestor of the Logger that specifies a trace level in the Logger hierarchy.
-* `name`: The name of the Logger. A string. The property is required except if the `root` property is `true`. Dots in the name are used to build the hierarchy of Loggers.
-* `root`: A special flag that identifies the root Logger. If this flag is set, the `name` property must not be set. The root Logger can appear at most once in the configuration.
+- `additivity`: A boolean flag that determines whether the Logger is additive. Loggers are additive by default. An additive Logger sends the log event it processes to the appenders of its ancestor (up until the root Logger or the first non additive Logger).
+- `appenders`: The list of appenders directly associated with the Logger. See [Appender definition](#appender-definition) for details. The list may be empty.
+- `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Logger processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application. If not specified in the configuration, the list of filters is inherited from the closest ancestor of the Logger in the configuration.
+- `level`: The trace level of the Logger. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off`. If not specified in the configuration, the trace level is inherited from the closest ancestor of the Logger that specifies a trace level in the Logger hierarchy.
+- `name`: The name of the Logger. A string. The property is required except if the `root` property is `true`. Dots in the name are used to build the hierarchy of Loggers.
+- `root`: A special flag that identifies the root Logger. If this flag is set, the `name` property must not be set. The root Logger can appear at most once in the configuration.
 
 The following configuration defines a Logger that sends log events at or below the `info` level to the console, except when the message to log contains the word `dummy`. Log events are formatted using the specified pattern:
 
@@ -363,12 +364,12 @@ The following configuration defines a Logger that sends log events at or below t
 
 An Appender definition contains one or more of the following properties:
 
-* `appendStrings`: Boolean flag that determines whether to log a string formatted from the log event, or the log event itself as an object. Default value is `true`.
-* `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
-* `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
-* `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
-* `type`: The type of the Appender. The property is required. Possible values are `Console` to log events to the console, `Socket` to send log events to a remote Web socket server, or `File` to send log events to a file (provided you are running in a node.js environment). More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
-* `url`: The URL of the Web socket server. The property is required for a Socket Appender, meaningless otherwise.
+- `appendStrings`: Boolean flag that determines whether to log a string formatted from the log event, or the log event itself as an object. Default value is `true`.
+- `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
+- `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
+- `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
+- `type`: The type of the Appender. The property is required. Possible values are `Console` to log events to the console, `Socket` to send log events to a remote Web socket server, or `File` to send log events to a file (provided you are running in a node.js environment). More types may be added in the future (see [Add a new Appender](#add-a-new-appender) for details).
+- `url`: The URL of the Web socket server. The property is required for a Socket Appender, meaningless otherwise.
 
 Here is an example of a possible Woodman configuration for an appender that sends error messages to a Web socket server as JSON objects provided the error message starts with "Alert ze world":
 
@@ -401,16 +402,16 @@ Other properties depend on the type of Layout.
 
 A `JSONLayout` formats a log event as a JSON structure. The following properties may be set to fine-tune how the formatting is achieved:
 
-* `compact`: A boolean that determines whether the resulting JSON string is compact or more human readable with tabs and carriage returns. Default value is `false`.
-* `depth`: The depth at which to serialize the message of a log event is the `messageAsObject` flag is set. Default value is `2`.
-* `messageAsObject`: Whether to format the message of a log event as an object or as a string. Default value is `false`.
+- `compact`: A boolean that determines whether the resulting JSON string is compact or more human readable with tabs and carriage returns. Default value is `false`.
+- `depth`: The depth at which to serialize the message of a log event is the `messageAsObject` flag is set. Default value is `2`.
+- `messageAsObject`: Whether to format the message of a log event as an object or as a string. Default value is `false`.
 
 #### PatternLayout
 
 A `PatternLayout` formats a log event as a string that follows a pattern string. The following properties may be set:
 
-* `pattern`: The pattern string used to format the log event. See below for details.
-* `compactObjects`: A boolean flag that determines whether to serialize objects using a compact form. Default value is false.
+- `pattern`: The pattern string used to format the log event. See below for details.
+- `compactObjects`: A boolean flag that determines whether to serialize objects using a compact form. Default value is false.
 
 The pattern string is composed of literal text and format control expressions called conversion specifiers. A conversion specifier starts with a `%` and is followed by optional *format modifiers* and a *conversion pattern*.
 
@@ -418,14 +419,14 @@ Note that any literal text may be included in the conversion pattern.
 
 The *conversion patterns* supported by the pattern string are based on those defined by the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), but note Woodman only supports the following conversion patterns:
 
-* `c` or `logger`: The name of the Logger
-* `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
-* `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{%level %message}`.
-* `m` or `message`: The log event message.
-* `n`: A newline.
-* `p` or `level`: The level of the log event.
-* `r` or `relative`: The number of milliseconds elapsed since the application started.
-* `%`: The percent sign (i.e. `%%` will produce a single percent sign).
+- `c` or `logger`: The name of the Logger
+- `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
+- `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{%level %message}`.
+- `m` or `message`: The log event message.
+- `n`: A newline.
+- `p` or `level`: The level of the log event.
+- `r` or `relative`: The number of milliseconds elapsed since the application started.
+- `%`: The percent sign (i.e. `%%` will produce a single percent sign).
 
 The *format modifiers* control such things as field width, padding, left and right justification. Given a conversion specifier `%-10.25logger`, the layout formats the name of the logger as follows:
 
@@ -448,10 +449,10 @@ The following definition describes a possible `PatternLayout`:
 A Filter definition contains a `type` property that specifies the type of Filter to use to filter the underlying log event. The only possible value is `RegexFilter` for the time being to filter log events based on whether the log event message matches a regular expression.
 
 Properties that may be set for a `RegexFilter` filter are:
-* `regex`: The regular expression.
-* `match` or `onMatch`: The decision to take when the regular expression matches the message. Possible values are `accept`, `deny` or `neutral`. Default value is `neutral`.
-* `mismatch` or `onMismatch`: The decision to take when the regular expression does not match the message. Same possible values as the `match` property. Default value is `deny`.
-* `useRawMsg`: If true the regular expression will match the format string of the log event if there is one, otherwise the formatted message will be used. The default value is `false`.
+- `regex`: The regular expression.
+- `match` or `onMatch`: The decision to take when the regular expression matches the message. Possible values are `accept`, `deny` or `neutral`. Default value is `neutral`.
+- `mismatch` or `onMismatch`: The decision to take when the regular expression does not match the message. Same possible values as the `match` property. Default value is `deny`.
+- `useRawMsg`: If true the regular expression will match the format string of the log event if there is one, otherwise the formatted message will be used. The default value is `false`.
 
 Here is an example
 
@@ -524,8 +525,8 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
 
 When you package your application for release, you may not want that version to log anything, be it only because it is quite useless to log things to a destination that no one will ever see. While it's easy to silence Woodman, leaving the calls to Woodman in the code has a couple of drawbacks:
 
-* Size often matters for a release version. It is common practice to run a JavaScript minifier to shrink the size of the code to a bare minimum before release. Including Woodman and calls to Woodman take up useful bytes for just about nothing.
-* Speed matters as well and, even though they do not do anything when Woodman is configured not to log anything, calls to Woodman are regular JavaScript function calls that consume a little bit of time and memory.
+- Size often matters for a release version. It is common practice to run a JavaScript minifier to shrink the size of the code to a bare minimum before release. Including Woodman and calls to Woodman take up useful bytes for just about nothing.
+- Speed matters as well and, even though they do not do anything when Woodman is configured not to log anything, calls to Woodman are regular JavaScript function calls that consume a little bit of time and memory.
 
 Not being able to remove logs from the code is probably one of the reasons why most JavaScript libraries do not contain logging traces in the first place. Woodman would not be *that* useful if it could not address that issue. Fortunately, it can!
 
@@ -647,22 +648,22 @@ This section is meant as a quick introduction to the source code of Woodman, ava
 ### Codebase
 Woodman's [GitHub repository](https://github.com/joshfire/woodman) is organized in folders:
 
-* The `dist/` folder contains Woodman distribution files, in other words the results building Woodman into a minified JavaScript file that contains all the code and exports Woodman for some JavaScript runtime environment.
-* The `examples/` folder contains examples that you may try out in your Web browser or run in [node.js](http://nodejs.org)
-* The `lib/` folder contains the actual source code of Woodman.
-* The `precompile/` folder contains the precompiler library and command-line interface.
-* The `test/` folder contains unit tests.
-* The `grunt.js` file is a Grunt 0.3 compatible make file that runs the different instructions needed to build Woodman and updates the `dist/` folder accordingly.
+- The `dist/` folder contains Woodman distribution files, in other words the results building Woodman into a minified JavaScript file that contains all the code and exports Woodman for some JavaScript runtime environment.
+- The `examples/` folder contains examples that you may try out in your Web browser or run in [node.js](http://nodejs.org)
+- The `lib/` folder contains the actual source code of Woodman.
+- The `precompile/` folder contains the precompiler library and command-line interface.
+- The `test/` folder contains unit tests.
+- The `grunt.js` file is a Grunt 0.3 compatible make file that runs the different instructions needed to build Woodman and updates the `dist/` folder accordingly.
 
 To start developing for Woodman, clone the repository and run `npm install` to install the different libraries needed to build Woodman, precompile and/or run tests.
 
 #### Architecture
 Woodman is defined as a series of [AMD modules](http://requirejs.org/docs/whyamd.html#amd) that get bundled together during build. The [basic concepts](#basic-concepts-and-classes) presented earlier directly match the base classes that you will find in the `lib/` folder:
 
-* `appender.js` defines the base `Appender` class.
-* `logevent.js` defines the base `LogEvent` class.
-* `logger.js` defines the `Logger` class.
-* and so on!
+- `appender.js` defines the base `Appender` class.
+- `logevent.js` defines the base `LogEvent` class.
+- `logger.js` defines the `Logger` class.
+- and so on!
 
 Other files define classes that follow the [log4j architecture](http://logging.apache.org/log4j/2.x/manual/architecture.html), for instance: `loggercontext.js`, `logmanager.js`, `message.js`, or `lifecycle.js`.
 
@@ -784,6 +785,7 @@ Woodman has been manufactured on the assembly line by [Joshfire Factory](http://
 
 ### Why?!?
 "Surely, you've heard about that thing called `console`?", you may ask. "Wake up, this is *JavaScript*, not *Java*!", you might add. Yes indeed! The `console` is extremely useful to debug an application. It is not quite enough, mainly because:
+
 - No all devices expose a `console` object. Perhaps surprisingly, the devices that do not are the ones that you might want to support to surf the HTML5-in-all-the-things wave. For instance, many connected TVs do not expose a debugging environment. Using `console` calls is simply not an option on such devices.
 - Maintenance of a complex application often involves focusing on a specific part of it. To help debugging, you often need to see the *right* logs in your console, meaning those from the specific part you're looking at and not from other parts of the application that just add noise. The `console` is all-or-nothing, you cannot disable logs from certain parts of your application
 without actually removing them from the code.
