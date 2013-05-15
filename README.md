@@ -35,6 +35,7 @@ What now? If that all sounds clear and great, [get started](#getting-started) th
   - [Layout definition](#layout-definition)
   - [Filter definition](#filter-definition)
   - [Log4j JSON configuration format](#log4j-json-configuration-format)
+  - [Console configuration shortcut](#console-configuration-shortcut)
 - [Precompilation](#precompilation)
   - [Run the precompiler](#run-the-precompiler)
   - [What the precompiler does](#what-the-precompiler-does)
@@ -81,7 +82,7 @@ npm install woodman
 Woodman needs to be initialized before it may be used. Note this initialization process is asynchronous because appenders may need to setup network connections or execute similar I/O operations.
 ```javascript
 var woodman = require('woodman');
-var config = {}; // See below for details about configuration
+var config = 'console'; // See below for details about configuration
 woodman.load(config, function (err) {
   if (err) {
     // An error either means the configuration is incorrect
@@ -116,7 +117,7 @@ Using Woodman in a Web browser is essentially the same as using Woodman in a nod
 
 The rest is pretty similar to the node.js case, except `woodman` is exposed as a global object. In particular, initialize Woodman once before use:
 ```javascript
-var config = {}; // See below for details about configuration
+var config = 'console'; // See below for details about configuration
 woodman.load(config, function (err) {
   if (err) {
     // An error either means the configuration is incorrect
@@ -147,7 +148,7 @@ As above, the library needs to be initialized once before it may be used, typica
 
 ```javascript
 requirejs(['woodman'], function (woodman) {
-  var config = {};  // See below for details about configuration
+  var config = 'console';  // See below for details about configuration
   woodman.load(config, function (err) {
     if (err) throw err;
     var logger = woodman.getLogger('main');
@@ -220,7 +221,11 @@ A Layout formats a LogEvent into a form that meets the needs of an Appender, in 
 
 ## Woodman configuration
 
-In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman, defined in a declarative JavaScript object that can be serialized as JSON. You will typically load the configuration object once and for all when your application is started with code such as:
+In the absence of a proper configuration, calls to trace functions will not produce anything. To actually start logging something somewhere, you need to specify **what**, **how** and **where** to log events. This is all done through the configuration of Woodman, defined in a declarative JavaScript object that can be serialized as JSON.
+
+The `console` string used in the examples of the [Getting started](#getting-started) section is a [shortcut notation](#console-configuration-shortcut) that tells Woodman to send everything to the console using a usual pattern. You can achieve much more using a proper configuration object.
+
+You will typically load the configuration object once and for all when your application is started with code such as:
 
 ```javascript
 // Initialize Woodman configuration
@@ -520,6 +525,55 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
     }
   }
 }
+```
+
+### Console configuration shortcut
+It is common to want to log everything to the console to start with. Not to have to think too hard about the configuration object to create to make that possible, Woodman gives you the possibility to provide the string `"console"` instead of the regular configuration object, optionally completed with the [pattern](#patternlayout) that you would like to use.
+
+For instance, the following calls to `load` are equivalent:
+```javascript
+woodman.load('console [%c] %m%n', function (err) {});
+
+woodman.load({
+  loggers: [
+    {
+      level: 'all',
+      appenders: [
+        {
+          type: 'Console',
+          name: 'console',
+          layout: {
+            type: 'pattern',
+            pattern: '%d{yyyy-MM-dd HH:mm:ss} [%c] %p - %m%n'
+          }
+        }
+      ]
+    }
+  ]
+}, function (err) {});
+```
+
+Similarly, the following calls to `load` are equivalent:
+```javascript
+woodman.load('console [%c] %m%n', function (err) {});
+
+woodman.load({
+  loggers: [
+    {
+      level: 'all',
+      appenders: [
+        {
+          type: 'Console',
+          name: 'console',
+          layout: {
+            type: 'pattern',
+            pattern: '[%c] %m%n'
+          }
+        }
+      ]
+    }
+  ]
+}, function (err) {});
 ```
 
 
