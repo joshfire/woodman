@@ -19,24 +19,29 @@ module.exports = function (grunt) {
         ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
         ' MIT license\n' +
         ' <%= pkg.homepage %>\n',
-      log4j: 'Based on log4j v2.0:\n' +
+      log4j: 'Based on log4j v2.0\n' +
         ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
         ' Apache License, Version 2.0\n' +
         ' http://logging.apache.org/log4j/2.x/\n',
-      almond: 'Includes Almond 0.2.3:\n' +
+      requirejs: 'Built with RequireJS optimizer r.js 2.1.2\n' +
+        ' Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved.\n' +
+        ' new BSD or MIT licensed\n' +
+        ' http://github.com/jrburke/requirejs\n',
+      almond: 'Includes Almond 0.2.3\n' +
         ' Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved\n' +
         ' Available via the MIT or new BSD license\n' +
         ' http://github.com/jrburke/almond\n',
       socketio: 'Includes Socket.IO.js build:0.9.11, development\n' +
         ' Copyright(c) 2011 LearnBoost <dev@learnboost.com>\n' +
         ' MIT Licensed\n',
-      log4javascript: 'Portions adapted from log4javascript:\n' +
+      log4javascript: 'Portions adapted from log4javascript\n' +
         ' Copyright Tim Down\n' +
         ' Apache License, Version 2.0\n' +
         ' http://log4javascript.org/\n',
       fullBanner: '/*!\n' +
         '<%= meta.woodman %>' +
         '\n<%= meta.log4j %>' +
+        '\n<%= meta.requirejs %>' +
         '\n<%= meta.almond %>' +
         '\n<%= meta.socketio %>' +
         '\n<%= meta.log4javascript %>' +
@@ -44,10 +49,12 @@ module.exports = function (grunt) {
       disabledBanner: '/*!\n' +
         '<%= meta.woodman %>' +
         '\n<%= meta.log4j %>' +
+        '\n<%= meta.requirejs %>' +
         '*/\n',
       consoleBanner: '/*!\n' +
         '<%= meta.woodman %>' +
         '\n<%= meta.log4j %>' +
+        '\n<%= meta.requirejs %>' +
         '\n<%= meta.almond %>' +
         '\n<%= meta.log4javascript %>' +
         '*/\n'
