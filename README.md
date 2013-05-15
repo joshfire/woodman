@@ -1,6 +1,8 @@
 # Woodman
 
-Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. In particular, Woodman features:
+Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. Woodman is roughly as simple to use as the `console` object. Behind the scenes though, it brings a rich configuration mechanism that lets you take precise control over **what** gets logged **where** and **how**.
+
+In particular, Woodman features:
 
 - a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
 - **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
@@ -82,13 +84,15 @@ npm install woodman
 Woodman needs to be initialized before it may be used. Note this initialization process is asynchronous because appenders may need to setup network connections or execute similar I/O operations.
 ```javascript
 var woodman = require('woodman');
-var config = 'console'; // See below for details about configuration
-woodman.load(config, function (err) {
+
+// "console" means "console all the things!". See configuration for details.
+woodman.load('console', function (err) {
   if (err) {
     // An error either means the configuration is incorrect
     // or that an I/O operation failed
   }
-  // Woodman is up and running
+  var logger = woodman.getLogger('main');
+  logger.log('Woodman is up and running');
 });
 ```
 
@@ -117,13 +121,14 @@ Using Woodman in a Web browser is essentially the same as using Woodman in a nod
 
 The rest is pretty similar to the node.js case, except `woodman` is exposed as a global object. In particular, initialize Woodman once before use:
 ```javascript
-var config = 'console'; // See below for details about configuration
-woodman.load(config, function (err) {
+// "console" means "console all the things!". See configuration for details.
+woodman.load('console', function (err) {
   if (err) {
     // An error either means the configuration is incorrect
     // or that an I/O operation failed
   }
-  // Woodman is up and running
+  var logger = woodman.getLogger('main');
+  logger.log('Woodman is up and running');
 });
 ```
 
@@ -148,8 +153,8 @@ As above, the library needs to be initialized once before it may be used, typica
 
 ```javascript
 requirejs(['woodman'], function (woodman) {
-  var config = 'console';  // See below for details about configuration
-  woodman.load(config, function (err) {
+  // "console" means "console all the things!". See configuration for details.
+  woodman.load('console', function (err) {
     if (err) throw err;
     var logger = woodman.getLogger('main');
     logger.log('Yeepee');
