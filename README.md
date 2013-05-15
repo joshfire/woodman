@@ -535,11 +535,11 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
 ```
 
 ### Console configuration shortcut
-It is common to want to log everything to the console to start with. Not to have to think too hard about the configuration object to create to make that possible, Woodman gives you the possibility to provide the string `"console"` instead of the regular configuration object, optionally completed with the [pattern](#patternlayout) that you would like to use.
+It is common to want to log everything to the console to start with. Not to have to think too hard about the configuration object to create to make that possible, Woodman gives you the possibility to provide the string `'console'` instead of the regular configuration object, optionally completed with the [pattern](#patternlayout) that you would like to use.
 
-For instance, the following calls to `load` are equivalent:
+For instance, the following calls to `load` are equivalent and mean *Console, all the things!*:
 ```javascript
-woodman.load('console [%c] %m%n', function (err) {});
+woodman.load('console', function (err) {});
 
 woodman.load({
   loggers: [
