@@ -271,7 +271,7 @@ module.exports = function (grunt) {
           wrap: {
             start: '/*! Console-only distribution */\n' +
               '(function(root, rootDefine, rootRequire, rootModule) {\n',
-            end: 'require(["./woodman"], function (woodman) {\n' +
+            end: 'require(["./woodman-console"], function (woodman) {\n' +
               '  if (rootDefine) rootDefine(woodman);\n' +
               '  if (root) root.woodman = woodman;\n' +
               '  if (rootModule) rootModule.exports = woodman;\n' +
