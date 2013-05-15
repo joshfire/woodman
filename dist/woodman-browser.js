@@ -1,5 +1,5 @@
 /*!
-Woodman - v0.4.0 - 2013-05-14
+Woodman - v0.4.1 - 2013-05-15
  Copyright 2013 Joshfire; MIT license
  https://github.com/joshfire/woodman
 
@@ -13,7 +13,7 @@ Includes Almond 0.2.3:
  Available via the MIT or new BSD license
  http://github.com/jrburke/almond
 
-May include Socket.IO.js build:0.9.11, development
+Includes Socket.IO.js build:0.9.11, development
  Copyright(c) 2011 LearnBoost <dev@learnboost.com>
  MIT Licensed
 
