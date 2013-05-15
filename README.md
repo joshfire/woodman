@@ -774,7 +774,7 @@ Did you find a bug? Do you have a new feature to suggest? Great! Use the [issue 
 
 Do you feel like contributing to the code of Woodman? Even better! The best way forward would be to fork the repository, commit the changes in the forked version and send a pull request. Please note the [MIT License](#license).
 
-Is documentation your thing? Awesome as well! Please get in touch through the [issue tracking system](https://github.com/joshfire/woodman/issues) on GitHub with suggestions to turn the documentation into a pleasant read. Translations welcome as well.
+Is documentation your thing? Awesome! Please get in touch through the [issue tracking system](https://github.com/joshfire/woodman/issues) on GitHub with suggestions to turn the documentation into a pleasant read. Translations welcome as well.
 
 
 ## About
@@ -789,22 +789,25 @@ Woodman has been manufactured on the assembly line by [Joshfire Factory](http://
 without actually removing them from the code.
 - At pre-production phase, you may want to hand over your application to beta testers and monitor usage remotely to be able to track down issues they may report. You need to save logs to a file or to send them to a remote log server. Said differently, you need to re-route the console to some other destination.
 
-In the end, `console` is underused in most JavaScript applications. More precisely, most applications are written *without* log traces; `console` statements are only ever used temporarily to nail down specific issues at debug phase, or to report errors.
+The net result is that `console` is underused in most JavaScript applications. More precisely, most applications are written *without* log traces; `console` statements are only ever used temporarily to nail down specific issues at debug phase, or to report errors.
 
 The [log4j introduction](http://logging.apache.org/log4j/2.x/manual/index.html) provides a handful of reasons why flexible logging is useful. These reasons are valid whether the underlying language is Java, JavaScript, C, Python...
 
 In the end, log4j provides a very good abstraction over `console` that solves the problems raised above for a reasonable cost: that of having to manage a `Logger` instance per module.
 
 ### Differences with log4j
+While Woodman attempts to follow Log4j v2 as closely as possible, it does not implement all the features of log4j. In particular, Woodman comes with: 
 
-* Restricted number of Appenders available
-* Restricted number of Layouts available
-* Restricted number of Filters available
-* No support for Appender Reference Filters
-* No support for Markers
-* No support for Plugins
-* Functions may not have the right signature to stick to more
-JavaScript-friendly paradigms
+- a restricted number of [Appenders](http://logging.apache.org/log4j/2.x/manual/filters.html)
+- a restricted number of [Layouts](http://logging.apache.org/log4j/2.x/manual/layouts.html)
+- a restricted number of [Filters](http://logging.apache.org/log4j/2.x/manual/filters.html)
+- no support for Appender Reference Filters (fourth type in [Filters](http://logging.apache.org/log4j/2.x/manual/filters.html))
+- no support for [Markers](http://logging.apache.org/log4j/2.x/manual/markers.html)
+- no support for [Plugins](http://logging.apache.org/log4j/2.x/manual/plugins.html) and [Lookups](http://logging.apache.org/log4j/2.x/manual/lookups.html)
+
+API functions in Woodman may also not have the exact same signature as those specified in log4j to stick to more JavaScript-friendly paradigms. For instance, log levels in JavaScript are lower-case strings, as opposed to a proper enumeration in log4j.
+
+New features get introduced in Woodman when the need arises. If you need something that does not yet exist, check [Contribute to Woodman](#contribute-to-woodman) and get in touch!
 
 ### Other JavaScript logging libraries
 
@@ -812,8 +815,9 @@ Woodman is not the first logging library written in JavaScript. [Winston](https:
 [log4javascript](http://log4javascript.org/) library is a nice and complete implementation of log4j for Web browsers (and can easily be adapted to run in node.js applications).
 
 We decided to start over because we needed:
+
 - an implementation that takes a declarative configuration object as input and sets up loggers, appenders and layouts accordingly;
-- an implementation that both runs in Web browsers and in node.js, using an AMD loader or not;
+- an implementation that runs both in Web browsers and in node.js, using an AMD loader or not;
 - code modularization, one file per class to be able to create custom builds of Woodman with selected appenders and layouts.
 - a clean and small public interface to ease the work of the precompiler
 
@@ -822,11 +826,12 @@ We decided to start over because we needed:
 The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE).
 
 The Woodman library uses, extends or was at least partially based on other great open-source projects:
-- [RequireJS](http://requirejs.org/), Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/requirejs/blob/master/LICENSE)
-- [Almond](https://github.com/jrburke/almond), Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
-- [Socket.IO](http://socket.io/), Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed
+
+- [RequireJS](http://requirejs.org/). Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/requirejs/blob/master/LICENSE)
+- [Almond](https://github.com/jrburke/almond). Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
+- [Socket.IO](http://socket.io/). Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed
 - [log4javascript](http://log4javascript.org/), Copyright Tim Down, [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
-- and obviously [log4j](http://logging.apache.org), Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
+- and obviously [log4j](http://logging.apache.org). Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
 
 
 ## Changelog
