@@ -14,43 +14,42 @@ module.exports = function (grunt) {
       /**
        * Copyright and license banner
        */
-      banner: '/*!\n' +
-        'Woodman - v<%= pkg.version %> - ' +
+      woodman: 'Woodman - v<%= pkg.version %> - ' +
         '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
         ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
         ' MIT license\n' +
-        ' <%= pkg.homepage %>\n' +
-        '\n' +
-        'Based on log4j v2.0:\n' +
+        ' <%= pkg.homepage %>\n',
+      log4j: 'Based on log4j v2.0:\n' +
         ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
         ' Apache License, Version 2.0\n' +
-        ' http://logging.apache.org/log4j/2.x/\n' +
-        '\n' +
-        'Includes Almond 0.2.3:\n' +
+        ' http://logging.apache.org/log4j/2.x/\n',
+      almond: 'Includes Almond 0.2.3:\n' +
         ' Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved\n' +
         ' Available via the MIT or new BSD license\n' +
-        ' http://github.com/jrburke/almond\n' +
-        '\n' +
-        'May include Socket.IO.js build:0.9.11, development\n' +
+        ' http://github.com/jrburke/almond\n',
+      socketio: 'Includes Socket.IO.js build:0.9.11, development\n' +
         ' Copyright(c) 2011 LearnBoost <dev@learnboost.com>\n' +
-        ' MIT Licensed\n' +
-        '\n' +
-        'Portions adapted from log4javascript:\n' +
+        ' MIT Licensed\n',
+      log4javascript: 'Portions adapted from log4javascript:\n' +
         ' Copyright Tim Down\n' +
         ' Apache License, Version 2.0\n' +
-        ' http://log4javascript.org/\n' +
+        ' http://log4javascript.org/\n',
+      fullBanner: '/*!\n' +
+        '<%= meta.woodman %>' +
+        '\n<%= meta.log4j %>' +
+        '\n<%= meta.almond %>' +
+        '\n<%= meta.socketio %>' +
+        '\n<%= meta.log4javascript %>' +
         '*/\n',
       disabledBanner: '/*!\n' +
-        'Woodman - v<%= pkg.version %> - ' +
-        '<%= grunt.template.today("yyyy-mm-dd") %>\n' +
-        ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
-        ' MIT license\n' +
-        ' <%= pkg.homepage %>\n' +
-        '\n' +
-        'Based on log4j v2.0:\n' +
-        ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
-        ' Apache License, Version 2.0\n' +
-        ' http://logging.apache.org/log4j/2.x/\n' +
+        '<%= meta.woodman %>' +
+        '\n<%= meta.log4j %>' +
+        '*/\n',
+      consoleBanner: '/*!\n' +
+        '<%= meta.woodman %>' +
+        '\n<%= meta.log4j %>' +
+        '\n<%= meta.almond %>' +
+        '\n<%= meta.log4javascript %>' +
         '*/\n'
     },
 
@@ -261,6 +260,38 @@ module.exports = function (grunt) {
       },
 
       /**
+       * Standalone minimal distribution that only supports the "Console"
+       * appender.
+       *
+       * In particular, the library does not leak anything to the global scope
+       * in that distribution (but "define" needs to be defined).
+       */
+      'woodman-console': {
+        options: {
+          wrap: {
+            start: '/*! Console-only distribution */\n' +
+              '(function(root, rootDefine, rootRequire, rootModule) {\n',
+            end: 'require(["./woodman"], function (woodman) {\n' +
+              '  if (rootDefine) rootDefine(woodman);\n' +
+              '  if (root) root.woodman = woodman;\n' +
+              '  if (rootModule) rootModule.exports = woodman;\n' +
+              '}, null, true);\n' +
+              '}(((typeof window !== "undefined") ? window : this),' +
+              ' ((typeof define === "function") ? define : null),' +
+              ' ((typeof require === "function") ? require : null),' +
+              ' ((typeof module !== "undefined") ? module : null)' +
+              '));'
+          },
+          baseUrl: 'lib/',
+          name: '../deps/almond',
+          include: ['woodman-console'],
+          out: 'dist/woodman-console.js',
+          preserveLicenseComments: false,
+          optimize: 'uglify'
+        }
+      },
+
+      /**
        * Global standalone distribution that only includes Woodman's "disabled"
        * shim, for use in production environments instead of the generic Woodman
        * distribution to suppress all traces.
@@ -298,7 +329,7 @@ module.exports = function (grunt) {
     concat: {
       options: {
         stripBanners: true,
-        banner: '<%= meta.banner %>'
+        banner: '<%= meta.fullBanner %>'
       },
       woodman: {
         src: 'dist/woodman.js',
@@ -323,6 +354,13 @@ module.exports = function (grunt) {
       'node-amd': {
         src: 'dist/woodman-node-amd.js',
         dest: 'dist/woodman-node-amd.js'
+      },
+      'woodman-console': {
+        options: {
+          banner: '<%= meta.consoleBanner %>'
+        },
+        src: 'dist/woodman-console.js',
+        dest: 'dist/woodman-console.js'
       },
       disabled: {
         options: {
