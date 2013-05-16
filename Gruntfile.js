@@ -19,7 +19,7 @@ module.exports = function (grunt) {
         ' Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author.name %>;' +
         ' MIT license\n' +
         ' <%= pkg.homepage %>\n',
-      log4j: 'Based on log4j v2.0\n' +
+      log4j: 'Based on Apache Log4j 2\n' +
         ' Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.\n' +
         ' Apache License, Version 2.0\n' +
         ' http://logging.apache.org/log4j/2.x/\n',

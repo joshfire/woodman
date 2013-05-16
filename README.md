@@ -1,6 +1,6 @@
 # Woodman
 
-Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [log4j v2](http://logging.apache.org/log4j/2.x/) Apache project. Woodman is roughly as simple to use as the `console` object. Behind the scenes though, it brings a rich configuration mechanism that lets you take precise control over **what** gets logged **where** and **how**.
+Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [Apache Log4j 2](http://logging.apache.org/log4j/2.x/) project. Woodman is roughly as simple to use as the `console` object. Behind the scenes though, it brings a rich configuration mechanism that lets you take precise control over **what** gets logged **where** and **how**.
 
 In particular, Woodman features:
 
@@ -190,7 +190,7 @@ logger.log('Woodman supports {} {}', 'parameters', 'substitution');
 
 ## Basic concepts and classes
 
-In Woodman, a [Logger](#logger) applies [filters](#filter) to a [log event](#log-event) to determine whether to send that event to registered [appenders](#appender) where it will be formatted according to some [layout](#layout). This section goes a bit more into details about these concepts. Interested readers may also check the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/architecture.html).
+In Woodman, a [Logger](#logger) applies [filters](#filter) to a [log event](#log-event) to determine whether to send that event to registered [appenders](#appender) where it will be formatted according to some [layout](#layout). This section goes a bit more into details about these concepts. Interested readers may also check the [Apache Log4j documentation](http://logging.apache.org/log4j/2.x/manual/architecture.html).
 
 ### Logger
 The Logger class is the *one* class you will interact with in your code. It exposes the trace functions that you will call to log messages.
@@ -212,7 +212,7 @@ Appenders are responsible for delivering LogEvents to their destination. The Con
 ### Filter
 Filters allow LogEvents to be evaluated to determine whether they should be published. Filtering rules depend on the type of Filter being used. A typical Filter is the RegexFilter that applies a regular expression to the formatted message of a LogEvent and takes a decision based on whether the regular expression matched or not. The decision may either be *accept* to accept the log event right away, *deny* to reject the log event altogether, or *neutral* to leave the decision to further filters.
 
-As explained in the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/filters.html), filters may be attached to different locations:
+As explained in the [Apache Log4j documentation](http://logging.apache.org/log4j/2.x/manual/filters.html), filters may be attached to different locations:
 
 - Context-wide Filters run before all the other filters. Events that are rejected by these filters will not be passed to loggers for further processing. Once an event has been accepted by a Context-wide filter it will not be evaluated by any other Context-wide Filters nor will the Logger's Level be used to filter the event. The event will be evaluated by Logger and Appender Filters however.
 - Logger Filters are configured on a specified Logger. These are evaluated after the Context-wide Filters and the Log Level for the Logger. Events that are rejected by these filters will be discarded and the event will not be passed to a parent Logger regardless of the additivity setting.
@@ -431,7 +431,7 @@ The pattern string is composed of literal text and format control expressions ca
 
 Note that any literal text may be included in the conversion pattern.
 
-The *conversion patterns* supported by the pattern string are based on those defined by the [log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), but note Woodman only supports the following conversion patterns:
+The *conversion patterns* supported by the pattern string are based on those defined by the [Apache Log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), but note Woodman only supports the following conversion patterns:
 
 - `c` or `logger`: The name of the Logger
 - `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
@@ -731,7 +731,7 @@ Woodman is defined as a series of [AMD modules](http://requirejs.org/docs/whyamd
 - `logger.js` defines the `Logger` class.
 - and so on!
 
-Other files define classes that follow the [log4j architecture](http://logging.apache.org/log4j/2.x/manual/architecture.html), for instance: `loggercontext.js`, `logmanager.js`, `message.js`, or `lifecycle.js`.
+Other files define classes that follow the [Apache Log4j architecture](http://logging.apache.org/log4j/2.x/manual/architecture.html), for instance: `loggercontext.js`, `logmanager.js`, `message.js`, or `lifecycle.js`.
 
 There is one entry point per distribution of Woodman, named `woodman.js` or `woodman-xx.js`. If you take a look at one of these files, you will see that these entry points merely return the static `LogManager` class initialized with the different appenders, filters, and layouts that the distribution supports. In turn, the `LogManager` class wraps a `LoggerContext` instance that contains the gist of Woodman's configuration logic.
 
@@ -859,12 +859,12 @@ without actually removing them from the code.
 
 The net result is that `console` is underused in most JavaScript applications. More precisely, most applications are written *without* log traces; `console` statements are only ever used temporarily to nail down specific issues at debug phase, or to report errors.
 
-The [log4j introduction](http://logging.apache.org/log4j/2.x/manual/index.html) provides a handful of reasons why flexible logging is useful. These reasons are valid whether the underlying language is Java, JavaScript, C, Python...
+The [Apache Log4j introduction](http://logging.apache.org/log4j/2.x/manual/index.html) provides a handful of reasons why flexible logging is useful. These reasons are valid whether the underlying language is Java, JavaScript, C, Python...
 
 In the end, log4j provides a very good abstraction over `console` that solves the problems raised above for a reasonable cost: that of having to manage a `Logger` instance per module.
 
 ### Differences with log4j
-While Woodman attempts to follow Log4j v2 as closely as possible, it does not implement all the features of log4j. In particular, Woodman comes with: 
+While Woodman attempts to follow Apache Log4j 2 as closely as possible, it does not implement all its features. In particular, compared to Apache Log4j 2, Woodman comes with: 
 
 - a restricted number of [Appenders](http://logging.apache.org/log4j/2.x/manual/filters.html)
 - a restricted number of [Layouts](http://logging.apache.org/log4j/2.x/manual/layouts.html)
@@ -873,7 +873,7 @@ While Woodman attempts to follow Log4j v2 as closely as possible, it does not im
 - no support for [Markers](http://logging.apache.org/log4j/2.x/manual/markers.html)
 - no support for [Plugins](http://logging.apache.org/log4j/2.x/manual/plugins.html) and [Lookups](http://logging.apache.org/log4j/2.x/manual/lookups.html)
 
-API functions in Woodman may also not have the exact same signature as those specified in log4j to stick to more JavaScript-friendly paradigms. For instance, log levels in JavaScript are lower-case strings, as opposed to a proper enumeration in log4j.
+API functions in Woodman may also not have the exact same signature as those specified in log4j to stick to more JavaScript-friendly paradigms. For instance, log levels in JavaScript are lower-case strings, as opposed to a proper enumeration in Apache Log4j 2.
 
 New features get introduced in Woodman when the need arises. If you need something that does not yet exist, check [Contribute to Woodman](#contribute-to-woodman) and get in touch!
 
@@ -899,7 +899,7 @@ The Woodman library uses, extends or was at least partially based on other great
 - [Almond](https://github.com/jrburke/almond). Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
 - [Socket.IO](http://socket.io/). Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed
 - [log4javascript](http://log4javascript.org/), Copyright Tim Down, [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
-- and obviously [log4j](http://logging.apache.org). Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
+- and obviously [Apache Log4j 2](http://logging.apache.org). Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
 
 
 ## Changelog
