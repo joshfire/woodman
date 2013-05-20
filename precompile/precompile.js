@@ -68,10 +68,12 @@
  * 5. Fifth pass removes Woodman library definition, if found:
  *  ex: define('woodman', ...);
  */
-/*global module, console*/
+/*global module*/
 
 var falafel = require('./falafel');
 var _ = require('underscore');
+var woodman = require('../dist/woodman');
+var logger = woodman.getLogger('precompile');
 
 
 /**
@@ -79,27 +81,32 @@ var _ = require('underscore');
  * returns the same code without reference to Woodman, or the same code without
  * the trace level calls that the caller does not want to keep.
  *
+ * Possible options:
+ * - keepLevels: lists the trace levels to keep in the precompiled code.
+ *   If the array is empty or not given, the function removes all references to
+ *   Woodman from the input code.
+ *   Ex: { keepLevels: ['warn', 'error'] }
+ * - comment: sets the flag to replace the initial source code with comments
+ *   instead of removing the code (when possible)
+ * - globalNames: list of global names used to reference Woodman. Defaults to
+ *   ['woodman'].
+ * - depNames: list of names used to import Woodman in the code. Defaults to
+ *   ['woodman', 'joshlib!woodman']
+ *
  * @function
  * @param {string} input The JavaScript code to precompile
- * @param {Object} opts Precompilation options.
- *  Use the "keepLevel" property to list the levels that you would like to
- *  preserve in the precompiled code. If the array is empty or not given, the
- *  function removes all references to Woodman from the input code.
- *  Example: keepLevel = ['warn', 'error'] to keep warnings and errors.
- *  Set the "comment" flag to replace initial source code with comments instead
- *  of removing the code (note this may break the JavaScript code in some cases)
+ * @param {Object} opts Precompilation options. See above for details.
  * @return {string} The precompiled code witout any reference to Woodman or
  *  without the calls at levels that are not in the "keepLevel" array.
  */
 module.exports = function (input, opts) {
   if (!input) {
-    console.error('You need to enter some input source');
-    return;
+    throw new Error('No input source to precompile');
   }
-  // var keepLevel = ['log', 'info', 'warn', 'error'];
-  // var keepLevel = ['warn', 'error'];
+
+  // Check options
   opts = opts || {};
-  opts.keepLevel = opts.keepLevel || [];
+  opts.keepLevels = opts.keepLevels || opts.keepLevel || [];
   opts.globalNames = opts.globalNames || ['woodman'];
   opts.depNames = opts.depNames || ['woodman', 'joshlib!woodman'];
 
@@ -130,7 +137,7 @@ module.exports = function (input, opts) {
   /**
    * Removes the source code associated with the given AST node from the
    * precompiled result, provided precompilation is configured to remove
-   * all references to Woodman (empty "keepLevel" option).
+   * all references to Woodman (empty "keepLevels" option).
    *
    * Depending on the "comment" option, the function either converts the
    * original source code to a JavaScript comment or removes it altogether.
@@ -145,7 +152,7 @@ module.exports = function (input, opts) {
     if (opts.comment) {
       node.update(node.source().replace(/^(.*)$/mg, '// $1'));
     }
-    else if (opts.keepLevel.length === 0) {
+    else {
       node.update('');
     }
   };
@@ -317,87 +324,100 @@ module.exports = function (input, opts) {
 
   if (!input) return input;
 
-  // console.log('start', input);
+  logger.log('start');
 
 
   // First pass
   // ----------
   // Remove calls to Logger methods log, info, warn, error
   // ex: logger.log('blah');
-  // console.log('first pass');
+  logger.log('first pass');
   var loggerMethods = _.difference(
     ['error', 'warn', 'info', 'log', 'trace'],
-    opts.keepLevel);
+    opts.keepLevels);
+  logger.log('trace levels to remove', loggerMethods);
   var output = falafel(input, falafelOpts, function (node) {
-    // Loop over the logger methods to remove
-    _.each(loggerMethods, function (method) {
-      if ((node.type === 'CallExpression') &&
+    if ((node.type === 'CallExpression') &&
         (node.callee.type === 'MemberExpression') &&
-        (node.callee.property.name === method)) {
-        if ((node.callee.object.type === 'Identifier') &&
-          _.find(node.woodman.getLoggers(), function (loggerName) {
-            return (node.callee.object.name === loggerName);
-          })) {
-          if (node.parent && node.parent.type === 'ExpressionStatement') {
-            removeCode(node.parent);
-          }
-          else {
-            // Replace the call expression with "null", in other words the returned
-            // value of the call to one of these methods
-            node.update('null');
-          }
+        _.include(loggerMethods, node.callee.property.name)) {
+      logger.log('logger method candidate:', node.source());
+      if ((node.callee.object.type === 'Identifier') &&
+        _.find(node.woodman.getLoggers(), function (loggerName) {
+          return (node.callee.object.name === loggerName);
+        })) {
+        if (node.parent && node.parent.type === 'ExpressionStatement') {
+          logger.info('remove code:', node.parent.source());
+          removeCode(node.parent);
         }
-        else if ((node.callee.object.type === 'CallExpression') &&
+        else {
+          // Replace the call expression with "null", in other words the
+          // returned value of the call to one of these methods
+          logger.info('replace code with null:', node.source());
+          node.update('null');
+        }
+      }
+      else if ((node.callee.object.type === 'CallExpression') &&
           (node.callee.object.callee.type === 'MemberExpression') &&
           (node.callee.object.callee.property.name === 'getLogger') &&
           _.find(node.woodman.getInstances(), function (instanceName) {
             return (node.callee.object.callee.object.name === instanceName);
           })) {
-          if (node.parent && node.parent.type === 'ExpressionStatement') {
-            removeCode(node.parent);
-          }
-          else {
-            // Replace the call expression with "null", in other words the returned
-            // value of the call to one of these methods
-            node.update('null');
-          }
+        if (node.parent && node.parent.type === 'ExpressionStatement') {
+          logger.info('remove code:', node.parent.source());
+          removeCode(node.parent);
+        }
+        else {
+          // Replace the call expression with "null", in other words the returned
+          // value of the call to one of these methods
+          logger.info('replace code with null:', node.source());
+          node.update('null');
         }
       }
-    });
+      else {
+        logger.log('not a real call to logger method');
+      }
+    }
   });
   input = output.toString();
-  // console.log('first pass done', input);
+  logger.log('first pass done');
 
   // Stop here if we were to keep some calls to Logger methods,
   // the references to Woodman are still needed in that case.
-  if (opts.keepLevel.length > 0) return input;
+  if (opts.keepLevels.length > 0) {
+    logger.info('some trace levels to keep, no further pass to make');
+    return input;
+  }
 
 
   // Second pass
   // ----------
   // Remove logger instantiation calls
   // ex: var logger = woodman.getLogger('foo');
-  // console.log('second pass');
+  logger.log('second pass');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'MemberExpression') &&
-      (node.callee.property.name === 'getLogger') &&
-      _.find(node.woodman.getInstances(), function (instanceName) {
-        return (node.callee.object.name === instanceName);
-      })) {
+        (node.callee.type === 'MemberExpression') &&
+        (node.callee.property.name === 'getLogger') &&
+        _.find(node.woodman.getInstances(), function (instanceName) {
+          return (node.callee.object.name === instanceName);
+        })) {
       if ((node.parent.type === 'VariableDeclarator') &&
-        node.parent.parent &&
-        (node.parent.parent.type === 'VariableDeclaration') &&
-        (node.parent.parent.declarations.length === 1)) {
+          node.parent.parent &&
+          (node.parent.parent.type === 'VariableDeclaration') &&
+          (node.parent.parent.declarations.length === 1)) {
         // "Classic" one-var declaration, remove the whole line
         // ex: var logger = woodman.getLogger();
+        logger.info('remove getLogger var definition:',
+          node.parent.parent.source());
         removeCode(node.parent.parent);
       }
       else if ((node.parent.type === 'AssignmentExpression') &&
-        node.parent.parent) {
+          node.parent.parent) {
         // Retrieved logger is assigned to an existing variable,
         // remove the whole expression
         // ex: logger = woodman.getLogger();
+        logger.info('remove getLogger assignment:',
+          node.parent.parent.source());
         removeCode(node.parent.parent);
       }
       else if ((node.parent.type === 'MemberExpression') &&
@@ -405,75 +425,85 @@ module.exports = function (input, opts) {
           (node.parent.parent.type === 'CallExpression')) {
         // Logger method called immediately, remove the whole thing
         // ex: woodman.getLogger('foo').log('bar');
+        logger.info('remove getLogger call:',
+          node.parent.parent.source());
         removeCode(node.parent.parent);
       }
       else {
         // The call to "getLogger" appears among other statements,
         // replace with "null"
         // ex: var foo = 'bar', logger = woodman.getLogger(), k = 0;
+        logger.info('replace inline getLogger call with null:', node.source());
         node.update('null');
       }
     }
   });
   input = output.toString();
-  // console.log('second pass done', input);
+  logger.log('second pass done');
 
 
   // Third pass
   // ----------
   // Remove config objects and calls to woodman initialization methods
   // ex: woodman.load(config, function (err) { ... })
-  // console.log('third pass');
+  logger.log('third pass');
   output = falafel(input, falafelOpts, function (node) {
     var reg = null;
     if ((node.type === 'VariableDeclarator') &&
-      (node.id.type === 'Identifier') &&
-      _.include(node.woodman.getConfigs(), node.id.name)) {
+        (node.id.type === 'Identifier') &&
+        _.include(node.woodman.getConfigs(), node.id.name)) {
       if ((node.parent.type === 'VariableDeclaration') &&
-        (node.parent.declarations.length === 1)) {
+          (node.parent.declarations.length === 1)) {
         // "Classic" one-var declaration, remove the whole line
         // ex: var config = {};
+        logger.info('remove config var definition:', node.id.name);
         removeCode(node.parent);
       }
       else {
         // Definition part of other definitions, probably, replace with "null"
         // ex: var k = 0, config = {};
+        logger.info('replace inline config definition with null:',
+          node.id.name);
         node.update(node.id.name + ' = null');
       }
     }
     else if ((node.type === 'AssignmentExpression') &&
-      (node.left.type === 'Identifier') &&
-      _.include(node.woodman.getConfigs(), node.left.name)) {
+        (node.left.type === 'Identifier') &&
+        _.include(node.woodman.getConfigs(), node.left.name)) {
+      logger.info('remove config assignment:' + node.left.name);
       removeCode(node.parent);
     }
     else if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'MemberExpression') &&
-      (node.callee.property.name === 'load') &&
-      _.find(node.woodman.getInstances(), function (instanceName) {
-        return (node.callee.object.name === instanceName);
-      })) {
+        (node.callee.type === 'MemberExpression') &&
+        (node.callee.property.name === 'load') &&
+        _.find(node.woodman.getInstances(), function (instanceName) {
+          return (node.callee.object.name === instanceName);
+        })) {
+      logger.info('remove call to woodman.load');
       node.update('(' + node['arguments'][1].source() + ')()');
     }
     else if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'MemberExpression') &&
-      (node.callee.property.name === 'start') &&
-      _.find(node.woodman.getInstances(), function (instanceName) {
-        return (node.callee.object.name === instanceName);
-      })) {
+        (node.callee.type === 'MemberExpression') &&
+        (node.callee.property.name === 'start') &&
+        _.find(node.woodman.getInstances(), function (instanceName) {
+          return (node.callee.object.name === instanceName);
+        })) {
+      logger.info('remove call to woodman.start');
       reg = new RegExp(node.callee.object.name + '\\.start');
       node.update(node.source().replace(reg, '') + '()');
     }
     else if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'MemberExpression') &&
-      (node.callee.property.name === 'initialize') &&
-      _.find(node.woodman.getInstances(), function (instanceName) {
-        return (node.callee.object.name === instanceName);
-      })) {
+        (node.callee.type === 'MemberExpression') &&
+        (node.callee.property.name === 'initialize') &&
+        _.find(node.woodman.getInstances(), function (instanceName) {
+          return (node.callee.object.name === instanceName);
+        })) {
+      logger.info('remove call to woodman.initialize');
       removeCode(node.parent);
     }
   });
   input = output.toString();
-  // console.log('third pass done', input);
+  logger.log('third pass done');
 
 
   // Fourth pass
@@ -481,63 +511,67 @@ module.exports = function (input, opts) {
   // Remove references to the Woodman library
   // ex: var woody = require('woodman');
   // ex: define(['woodman'], function (woodman) { ... });
-  // console.log('fourth pass');
+  logger.log('fourth pass');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'Identifier') &&
-      (node.callee.name === 'require') &&
-      (node.parent.type === 'VariableDeclarator') &&
-      node['arguments'] && node['arguments'][0] &&
-      (node['arguments'][0].type === 'Literal') &&
-      _.include(opts.depNames, node['arguments'][0].value)) {
+        (node.callee.type === 'Identifier') &&
+        (node.callee.name === 'require') &&
+        (node.parent.type === 'VariableDeclarator') &&
+        node['arguments'] && node['arguments'][0] &&
+        (node['arguments'][0].type === 'Literal') &&
+        _.include(opts.depNames, node['arguments'][0].value)) {
       if (node.parent.parent &&
-        (node.parent.parent.type === 'VariableDeclaration') &&
-        (node.parent.parent.declarations.length === 1)) {
+          (node.parent.parent.type === 'VariableDeclaration') &&
+          (node.parent.parent.declarations.length === 1)) {
         // "Classic" one-var declaration, remove the whole line
-        // ex: var config = {};
+        // ex: var woodman = require('woodman');
+        logger.info('remove require call:', node.parent.parent.source());
         removeCode(node.parent.parent);
       }
       else {
         // Declaration is part of a multiple declaration statement,
         // replace with "null"
+        logger.info('replace inline require call with null:', node.source());
         node.update(node.id.name + ' = null');
       }
     }
     else if ((node.type === 'Literal') &&
-      _.include(opts.depNames, node.value) &&
-      node.parent && (node.parent.type === 'ArrayExpression') &&
-      node.parent.parent && (node.parent.parent.type === 'CallExpression') &&
-      (node.parent.parent.callee.type === 'Identifier') &&
-      ((node.parent.parent.callee.name === 'define') ||
-        (node.parent.parent.callee.name === 'requirejs'))) {
+        _.include(opts.depNames, node.value) &&
+        node.parent && (node.parent.type === 'ArrayExpression') &&
+        node.parent.parent && (node.parent.parent.type === 'CallExpression') &&
+        (node.parent.parent.callee.type === 'Identifier') &&
+        ((node.parent.parent.callee.name === 'define') ||
+         (node.parent.parent.callee.name === 'requirejs'))) {
       // The easiest way to remove the dependency here is to replace it with a
       // dependency on "require" which must exist. Using an empty string does
       // not work and using the specific "empty:" value only works in require.js
       // "paths" config.
+      logger.info('replace define dep with fake "require" dep');
       node.update('\'require\'');
     }
   });
   input = output.toString();
-  // console.log('fourth pass done', input);
+  logger.log('fourth pass done');
 
 
   // Fifth pass
   // ----------
   // Remove Woodman module if found in the code
   // ex: define('woodman', function () { ... });
-  // console.log('fifth pass');
+  logger.log('fifth pass');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
-      (node.callee.type === 'Identifier') &&
-      (node.callee.name === 'define') &&
-      node['arguments'] && node['arguments'][0] &&
-      (node['arguments'][0].type === 'Literal') &&
-      _.include(opts.depNames, node['arguments'][0].value)) {
+        (node.callee.type === 'Identifier') &&
+        (node.callee.name === 'define') &&
+        node['arguments'] && node['arguments'][0] &&
+        (node['arguments'][0].type === 'Literal') &&
+        _.include(opts.depNames, node['arguments'][0].value)) {
+      logger.info('remove Woodman module definition');
       removeCode(node.parent);
     }
   });
   input = output.toString();
-  // console.log('fifth pass done', input);
+  logger.log('fifth pass done');
 
   return output.toString();
 };
