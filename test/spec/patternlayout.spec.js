@@ -104,12 +104,12 @@ define([
     });
 
 
-    it('does not output last newline (%n)', function () {
+    it('outputs last newline (%n)', function () {
       var layout = new PatternLayout({
         pattern: '%m%n'
       }, loggerContext);
       var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
-      expect(layout.toMessageString(evt)).toEqual('timber!');
+      expect(layout.toMessageString(evt)).toEqual('timber!\n');
     });
 
 
@@ -152,7 +152,7 @@ define([
 
     it('mixes patterns correctly', function () {
       var layout = new PatternLayout({
-        pattern: '%d [%p] %c - %m%n'
+        pattern: '%d [%p] %c - %m'
       }, loggerContext);
       var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toMatch(
@@ -162,7 +162,7 @@ define([
 
     it('highlights parts of the message based on level (%highlight)', function () {
       var layout = new PatternLayout({
-        pattern: '[%highlight{%level}] %c - %m%n'
+        pattern: '[%highlight{%level}] %c - %m'
       }, loggerContext);
       var evt = new LogEvent('loggername', 'error', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual(
@@ -172,7 +172,7 @@ define([
 
     it('highlights parts of the message based on level (%h)', function () {
       var layout = new PatternLayout({
-        pattern: '[%h{%level}] %c - %m%n'
+        pattern: '[%h{%level}] %c - %m'
       }, loggerContext);
       var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
       expect(layout.toMessageString(evt)).toEqual(
