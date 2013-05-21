@@ -331,7 +331,7 @@ module.exports = function (input, opts) {
   // ----------
   // Remove calls to Logger methods log, info, warn, error
   // ex: logger.log('blah');
-  logger.log('first pass');
+  logger.log('first pass to remove calls to Logger methods...');
   var loggerMethods = _.difference(
     ['error', 'warn', 'info', 'log', 'trace'],
     opts.keepLevels);
@@ -340,7 +340,6 @@ module.exports = function (input, opts) {
     if ((node.type === 'CallExpression') &&
         (node.callee.type === 'MemberExpression') &&
         _.include(loggerMethods, node.callee.property.name)) {
-      logger.log('logger method candidate:', node.source());
       if ((node.callee.object.type === 'Identifier') &&
         _.find(node.woodman.getLoggers(), function (loggerName) {
           return (node.callee.object.name === loggerName);
@@ -373,13 +372,11 @@ module.exports = function (input, opts) {
           node.update('null');
         }
       }
-      else {
-        logger.log('not a real call to logger method');
-      }
     }
   });
+  logger.log('serialize updated code');
   input = output.toString();
-  logger.log('first pass done');
+  logger.log('first pass to remove calls to Logger methods... done');
 
   // Stop here if we were to keep some calls to Logger methods,
   // the references to Woodman are still needed in that case.
@@ -393,7 +390,7 @@ module.exports = function (input, opts) {
   // ----------
   // Remove logger instantiation calls
   // ex: var logger = woodman.getLogger('foo');
-  logger.log('second pass');
+  logger.log('second pass to remove instantiation calls...');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
         (node.callee.type === 'MemberExpression') &&
@@ -438,15 +435,16 @@ module.exports = function (input, opts) {
       }
     }
   });
+  logger.log('serialize updated code');
   input = output.toString();
-  logger.log('second pass done');
+  logger.log('second pass to remove instantiation calls... done');
 
 
   // Third pass
   // ----------
   // Remove config objects and calls to woodman initialization methods
   // ex: woodman.load(config, function (err) { ... })
-  logger.log('third pass');
+  logger.log('third pass to remove config objects...');
   output = falafel(input, falafelOpts, function (node) {
     var reg = null;
     if ((node.type === 'VariableDeclarator') &&
@@ -502,8 +500,9 @@ module.exports = function (input, opts) {
       removeCode(node.parent);
     }
   });
+  logger.log('serialize updated code');
   input = output.toString();
-  logger.log('third pass done');
+  logger.log('third pass to remove config objects... done');
 
 
   // Fourth pass
@@ -511,7 +510,7 @@ module.exports = function (input, opts) {
   // Remove references to the Woodman library
   // ex: var woody = require('woodman');
   // ex: define(['woodman'], function (woodman) { ... });
-  logger.log('fourth pass');
+  logger.log('fourth pass to remove references to Woodman...');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
         (node.callee.type === 'Identifier') &&
@@ -550,15 +549,16 @@ module.exports = function (input, opts) {
       node.update('\'require\'');
     }
   });
+  logger.log('serialize updated code');
   input = output.toString();
-  logger.log('fourth pass done');
+  logger.log('fourth pass to remove references to Woodman... done');
 
 
   // Fifth pass
   // ----------
   // Remove Woodman module if found in the code
   // ex: define('woodman', function () { ... });
-  logger.log('fifth pass');
+  logger.log('fifth pass to remove Woodman...');
   output = falafel(input, falafelOpts, function (node) {
     if ((node.type === 'CallExpression') &&
         (node.callee.type === 'Identifier') &&
@@ -570,8 +570,9 @@ module.exports = function (input, opts) {
       removeCode(node.parent);
     }
   });
+  logger.log('serialize updated code');
   input = output.toString();
-  logger.log('fifth pass done');
+  logger.log('fifth pass to remove Woodman... done');
 
   return output.toString();
 };
