@@ -159,5 +159,64 @@ define([
       var str = message.getFormattedMessage();
       expect(str).toEqual('Hello toto');
     });
+
+
+    it('formats parameters as an array of strings', function () {
+      var message = new Message(['Hello', { internet: 'of things' }, '!']);
+      var result = message.getFormattedParams();
+      expect(result).toEqual([
+        'Hello',
+        '{\n  "internet": "of things"\n}',
+        '!'
+      ]);
+    });
+
+
+    it('preserves objects when requested', function () {
+      var message = new Message(['Hello', { internet: 'of things' }, '!']);
+      var result = message.getFormattedParams({
+        preserveObjects: true
+      });
+      expect(result).toEqual([
+        'Hello',
+        { internet: 'of things' },
+        '!'
+      ]);
+    });
+
+
+    it('substitutes and preserves objects when requested', function () {
+      var message = new Message([
+        'Hello {}', 'world',
+        { internet: 'of things' },
+        '!'
+      ]);
+      var result = message.getFormattedParams({
+        preserveObjects: true
+      });
+      expect(result).toEqual([
+        'Hello world',
+        { internet: 'of things' },
+        '!'
+      ]);
+    });
+
+
+    it('does not preserve objects in substitutions', function () {
+      var message = new Message([
+        'Hello {}',
+        { internet: 'of things' },
+        '!'
+      ]);
+      var result = message.getFormattedParams({
+        preserveObjects: true,
+        compactObjects: true
+      });
+
+      expect(result).toEqual([
+        'Hello {"internet":"of things"}',
+        '!'
+      ]);
+    });
   });
 });

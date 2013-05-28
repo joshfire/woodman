@@ -28,5 +28,49 @@ define([
       expect(msg).toMatch(re);
     });
 
+
+    it('returns an array when toMessageBits is called', function () {
+      var evt = new LogEvent('spec', 'log', new Message('timber!'));
+      var bits = layout.toMessageBits(evt);
+      var re = new RegExp('^[0-9]+');
+      bits = bits || [];
+      expect(bits[0]).toMatch(re);
+      expect(bits[1]).toEqual('log');
+      expect(bits[2]).toEqual('spec');
+      expect(bits[3]).toEqual('timber!');
+    });
+
+
+    it('returns an array with formatted message when toMessageBits is called', function () {
+      var message = new Message(['Hello', { internet: 'of things' }, '!']);
+      var evt = new LogEvent('spec', 'log', message);
+      var bits = layout.toMessageBits(evt);
+      var re = new RegExp('^[0-9]+');
+      bits = bits || [];
+      expect(bits[0]).toMatch(re);
+      expect(bits[1]).toEqual('log');
+      expect(bits[2]).toEqual('spec');
+      expect(bits[3]).toEqual('Hello');
+      expect(bits[4]).toEqual('{\n  "internet": "of things"\n}');
+      expect(bits[5]).toEqual('!');
+    });
+
+
+    it('preserves objects when toMessageBits is called', function () {
+      var message = new Message(['Hello', { internet: 'of things' }, '!']);
+      var evt = new LogEvent('spec', 'log', message);
+      var bits = layout.toMessageBits(evt, {
+        preserveObjects: true
+      });
+      var re = new RegExp('^[0-9]+');
+      bits = bits || [];
+      expect(bits[0]).toMatch(re);
+      expect(bits[1]).toEqual('log');
+      expect(bits[2]).toEqual('spec');
+      expect(bits[3]).toEqual('Hello');
+      expect(bits[4]).toEqual({ internet: 'of things' });
+      expect(bits[5]).toEqual('!');
+    });
+
   });
 });
