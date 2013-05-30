@@ -1,9 +1,9 @@
 /*!
-Woodman - v0.5.0 - 2013-05-15
+Woodman - v0.6.0 - 2013-05-30
  Copyright 2013 Joshfire; MIT license
  https://github.com/joshfire/woodman
 
-Based on log4j v2.0
+Based on Apache Log4j 2
  Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved.
  Apache License, Version 2.0
  http://logging.apache.org/log4j/2.x/
