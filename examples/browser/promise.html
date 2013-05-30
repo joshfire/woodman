@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Using Woodman's source code directly with a Promise</title>
+  </head>
+  <body>
+    <h1>Using Woodman's source code directly with a Promise</h1>
+
+    <p>This example references the main entry point of Woodman directly in the
+      source code using require.js. It does not use a compiled version of
+      Woodman in particular. This is typically useful for debugging purpose
+      when authoring appenders or layouts.</p>
+
+<pre><code>&lt;script type="text/javascript"
+  src="../../node_modules/requirejs/require.js"
+  data-main="promise.js">
+&lt;/script></code></pre>
+
+    <p>The <code>promise.js</code> file contains the main call to
+      <code>require</code>, loads the Woodman library and makes use of the
+      Promise returned by the <code>load</code> function:</p>
+
+<pre><code>require(['../../lib/woodman'], function (woodman) {
+  woodman.load('console')
+    .then(function () {
+      return woodman.getLogger('joshfire.woodman.examples.browser.promise');
+    })
+    .then(function (logger) {
+      logger.log('Welcome to Woodman');
+      logger.info('This is an info message');
+      logger.warn('This is a warning');
+      logger.error('This is an error');
+    })
+    .then(null, function (err) {
+      console.error('An error occurred', err);
+    });
+});</code></pre>
+
+    <p>Open your console to see the result!</p>
+
+    <script type="text/javascript"
+      src="../../node_modules/requirejs/require.js"
+      data-main="promise.js">
+    </script>
+  </body>
+</html>
