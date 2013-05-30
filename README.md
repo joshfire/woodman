@@ -376,7 +376,7 @@ The following configuration defines a Logger that sends log events at or below t
 
 An Appender definition contains one or more of the following properties:
 
-- `appendStrings`: Boolean flag that determines whether to log a string formatted from the log event, or the log event itself as an object. Default value is `true`.
+- `appendStrings`: Boolean flag that determines whether to log only strings or to log objects as objects. Preserving objects may be useful in Web browsers as the console often represents an object with an expandable structure. Default value is `true`.
 - `filters`: The list of filters to apply to log events (provided that they are at the right level) to determine whether the Appender processes it. See [Filter definition](#filter-definition) for details. The order of the filters in the list determines the order of application.
 - `layout`: The layout used by the Appender. The property is required. See [Layout definition](#layout-definition) for details.
 - `level`: The trace level of the Appender. Log events above that level are rejected. Possible values are `all`, `log`, `info`, `warn`, `error` and `off` (although note the `off` value is kind of stupid since it basically creates an Appender that does not log anything).
@@ -537,7 +537,7 @@ That said, Woodman also supports the log4j JSON configuration format, meaning th
 ### Console configuration shortcut
 It is common to want to log everything to the console to start with. Not to have to think too hard about the configuration object to create to make that possible, Woodman gives you the possibility to provide the string `'console'` instead of the regular configuration object, optionally completed with the [pattern](#patternlayout) that you would like to use.
 
-For instance, the following calls to `load` are equivalent and mean *Console, all the things!*:
+For instance, in a Web browser, the following calls to `load` are equivalent and mean *Console, all the things!*:
 ```javascript
 woodman.load('console', function (err) {});
 
@@ -549,9 +549,10 @@ woodman.load({
         {
           type: 'Console',
           name: 'console',
+          appendStrings: false,
           layout: {
             type: 'pattern',
-            pattern: '%d{yyyy-MM-dd HH:mm:ss} [%c] %p - %m%n'
+            pattern: '%d{yyyy-MM-dd HH:mm:ss} [%logger] %message%n'
           }
         }
       ]
@@ -562,7 +563,7 @@ woodman.load({
 
 Similarly, the following calls to `load` are equivalent:
 ```javascript
-woodman.load('console [%c] %m%n', function (err) {});
+woodman.load('console [%logger] %level - %message%n', function (err) {});
 
 woodman.load({
   loggers: [
@@ -574,7 +575,7 @@ woodman.load({
           name: 'console',
           layout: {
             type: 'pattern',
-            pattern: '[%c] %m%n'
+            pattern: '[%logger] %level - %message%n'
           }
         }
       ]
@@ -608,7 +609,7 @@ This will output the resulting code directly to the console. To output the resul
 node {PATH TO WOODMAN}/precompile/precompiler.js {JSFILE} {OUTPUTJSFILE}
 ```
 
-This may take up some time, from a couple of seconds for small JavaScript files up to a minute or so for large JavaScript files.
+This may take up some time, from a couple of seconds for small JavaScript files up to a minute or so for large JavaScript files (>500Kb).
 
 The precompiler can also process recursively all JavaScript files in a folder and create a similar folder structure where all JavaScript files have been precompiled:
 ```
