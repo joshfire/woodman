@@ -177,7 +177,7 @@ else {
             name: 'console',
             layout: {
               type: 'PatternLayout',
-              pattern: '%m (took %rms)%n'
+              pattern: '%m%n'
             }
           }
         ]
@@ -205,6 +205,8 @@ var input = '';
 var output = '';
 
 fs.stat(inputFolder, function (err, stat) {
+  var startTime = null;
+
   if (err) {
     console.error('Input file or folder does not exist.\n');
     return process.exit(1);
@@ -231,6 +233,7 @@ fs.stat(inputFolder, function (err, stat) {
           return;
         }
 
+        var startTime = Date.now();
         logger.log('precompile ' + inputFileName + '...');
         output = precompile(input, precompilerOptions);
 
@@ -242,10 +245,12 @@ fs.stat(inputFolder, function (err, stat) {
           dirPath = dirPath.join('/');
           fsExt.mkdirSync(dirPath, '0777', true);
           fs.writeFileSync(outputFileName, output, 'utf8');
-          logger.info('precompile ' + inputFileName + ' => ' + outputFileName);
+          logger.info('precompile ' + inputFileName + ' => ' + outputFileName +
+            ' (took ' + (Date.now() - startTime) + 'ms)');
         }
         else {
-          logger.info('precompile ' + inputFileName + ' => done');
+          logger.info('precompile ' + inputFileName + ' => done' +
+            ' (took ' + (Date.now() - startTime) + 'ms)');
           console.log(output);
         }
       });
@@ -259,15 +264,18 @@ fs.stat(inputFolder, function (err, stat) {
       return;
     }
 
+    startTime = Date.now();
     logger.log('precompile ' + inputFolder + '...');
     output = precompile(input, precompilerOptions);
 
     if (outputFolder) {
       fs.writeFileSync(outputFolder, output, 'utf8');
-      logger.info('precompile ' + inputFolder + ' => ' + outputFolder);
+      logger.info('precompile ' + inputFolder + ' => ' + outputFolder +
+        ' (took ' + (Date.now() - startTime) + 'ms)');
     }
     else {
-      logger.info('precompile ' + inputFolder + ' => done');
+      logger.info('precompile ' + inputFolder + ' => done' +
+        ' (took ' + (Date.now() - startTime) + 'ms)');
       console.log(output);
     }
   }
