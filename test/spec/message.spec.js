@@ -218,5 +218,11 @@ define([
         '!'
       ]);
     });
+
+    it('does not crash when logging an undefined value', function () {
+      var message = new Message();
+      var str = message.getFormattedParam(undefined);
+      expect(str).toEqual('undefined');
+    });
   });
 });
