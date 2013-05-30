@@ -8,10 +8,18 @@
   "homepage": "https://github.com/joshfire/woodman",
   "keywords": [
     "log4j",
-    "logger"
+    "logger",
+    "console"
   ],
   "author": {
     "name": "Joshfire"
+  },
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/joshfire/woodman.git"
+  },
+  "bugs": {
+    "url": "http://github.com/joshfire/woodman/issues"
   },
   "maintainers": [
     {
