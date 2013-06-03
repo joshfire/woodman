@@ -45,6 +45,7 @@ requirejs([
   'spec/regexfilter.spec',
   'spec/compositefilter.spec',
   'spec/filtering.spec',
+  'spec/syncload.spec',
   'spec/precompile/precompile.spec'
 ], function () {
 
