@@ -224,5 +224,12 @@ define([
       var str = message.getFormattedParam(undefined);
       expect(str).toEqual('undefined');
     });
+
+
+    it('preserves the end of the format string when {} is used', function () {
+      var message = new Message(['Hello {} world', 'beautiful']);
+      var str = message.getFormattedMessage();
+      expect(str).toEqual('Hello beautiful world');
+    });
   });
 });
