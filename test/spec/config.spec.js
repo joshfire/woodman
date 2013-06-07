@@ -493,5 +493,26 @@ define([
       expect(logger.appenders[0].filter).not.toBeNull();
       expect(logger.appenders[0].filter.regex).toEqual(/timber/);
     });
+
+    it('throws an error when configuration references an unknown Appender', function () {
+      var init = function () {
+        var log = new LoggerContext();
+        log.initialize({
+          loggers: [
+            {
+              name: 'woodman',
+              level: 'all',
+              appenders: [
+                {
+                  name: 'append',
+                  type: 'unknown'
+                }
+              ]
+            }
+          ]
+        });
+      };
+      expect(init).toThrow();
+    });
   });
 });
