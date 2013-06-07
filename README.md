@@ -1,20 +1,30 @@
 # Woodman
 
-Woodman is a **JavaScript logger utility** that follows the architecture, terminology and API (where applicable) of the [Apache Log4j 2](http://logging.apache.org/log4j/2.x/) project. Woodman is roughly as simple to use as the `console` object. Behind the scenes though, it brings a rich configuration mechanism that lets you take precise control over **what** gets logged **where** and **how**.
+Woodman is a **JavaScript logger utility** for Web applications and Node.js applications. Woodman is roughly as simple to use as the `console`, only much more powerful:
 
-In particular, Woodman features:
+```javascript
+// Using Woodman                            // Using the console
+woodman.load('console');
+var logger = woodman.getLogger('myapp');
+logger.log('Hello Woodman');                console.log('Hello Woodman');
+logger.warn('This is a warning');           console.warn('This is a warning');
+logger.error('This is an error');           console.error('This is an error');
+```
 
-- a **logger hierarchy** to organize traces and disable log statements based on their module of origin.
-- **trace levels** similar to those exposed by the `console` object (log, info, warn, error)
-- **appenders** to change the destination where log events are sent without changing the code itself (the `console` comes to mind, but other destinations such as a rotating log file or a remote server using Web sockets are possible). New appenders can easily be created.
-- **layouts** to specify the format and structure of the log events sent to an appender: raw string, CSV, JSON, XML, whatever. New layouts can easily be created.
-- **filters** for more flexibility in the rules that determine which log events are sent to an appender and which are ignored.
+Behind the scenes, Woodman lets you take precise control over **what** gets logged **where** and **how**. In particular, Woodman features:
 
-Woodman also includes a **precompiler** to remove all traces of Woodman from a given JavaScript file or project. This is typically useful to build a version of an app that runs in a production environment where logging is not needed, where bytes are a scarce resource or where performances need to be at their best. See [Precompilation](#precompilation) for details.
+- **message levels** similar to those exposed by the `console` object (`log`, `info`, `warn`, `error`). Through configuration, messages may be filtered based on their level.
+- a **logger hierarchy** to keep track of the origin of messages and disable some of them based on their origin.
+- **appenders** to change the destination where messages are sent without changing the code. Messages can be sent to multiple destinations at once. Examples of appenders include the `console`, a log file or a remote server using Web sockets. New appenders can easily be created.
+- **layouts** to specify the format and structure of the messages sent to an appender: raw string, CSV, JSON, XML, whatever. New layouts can easily be created.
+- **filters** to disable messages based on something else than their level or origin.
+- a **removal tool** that drops all traces of Woodman from your code to create a shipping version of your app without logs. With Woodman, no more `console.log` in your production code! See [Precompilation](#precompilation) for details.
 
 Woodman runs in Web browsers and in [node.js](http://nodejs.org) applications. The main distribution exposes a global `woodman` object if `window` is defined, a node.js module if `module.exports` is defined, and an [AMD module](http://requirejs.org/docs/whyamd.html#amd) if the `define` function is defined. [Other distributions](#available-distributions) that do not make assumptions about the underlying JavaScript runtime are available.
 
 What now? If that all sounds clear and great, [get started](#getting-started) then check the [Woodman configuration](#woodman-configuration) section. If you're ready to dig in the code to fix a bug or implement a new Appender, Layout or Filter, take a look at the [Development](#development) section. Last but not least, if you cannot help but wonder why Woodman exists at all, what it brings on top of the usual `console` and how it relates to other similar projects, check the [About](#about) section.
+
+Wherever applicable, Woodman follows the architecture, terminology and API of the [Apache Log4j 2](http://logging.apache.org/log4j/2.x/) project.
 
 
 ## <a id="toc"></a>Table of Contents
@@ -36,6 +46,8 @@ What now? If that all sounds clear and great, [get started](#getting-started) th
   - [Appender definition](#appender-definition)
   - [Layout definition](#layout-definition)
   - [Filter definition](#filter-definition)
+  - [Configuration options](#configuration-options)
+      * [maxPendingEvents](#maxpendingevents)
   - [Log4j JSON configuration format](#log4j-json-configuration-format)
   - [Console configuration shortcut](#console-configuration-shortcut)
 - [Precompilation](#precompilation)
@@ -81,19 +93,18 @@ Woodman is available as an [npm package](https://npmjs.org/package/woodman). To 
 npm install woodman
 ```
 
-Woodman needs to be initialized before it may be used. Note this initialization process is asynchronous because appenders may need to setup network connections or execute similar I/O operations.
+Woodman needs to load some configuration before it may be used:
 ```javascript
 var woodman = require('woodman');
 
 // "console" means "console all the things!". See configuration for details.
-woodman.load('console', function (err) {
-  if (err) {
-    // An error either means the configuration is incorrect
-    // or that an I/O operation failed
-  }
-  var logger = woodman.getLogger('main');
-  logger.log('Woodman is up and running');
-});
+woodman.load('console');
+
+// Instantiate a Logger instance
+var logger = woodman.getLogger('main');
+
+// Start logging messages
+logger.log('Woodman is up and running');
 ```
 
 The call to `woodman.load` needs to appear **only once** in your application. To use Woodman throughout your application once that is done:
@@ -122,14 +133,13 @@ Using Woodman in a Web browser is essentially the same as using Woodman in a nod
 The rest is pretty similar to the node.js case, except `woodman` is exposed as a global object. In particular, initialize Woodman once before use:
 ```javascript
 // "console" means "console all the things!". See configuration for details.
-woodman.load('console', function (err) {
-  if (err) {
-    // An error either means the configuration is incorrect
-    // or that an I/O operation failed
-  }
-  var logger = woodman.getLogger('main');
-  logger.log('Woodman is up and running');
-});
+woodman.load('console');
+
+// Instantiate a Logger
+var logger = woodman.getLogger('main');
+
+// Start logging messages
+logger.log('Woodman is up and running');
 ```
 
 Then, from any JavaScript file that composes your app:
@@ -139,6 +149,7 @@ logger.log('This is a log message at the log level');
 ```
 
 See the [examples/browser] folder for further examples.
+
 
 ### Using Woodman as an AMD module
 Woodman exports itself as a module named `woodman` if the `define` function is defined. For instance, to define a module that depends on Woodman:
@@ -154,11 +165,9 @@ As above, the library needs to be initialized once before it may be used, typica
 ```javascript
 requirejs(['woodman'], function (woodman) {
   // "console" means "console all the things!". See configuration for details.
-  woodman.load('console', function (err) {
-    if (err) throw err;
-    var logger = woodman.getLogger('main');
-    logger.log('Yeepee');
-  });
+  woodman.load('console');
+  var logger = woodman.getLogger('main');
+  logger.log('Yeepee');
 });
 ```
 
@@ -233,8 +242,8 @@ The `console` string used in the examples of the [Getting started](#getting-star
 You will typically load the configuration object once and for all when your application is started with code such as:
 
 ```javascript
-// Initialize Woodman configuration
-var config = {
+// Load Woodman configuration
+woodman.load({
   "loggers": [
     {
       "root": true,
@@ -246,16 +255,21 @@ var config = {
       ]
     }
   ]
-};
+});
 
-// Load the configuration
-woodman.load(config, function (err) {
+// Main code of your application
+```
+
+Woodman throws an exception if loading fails. This may happen if the configuration is invalid or if an appender refuses to start.
+
+Depending on the configuration, the call to load may actually trigger asynchronous processing. For instance, if you use a `SocketAppender`, the connection to the socket server may take some time to get established. Woodman automatically keeps track of log events it receives before it is started and processes them afterwards (up to a certain point, see [maxPendingEvents](#maxpendingevents) for details). Alternatively, you may provide a callback function to the `load` call:
+
+```javascript
+woodman.load('console', function (err) {
   if (err) {
-    // Woodman could not apply the configuration
-    throw err;
+    // Initialization failed
   }
-
-  // Main code of your application
+  // Woodman is up and running
 });
 ```
 
@@ -479,6 +493,33 @@ Here is an example
 }
 ```
 
+### Configuration options
+
+Other configuration options can be set in the `properties` property. The `maxPendingEvents` setting is the only option available. More options may be added over time.
+
+#### `maxPendingEvents`
+
+Depending on configuration parameters, starting the appenders may take some time. Log events received while appenders get started are kept in memory and processed when Woodman is ready. To ensure that Woodman does not take up too much memory, only the last 1000 log events are kept in memory (Woodman will log a warning when it had to discard a bunch of log events). If your application creates many log events during initialization that you would prefer not to lose, you may increase the number of log events that Woodman keeps in memory through the `maxPendingEvents` option.
+
+```javascript
+woodman.load({
+  properties: {
+    maxPendingEvents: 10000
+  },
+  // rest of your config
+});
+```
+
+Instead of increasing that number, consider providing a callback function to the `load` function to wait for Woodman to start before logging events:
+
+```javascript
+woodman.load({
+  // config
+}, function (err) {
+  // Start logging events
+});
+```
+
 ### Log4j JSON configuration format
 
 If you are familiar with log4j, you may have noticed that Woodman's JSON configuration takes some leeway with log4j's [JSON Configuration](http://logging.apache.org/log4j/2.x/manual/configuration.html#JSON). In log4j, the JSON configuration is a direct translation of the XML configuration (where XML tags become property keys). Woodman JSON configuration is intended to be more natural to write for people used to JSON.
@@ -624,7 +665,7 @@ The precompilation:
   `define(['woodman'], function (woodman) { ... });`
 - removes references to Woodman in node.js require calls, e.g.:
   `var woodman = require('woodman');`
-- removes calls to `woodman.load` or `woodman.start`, replacing it by a call to its callback argument directly
+- removes calls to `woodman.load` or `woodman.start`, replacing it by a call to its callback argument directly if they are available
 - removes calls such as `var logger = woodman.getLogger()`, dropping the variable declaration along the way
 - removes calls to `logger.*` where `logger` is the variable name defined as the result of a call to `woodman.getLogger()`
 - removes the configuration definition used in the call to `woodman.initialize` or `woodman.load`
@@ -706,7 +747,7 @@ If you want to use Woodman in a node.js only project, the [dist/woodman-node.js]
 IF you want to use Woodman in a node.js only project that uses AMD modules, the [dist/woodman-node-amd.js](https://raw.github.com/joshfire/woodman/master/dist/woodman-node-amd.js) file is the same as the node.js module but only exports Woodman as an AMD module.
 
 ### The "disabled" distribution
-The [dist/woodman-disabled.js](https://raw.github.com/joshfire/woodman/master/dist/woodman-disabled.js) distribution is a tiny file (less than 1Kb) that contains a shim of Woodman that simply does nothing. You may want to use that distribution if you cannot or do not want to run Woodman's precompiler on your t. project for some reason but still would like to silence Woodman in a release version of the project without having to include a full release of Woodman in the mix. By definition, that shim does not support any Appender but equally will not complain if the configuration references types of Appender it does not know anything abou
+The [dist/woodman-disabled.js](https://raw.github.com/joshfire/woodman/master/dist/woodman-disabled.js) distribution is a tiny file (less than 1Kb) that contains a shim of Woodman that simply does nothing. You may want to use that distribution if you cannot or do not want to run Woodman's precompiler on your project for some reason but still would like to silence Woodman in a release version of the project without having to include a full release of Woodman in the mix. By definition, that shim does not support any Appender but equally will not complain if the configuration references types of Appender it does not know anything abou
 
 
 ## Development
