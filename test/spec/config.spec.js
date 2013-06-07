@@ -494,7 +494,8 @@ define([
       expect(logger.appenders[0].filter.regex).toEqual(/timber/);
     });
 
-    it('throws an error when configuration references an unknown Appender', function () {
+
+    it('throws an error when config is invalid', function () {
       var init = function () {
         var log = new LoggerContext();
         log.initialize({
@@ -505,7 +506,7 @@ define([
               appenders: [
                 {
                   name: 'append',
-                  type: 'unknown'
+                  type: 'kesako'
                 }
               ]
             }
@@ -513,6 +514,28 @@ define([
         });
       };
       expect(init).toThrow();
+    });
+
+
+    it('passes the error to the callback when config is invalid', function () {
+      var log = new LoggerContext();
+      log.load({
+        loggers: [
+          {
+            name: 'woodman',
+            level: 'all',
+            appenders: [
+              {
+                name: 'append',
+                type: 'kesako'
+              }
+            ]
+          }
+        ]
+      }, function (err) {
+        expect(err).toBeTruthy();
+      });
+      expect(log).not.toBeStarted();
     });
   });
 });

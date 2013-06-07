@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the LoggerContext class
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
 define([
   '../../lib/loggercontext'
