@@ -57,6 +57,25 @@ define(function () {
       },
 
       {
+        desc: 'removes call to woodman.start (global)',
+        input: 'woodman.start();',
+        ref: ''
+      },
+      {
+        desc: 'removes call to woodman.start (require)',
+        input: 'var wood = require("woodman");' +
+          'wood.start();',
+        ref: ''
+      },
+      {
+        desc: 'removes call to woodman.start (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.start();' +
+          '});',
+        ref: 'define([\'require\'], function (wood) {});'
+      },
+
+      {
         desc: 'replaces call to woodman.start with callback (global)',
         input: 'woodman.start(function (err) {});',
         ref: '(function (err) {})();'
@@ -73,6 +92,25 @@ define(function () {
           'wood.start(function (err) {});' +
           '});',
         ref: 'define([\'require\'], function (wood) {(function (err) {})();});'
+      },
+
+      {
+        desc: 'removes call to woodman.load (global)',
+        input: 'woodman.load({});',
+        ref: ''
+      },
+      {
+        desc: 'removes call to woodman.load (require)',
+        input: 'var wood = require("woodman");' +
+          'wood.load({});',
+        ref: ''
+      },
+      {
+        desc: 'removes call to woodman.load (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'wood.load({});' +
+          '});',
+        ref: 'define([\'require\'], function (wood) {});'
       },
 
       {

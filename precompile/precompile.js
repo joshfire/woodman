@@ -478,7 +478,16 @@ module.exports = function (input, opts) {
           return (node.callee.object.name === instanceName);
         })) {
       logger.info('remove call to woodman.load');
-      node.update('(' + node['arguments'][1].source() + ')()');
+
+      // The "load" method may have received a callback function
+      // that needs to be called. Remove the whole statement otherwise
+      // (note this assumes the load method is not an inline statement)
+      if (node['arguments'][1]) {
+        node.update('(' + node['arguments'][1].source() + ')()');
+      }
+      else {
+        removeCode(node.parent);
+      }
     }
     else if ((node.type === 'CallExpression') &&
         (node.callee.type === 'MemberExpression') &&
@@ -487,8 +496,16 @@ module.exports = function (input, opts) {
           return (node.callee.object.name === instanceName);
         })) {
       logger.info('remove call to woodman.start');
-      reg = new RegExp(node.callee.object.name + '\\.start');
-      node.update(node.source().replace(reg, '') + '()');
+
+      // The "start" method may have received a callback function
+      // that needs to be called. Remove the whole statement otherwise
+      // (note this assumes the load method is not an inline statement)
+      if (node['arguments'][0]) {
+        node.update('(' + node['arguments'][0].source() + ')()');
+      }
+      else {
+        removeCode(node.parent);
+      }
     }
     else if ((node.type === 'CallExpression') &&
         (node.callee.type === 'MemberExpression') &&
