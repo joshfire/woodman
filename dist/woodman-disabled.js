@@ -1,5 +1,5 @@
 /*!
-Woodman - v0.6.2 - 2013-05-30
+Woodman - v0.7.0 - 2013-06-08
  Copyright 2013 Joshfire; MIT license
  https://github.com/joshfire/woodman
 
