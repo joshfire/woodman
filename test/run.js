@@ -12,9 +12,11 @@
  * Copyright (c) 2013 Joshfire
  * MIT license (see LICENSE file)
  */
-/*global global*/
+/*global global, __dirname, process*/
 
 var requirejs = require('requirejs');
+var fs = require('fs');
+var path = require('path');
 
 // Ensure require's "define" and Jasmine's "describe", "it", and "expect"
 // are globally available.
@@ -25,6 +27,8 @@ global.expect = require('./jasmine').expect;
 global.spyOn = require('./jasmine').spyOn;
 global.beforeEach = require('./jasmine').beforeEach;
 global.jasmine = require('./jasmine').jasmine;
+
+var junit = (process.argv.length > 2) ? (process.argv[2] === 'junit') : false;
 
 
 // Retrieve the different suites of tests and run them, reporting results
@@ -50,9 +54,18 @@ requirejs([
 ], function () {
 
   var jasmine = require('./jasmine').jasmine;
-
   var ConsoleJasmineReporter2 = require('./consolereporter').ConsoleJasmineReporter;
+  require('jasmine-reporters');
+
+  var junitPath = null;
+
   jasmine.getEnv().addReporter(new ConsoleJasmineReporter2());
+  if (junit) {
+    junitPath = path.join(__dirname, '..', 'test-reports') + path.sep;
+    fs.mkdirSync(junitPath);
+    jasmine.getEnv().addReporter(
+      new jasmine.JUnitXmlReporter(junitPath + path.sep));
+  }
 
   jasmine.getEnv().beforeEach(function () {
     this.addMatchers({

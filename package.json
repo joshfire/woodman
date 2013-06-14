@@ -46,6 +46,7 @@
     "grunt": "0.4.1",
     "grunt-contrib-concat": "0.3.0",
     "grunt-contrib-requirejs" : "0.4.0",
-    "grunt-contrib-jshint": "0.4.3"
+    "grunt-contrib-jshint": "0.4.3",
+    "jasmine-reporters": "0.2.1"
   }
 }

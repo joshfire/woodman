@@ -781,11 +781,20 @@ Said differently, when you issue a call to `woodman.getLogger`, you will actuall
 
 #### Run tests
 Unit tests are written using [Jasmine](https://github.com/pivotal/jasmine). To run the tests from the root folder of the repository:
+
 ```
-node test/runner.js
+node test/run.js
 ```
 
 Unless something is wrong with the version of Woodman on which you run the tests, you should see a friendly green message that looks like `xxx specs, 0 failures`.
+
+The test runner may also generate JUnit XML test reports (one per spec), e.g. for integrating in [Jenkins](jenkins-ci.org):
+
+```
+node test/run.js junit
+```
+
+The report files are written in the `test-reports` folder.
 
 #### Build Woodman
 Building Woodman essentially boils down to:
