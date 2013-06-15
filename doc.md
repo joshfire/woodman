@@ -1,3 +1,7 @@
+---
+title: Documentation
+---
+
 # Woodman
 
 Woodman is a **JavaScript logger utility** for Web applications and Node.js applications. Woodman is roughly as simple to use as the `console`, only much more powerful:
