@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>{{ page.title }}</title>
+
+    <!-- <link rel="stylesheet" href="stylesheets/styles.css"> -->
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Woodman<br/>
+          <small>takes care of your logs</small>
+        </h1>
+
+        <img alt="Woodman takes care of your logs" src="images/woodman.png" />
+
+        <h2>Menu</h2>
+        <ul class="menu">
+          <li>
+            <a href="index.html"
+              {% if page.path == "index.html" %}class="selected"{% endif %}>
+              Home
+            </a>
+          </li>
+          <li>
+            <a href="getstarted.html"
+              {% if page.path == "getstarted.html" %}class="selected"{% endif %}>
+              Get started
+            </a>
+          </li>
+          <li>
+            <a href="config.html"
+              {% if page.path == "config.html" %}class="selected"{% endif %}>
+              Configure
+            </a>
+          </li>
+          <li>
+            <a href="download.html"
+              {% if page.path == "download.html" %}class="selected"{% endif %}>
+              Download
+            </a>
+          </li>
+          <li>
+            <a href="precompiler.html"
+              {% if page.path == "precompiler.html" %}class="selected"{% endif %}>
+              Remove traces
+            </a>
+          </li>
+          <li>
+            <a href="contribute.html"
+              {% if page.path == "contribute.html" %}class="selected"{% endif %}>
+              Contribute
+            </a>
+          </li>
+          <li>
+            <a href="about.html"
+              {% if page.path == "about.html" %}class="selected"{% endif %}>
+              About
+            </a>
+          </li>
+          <li>
+            <a href="changelog.html"
+              {% if page.path == "changelog.html" %}class="selected"{% endif %}>
+              Changelog
+            </a>
+          </li>
+        </ul>
+
+
+        <h2>Download</h2>
+
+        <ul>
+          <li><a href="https://raw.github.com/joshfire/woodman/master/dist/woodman.js">Download <strong>woodman.js</strong></a></li>
+          <li>Install with <strong>npm install</strong></li>
+        </ul>
+      </header>
+      <section>
+        <h2>{{ page.title }}</h2>
+        {{ content }}
+      </section>
+      <footer>
+        <p>
+          Maintained by <a href="https://github.com/joshfire">Joshfire</a>.<br/>
+          Copyright (c) 2013 Joshfire.<br/>
+          All rights reserved.<br/>
+          <a href="https://github.com/joshfire/woodman">See project on GitHub</a>.<br/>
+          Code is <a href="about.html#license">MIT licensed</a>.
+        </p>
+
+        <p class="view"><a href="https://github.com/joshfire/woodman">View the Project on GitHub <small>joshfire/woodman</small></a></p>
+
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    <script type="text/javascript">
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+    </script>
+    <script type="text/javascript">
+      try {
+        var pageTracker = _gat._getTracker("UA-24118306-9");
+      pageTracker._trackPageview();
+      } catch(err) {}
+    </script>
+  </body>
+</html>
