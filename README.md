@@ -942,16 +942,34 @@ We decided to start over because we needed:
 
 ### License
 
-The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE).
+The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE). Copyright (c) 2013 Joshfire. All rights reserved.
 
-The Woodman library uses, extends or was at least partially based on other great open-source projects:
+The core source code of the Woodman library uses, extends or was at least partially based on other great open-source projects:
 
 - [RequireJS](http://requirejs.org/). Copyright (c) 2010-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/requirejs/blob/master/LICENSE)
 - [Almond](https://github.com/jrburke/almond). Copyright (c) 2011-2012, The Dojo Foundation All Rights Reserved. [New BSD or MIT licensed](https://github.com/jrburke/almond/blob/master/LICENSE)
-- [Socket.IO](http://socket.io/). Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed
+- [Socket.IO](http://socket.io/). Copyright(c) 2011 LearnBoost <dev@learnboost.com>, MIT Licensed for the socket appender.
 - [log4javascript](http://log4javascript.org/), Copyright Tim Down, [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0.html)
 - and obviously [Apache Log4j 2](http://logging.apache.org). Copyright © 1999-2013 Apache Software Foundation. All Rights Reserved. [Apache License, Version 2.0](http://logging.apache.org/log4j/2.x/license.html)
 
+Additionally, the precompiler uses:
+
+- [Esprima](http://esprima.org/). Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>, [BSD Licensed](https://github.com/ariya/esprima/blob/master/LICENSE.BSD)
+- [falafel](https://github.com/substack/node-falafel) by James Halliday. MIT licensed.
+- [node-fs](). Copyright 2010 Bruno Pedro. All rights reserved. [MIT licensed](https://github.com/bpedro/node-fs/blob/master/LICENSE).
+- [Underscore](http://underscorejs.org/). Copyright (c) 2009-2013 Jeremy Ashkenas, DocumentCloud Inc. MIT licensed
+
+The test runner relies on:
+
+- [Jasmine](http://pivotal.github.io/jasmine/). Copyright (c) 2008-2013 Pivotal Labs. [MIT Licensed](https://github.com/pivotal/jasmine/blob/master/MIT.LICENSE).
+- [Jasmine-reporters](https://github.com/larrymyers/jasmine-reporters/). Copyright (c) 2010 Larry Myers. [MIT Licensed](https://github.com/larrymyers/jasmine-reporters/blob/master/LICENSE). Used for JUnit XML reporting.
+
+Woodman distributions are prepared with:
+
+- [Grunt](http://gruntjs.com/). Copyright (c) 2013 "Cowboy" Ben Alman. [MIT licensed](http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT)
+- [Grunt-contrib-concat](https://github.com/gruntjs/grunt-contrib-concat). Copyright (c) 2012 "Cowboy" Ben Alman, contributors. [MIT licensed](https://github.com/gruntjs/grunt-contrib-concat/blob/master/LICENSE-MIT)
+- [Grunt-contrib-jshint](https://github.com/gruntjs/grunt-contrib-jshint). Copyright (c) 2013 "Cowboy" Ben Alman, contributors. [MIT licensed](https://github.com/gruntjs/grunt-contrib-jshint/blob/master/LICENSE-MIT)
+- [Grunt-contrib-requirejs](https://github.com/gruntjs/grunt-contrib-requirejs). Copyright (c) 2012 Tyler Kellen, contributors. [MIT licensed](https://github.com/gruntjs/grunt-contrib-requirejs/blob/master/LICENSE-MIT)
 
 ## Changelog
 
