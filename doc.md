@@ -453,7 +453,7 @@ The *conversion patterns* supported by the pattern string are based on those def
 
 - `c` or `logger`: The name of the Logger
 - `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
-- `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{%level %message}`.
+- `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{% raw %}{%{% endraw %}level %message}`.
 - `m` or `message`: The log event message.
 - `n`: A newline.
 - `p` or `level`: The level of the log event.
@@ -472,7 +472,7 @@ The following definition describes a possible `PatternLayout`:
 ```json
 {
   "type": "PatternLayout",
-  "pattern": "%date{COMPACT} %highlight{%-5level} [%logger] - %message%n"
+  "pattern": "%date{COMPACT} %highlight{% raw %}{%{% endraw %}-5level} [%logger] - %message%n"
 }
 ```
 
