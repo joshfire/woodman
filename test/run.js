@@ -62,7 +62,9 @@ requirejs([
   jasmine.getEnv().addReporter(new ConsoleJasmineReporter2());
   if (junit) {
     junitPath = path.join(__dirname, '..', 'test-reports') + path.sep;
-    fs.mkdirSync(junitPath);
+    if (!fs.existsSync(junitPath)) {
+      fs.mkdirSync(junitPath);
+    }
     jasmine.getEnv().addReporter(
       new jasmine.JUnitXmlReporter(junitPath + path.sep));
   }
