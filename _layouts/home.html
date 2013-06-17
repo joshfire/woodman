@@ -5,11 +5,30 @@
     <div class="container">
       <header>
         {% include navbar.html %}
+        <h1>
+          <img src="images/woodman.png"
+            alt="Woodman takes care of your logs" />
+        </h1>
       </header>
       <section>
         {% if page.title != 'Woodman' %}
-        <h1>{{ page.title }}</h1>
+        <h2>{{ page.title }}</h2>
         {% endif %}
+
+        <p>Woodman is a <strong>JavaScript logger utility</strong> for Web applications and Node.js applications.</p>
+
+        <p>
+          <a class="btn btn-large btn-primary"
+            href="https://raw.github.com/joshfire/woodman/master/dist/woodman.js">
+            Download <strong>woodman.js</strong>
+            <br/><small>v0.7.0</small>
+          </a>
+          <br/>... or install Woodman as a Node.js package module:
+          <br/><code
+            class="javascript language-javascript"
+            data-lang="javascript">npm install woodman</code>
+        </p>
+
         {{ content }}
       </section>
 
