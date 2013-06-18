@@ -2,48 +2,74 @@
 <html>
   {% include head.html %}
   <body>
-    <div class="container">
-      <header>
-        {% include navbar.html %}
-        <h1>
-          <img src="images/woodman.png"
+    <div class="container home">
+      <header class="row">
+        <div class="span5">
+          <img class="logo" src="images/woodman-home.png"
             alt="Woodman takes care of your logs" />
-        </h1>
+        </div>
+
+        <div class="span7">
+          <h1>
+            Woodman<br/>
+            <small>takes care of your logs</small>
+          </h1>
+
+          <p>Woodman is a <strong>JavaScript logger utility</strong> for Web and Node.js applications that is roughly as simple to use as the <code>console</code>, only much more powerful. Woodman lets you take precise control over <strong>what</strong> gets logged <strong>where</strong> and <strong>how</strong>.</p>
+
+          <div class="row-fluid">
+            <div class="span6">
+              {% highlight javascript %}
+// Using Woodman
+woodman.load('console');
+var logger = woodman.getLogger('myapp');
+logger.log('Hello Woodman');
+logger.warn('This is a warning');
+logger.error('This is an error');{% endhighlight %}
+            </div>
+            <div class="span6">
+              {% highlight javascript %}
+// Using the console
+//
+//
+console.log('Hello Woodman');
+console.warn('This is a warning');
+console.error('This is an error');{% endhighlight %}
+            </div>
+          </div>
+
+          <div class="row-fluid install">
+            <div class="span4 offset1 text-center">
+              <a class="btn btn-large btn-primary"
+                href="https://raw.github.com/joshfire/woodman/master/dist/woodman.js">
+                Download <strong>woodman.js</strong>
+              </a>
+            </div>
+            <div class="span2 text-or">
+              OR
+            </div>
+            <div class="span4 text-center">
+              <div class="well">
+                Install Woodman with NPM<br/>
+                <code>npm install woodman</code>
+              </div>
+            </div>
+          </div>
+          <p class="text-center"><small>
+            (Latest version: <strong>v0.7.0</strong>)
+          </small></p>
+        </div>
       </header>
-      <section>
-        {% if page.title != 'Woodman' %}
-        <h2>{{ page.title }}</h2>
-        {% endif %}
-
-        <p>Woodman is a <strong>JavaScript logger utility</strong> for Web applications and Node.js applications.</p>
-
-        <p>
-          <a class="btn btn-large btn-primary"
-            href="https://raw.github.com/joshfire/woodman/master/dist/woodman.js">
-            Download <strong>woodman.js</strong>
-            <br/><small>v0.7.0</small>
-          </a>
-          <br/>... or install Woodman as a Node.js package module:
-          <br/><code
-            class="javascript language-javascript"
-            data-lang="javascript">npm install woodman</code>
-        </p>
-
-        {{ content }}
+      
+      <section class="row-fluid">
+        <div class="span2 offset1">
+          {% include navbar.html %}
+        </div>
+        <div class="span8">
+          {{ content }}
+        </div>
       </section>
-
-      {% include footer.html %}
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-      try {
-        var pageTracker = _gat._getTracker("UA-24118306-9");
-      pageTracker._trackPageview();
-      } catch(err) {}
-    </script>
+    {% include footer.html %}
   </body>
 </html>

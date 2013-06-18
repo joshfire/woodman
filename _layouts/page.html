@@ -1,30 +1,18 @@
 <!DOCTYPE html>
 <html>
   {% include head.html %}
-  <body>
+  <body class="woodman">
     <div class="container">
-      <header>
-        {% include navbar.html %}
-      </header>
-      <section>
-        {% if page.title != 'Woodman' %}
-        <h1>{{ page.title }}</h1>
-        {% endif %}
-        {{ content }}
+      <section class="row-fluid">
+        <div class="span2 offset1">
+          {% include navbar.html %}
+        </div>
+        <div class="span8">
+          <h1>{{ page.title }}</h1>
+          {{ content }}
+        </div>
       </section>
-
-      {% include footer.html %}
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    <script type="text/javascript">
-    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-      try {
-        var pageTracker = _gat._getTracker("UA-24118306-9");
-      pageTracker._trackPageview();
-      } catch(err) {}
-    </script>
+    {% include footer.html %}
   </body>
 </html>

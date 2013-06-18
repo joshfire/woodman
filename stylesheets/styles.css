@@ -1,3 +1,43 @@
-body {
-  background-color: #eeeeee
+footer {
+  background-color: #eeeeee;
+  padding-top: 2em;
+}
+
+.home header {
+  margin-bottom: 2em;
+}
+
+.home h1 {
+  text-align: center;
+  color: #603d00;
+  font-size: 5em;
+  text-transform: uppercase;
+  font-weight: 200;
+  margin-top: 0.6em;
+  margin-bottom: 0.6em;
+}
+
+.home h1 small {
+  color: #9e9e9e;
+  font-weight: 100;
+}
+
+.home .text-or {
+  text-align: center;
+  font-size: 2em;
+  margin-top: 0.7em;
+  margin-bottom: 0.7em;
+}
+
+.home .well {
+  padding: 11px;
+  margin-bottom: 0;
+}
+
+.home .install {
+  margin-top: 1em;
+}
+
+.woodman {
+  background: transparent url('../images/woodman-bg.png') left bottom no-repeat fixed;
 }
