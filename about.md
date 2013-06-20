@@ -3,10 +3,10 @@ title: About
 layout: page
 ---
 
-### Who
+## <a id="who"></a>Who
 Woodman has been manufactured on the assembly line by [Joshfire Factory](http://factory.joshfire.com) workers to help develop and maintain various cross-device Web applications and other backend tools.
 
-### Why?!?
+## <a id="why"></a>Why?!?
 "Surely, you've heard about that thing called `console`?", you may ask. "Wake up, this is *JavaScript*, not *Java*!", you might add. Yes indeed! The `console` is extremely useful to debug an application. It is not quite enough, mainly because:
 
 - No all devices expose a `console` object. Perhaps surprisingly, the devices that do not are the ones that you might want to support to surf the HTML5-in-all-the-things wave. For instance, many connected TVs do not expose a debugging environment. Using `console` calls is simply not an option on such devices.
@@ -20,7 +20,7 @@ The [Apache Log4j introduction](http://logging.apache.org/log4j/2.x/manual/index
 
 In the end, log4j provides a very good abstraction over `console` that solves the problems raised above for a reasonable cost: that of having to manage a `Logger` instance per module.
 
-### Differences with log4j
+## <a id="differences-with-log4j"></a>Differences with log4j
 While Woodman attempts to follow Apache Log4j 2 as closely as possible, it does not implement all its features. In particular, compared to Apache Log4j 2, Woodman comes with: 
 
 - a restricted number of [Appenders](http://logging.apache.org/log4j/2.x/manual/filters.html)
@@ -32,9 +32,9 @@ While Woodman attempts to follow Apache Log4j 2 as closely as possible, it does 
 
 API functions in Woodman may also not have the exact same signature as those specified in log4j to stick to more JavaScript-friendly paradigms. For instance, log levels in JavaScript are lower-case strings, as opposed to a proper enumeration in Apache Log4j 2.
 
-New features get introduced in Woodman when the need arises. If you need something that does not yet exist, check [Contribute to Woodman](#contribute-to-woodman) and get in touch!
+New features get introduced in Woodman when the need arises. If you need something that does not yet exist, check [Contribute to Woodman](contribute.html) and get in touch!
 
-### Other JavaScript logging libraries
+## <a id="other-javascript-logging-libraries"></a>Other JavaScript logging libraries
 
 Woodman is not the first logging library written in JavaScript. [Winston](https://github.com/flatiron/winston) is a good example of a logging library for node.js. Closer to Woodman, the
 [log4javascript](http://log4javascript.org/) library is a nice and complete implementation of log4j for Web browsers (and can easily be adapted to run in node.js applications).
@@ -46,7 +46,7 @@ We decided to start over because we needed:
 - code modularization, one file per class to be able to create custom builds of Woodman with selected appenders and layouts.
 - a clean and small public interface to ease the work of the precompiler
 
-### License
+## <a id="license"></a>License
 
 The Woodman library is licensed under the [MIT license](https://raw.github.com/joshfire/woodman/master/LICENSE). Copyright (c) 2013 Joshfire. All rights reserved.
 

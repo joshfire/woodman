@@ -12,7 +12,7 @@ Not being able to remove logs from the code is probably one of the reasons why m
 
 The *precompiler* that comes bundled with Woodman strips your code from all references to Woodman.
 
-### Run the precompiler
+## <a id="run-the-precompiler"></a>Run the precompiler
 To run the precompiler on a JavaScript file, clone Woodman's repository to some local folder, run `npm install` on that folder and run the following node.js command:
 
 ```
@@ -32,7 +32,7 @@ The precompiler can also process recursively all JavaScript files in a folder an
 node {PATH TO WOODMAN}/precompile/precompiler.js {JSFOLDER} {OUTPUTFOLDER}
 ```
 
-### What the precompiler does
+## <a id="what-the-precompiler-does"></a>What the precompiler does
 
 The precompilation:
 
@@ -45,7 +45,7 @@ The precompilation:
 - removes calls to `logger.*` where `logger` is the variable name defined as the result of a call to `woodman.getLogger()`
 - removes the configuration definition used in the call to `woodman.initialize` or `woodman.load`
 
-### Limits of the precompiler
+## <a id="limits-of-the-precompiler"></a>Limits of the precompiler
 If you are familiar with what an *Abstract Syntax Tree (AST)* is, you probably know that manipulating JavaScript code to produce a slightly modified version of that code is not an easy task. While the precompilation process should account for all usual uses of the Woodman library, it does have its limits.
 
 Here are examples of code correctly handled by the precompilation:
@@ -71,22 +71,22 @@ Some cases that are not correctly handled by the precompilation function,
 and that may generate invalid code in the end:
 
 ```javascript
-// Calling a trace function within another statement
+// NOT SUPPORTED: Calling a trace function within another statement
 var l = logger.log('message');
 if (logger.log('message')) {}
 if (true) logger.log('message');
 
-// Assigning the logger to another variable
+// NOT SUPPORTED: Assigning the logger to another variable
 var logger = woodman.getLogger('foo');
 truc = logger;
 truc.log('message');
 
-// Re-assigning the logger variable
+// NOT SUPPORTED: Re-assigning the logger variable
 var logger = woodman.getLogger('foo');
 logger = somethingelse;
 logger.machin = 4;
 
-// Not using the dot notation to call Logger functions
+// NOT SUPPORTED: Not using the dot notation to call Logger functions
 var logger = woodman.getLogger('blah');
 logger['info']('Oh no!')
 ```

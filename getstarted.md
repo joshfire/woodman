@@ -3,7 +3,7 @@ title: Get started
 layout: page
 ---
 
-### Using Woodman in a node.js application
+## <a id="nodejs"></a>Using Woodman in a node.js application
 Woodman is available as an [npm package](https://npmjs.org/package/woodman). To install Woodman in your node.js application:
 
 ```
@@ -37,13 +37,13 @@ var logger = woodman.getLogger('path.name');
 logger.log('This is a log message at the log level');
 ```
 
-For a running example, check the [standalone example](examples/node.js/standalone.js) which may be run with:
+For a running example, check the [standalone example](https://github.com/joshfire/woodman/blob/master/examples/node.js/standalone.js):
 
 ```
 node examples/node.js/standalone.js
 ```
 
-### Using Woodman in a Web browser
+## <a id="web"></a>Using Woodman in a Web browser
 Using Woodman in a Web browser is essentially the same as using Woodman in a node.js application. To install Woodman, copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application (or [download the file](https://raw.github.com/joshfire/woodman/master/dist/woodman.js)). Reference that file from a `script` tag in the HTML page (the tag needs to appear before all scripts that make use of Woodman):
 
 ```html
@@ -73,7 +73,7 @@ logger.log('This is a log message at the log level');
 See the [examples/browser] folder for further examples.
 
 
-### Using Woodman as an AMD module
+## <a id="amd"></a>Using Woodman as an AMD module
 Woodman exports itself as a module named `woodman` if the `define` function is defined. For instance, to define a module that depends on Woodman:
 
 ```javascript
@@ -94,7 +94,7 @@ requirejs(['woodman'], function (woodman) {
 });
 ```
 
-### Trace functions
+## <a id="trace"></a>Trace functions
 Call the `log`, `info`, `warn`, `error` trace functions on a Logger instance to log a message. They mostly behave as those of the usual `console` object, meaning that they can take any number of arguments of basically any type.
 
 There are a couple of differences though:
