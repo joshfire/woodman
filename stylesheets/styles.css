@@ -10,10 +10,11 @@ footer {
 .home h1 {
   text-align: center;
   color: #603d00;
+  font-family: 'Stint Ultra Expanded', cursive;
   font-size: 5em;
   text-transform: uppercase;
   font-weight: 200;
-  margin-top: 0.6em;
+  margin-top: 0.8em;
   margin-bottom: 0.6em;
 }
 
@@ -38,6 +39,21 @@ footer {
   margin-top: 1em;
 }
 
-.woodman {
-  background: transparent url('../images/woodman-bg.png') left bottom no-repeat fixed;
+@media (min-width: 768px) and (max-width: 979px) {
+  .woodman {
+    background: transparent url('../images/woodman-bg-small.png') left bottom no-repeat fixed;
+  }
+  .sidemenu {
+    margin-left: 0 !important;
+    width: 20% !important;
+  }
+  .main {
+    width: 75% !important;
+  }
+}
+
+@media (min-width: 980px) {
+  .woodman {
+    background: transparent url('../images/woodman-bg.png') left bottom no-repeat fixed;
+  }
 }

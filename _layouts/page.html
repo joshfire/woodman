@@ -4,15 +4,15 @@
   <body class="woodman">
     <div class="container">
       <section class="row-fluid">
-        <div class="span2 offset1">
+        <div class="span2 offset1 sidemenu">
           {% include navbar.html %}
         </div>
-        <div class="span8">
+        <div class="span8 main">
           <h1>{{ page.title }}</h1>
           {{ content }}
+          {% include footer.html %}
         </div>
       </section>
     </div>
-    {% include footer.html %}
   </body>
 </html>
