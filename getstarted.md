@@ -1,59 +1,55 @@
 ---
-title: Get started
+title: Get started with Woodman
 layout: page
 ---
 
-## <a id="nodejs"></a>Using Woodman in a node.js application
-Woodman is available as an [npm package](https://npmjs.org/package/woodman). To install Woodman in your node.js application:
-
-```
-npm install woodman
-```
-
-Woodman needs to load some configuration before it may be used:
-
-```javascript
-var woodman = require('woodman');
-
-// "console" means "console all the things!". See configuration for details.
-woodman.load('console');
-
-// Instantiate a Logger instance
-var logger = woodman.getLogger('main');
-
-// Start logging messages
-logger.log('Woodman is up and running');
-```
-
-The call to `woodman.load` needs to appear **only once** in your application. To use Woodman throughout your application once that is done:
-
-1. import Woodman with a call to `require` if not already done
-2. retrieve the instance of `Logger` for this module (the name implicitly creates a hierarchy among loggers, see below for details)
-3. log events!
-
-```javascript
-var woodman = require('woodman');
-var logger = woodman.getLogger('path.name');
-logger.log('This is a log message at the log level');
-```
-
-For a running example, check the [standalone example](https://github.com/joshfire/woodman/blob/master/examples/node.js/standalone.js):
-
-```
-node examples/node.js/standalone.js
-```
-
 ## <a id="web"></a>Using Woodman in a Web browser
-Using Woodman in a Web browser is essentially the same as using Woodman in a node.js application. To install Woodman, copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application (or [download the file](https://raw.github.com/joshfire/woodman/master/dist/woodman.js)). Reference that file from a `script` tag in the HTML page (the tag needs to appear before all scripts that make use of Woodman):
+
+1. [Download Woodman](https://raw.github.com/joshfire/woodman/master/dist/woodman.js) or copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application.
+2. Reference that file from a `script` tag in the HTML page before any script that is to use Woodman
+3. Load Woodman's configuration
+4. Use Woodman!
 
 ```html
 <script type="text/javascript" src="path-to-js/woodman.js"></script>
+<script type="text/javascript">
+  // Load configuration, "console" means "console all the things!".
+  // See configuration for details.
+  woodman.load('console');
+
+  // Instantiate a Logger
+  var logger = woodman.getLogger('main');
+
+  // Start logging messages
+  logger.log('Woodman is up and running');
+</script>
 ```
 
-The rest is pretty similar to the node.js case, except `woodman` is exposed as a global object. In particular, initialize Woodman once before use:
+The call to `woodman.load` needs to appear **only once** in your application. To use Woodman from any JavaScript module referenced by your HTML, you will typically instantiate one logger per module and use it as if it were a `console` object:
 
 ```javascript
-// "console" means "console all the things!". See configuration for details.
+var logger = woodman.getLogger('path.name');
+logger.log('This is a log message');
+logger.info('This is an info');
+logger.warn('This is a warning');
+logger.error('This is an error');
+```
+
+Open one of the examples in the [examples/browser](https://github.com/joshfire/woodman/tree/master/examples/browser) folder to see Woodman in action.
+
+
+## <a id="nodejs"></a>Using Woodman in a node.js application
+
+1. Install Woodman with a call to npm: `npm install woodman`
+2. Require `woodman` from your code
+3. Load Woodman's configuration
+4. Use Woodman!
+
+```javascript
+var woodman = require('woodman');
+
+// Load configuration, "console" means "console all the things!".
+// See configuration for details.
 woodman.load('console');
 
 // Instantiate a Logger
@@ -63,18 +59,39 @@ var logger = woodman.getLogger('main');
 logger.log('Woodman is up and running');
 ```
 
-Then, from any JavaScript file that composes your app:
+The call to `woodman.load` needs to appear **only once** in your application. To use Woodman from any JavaScript module referenced by your HTML, you will typically instantiate one logger per module and use it as if it were a `console` object:
 
 ```javascript
+var woodman = require('woodman');
 var logger = woodman.getLogger('path.name');
-logger.log('This is a log message at the log level');
+logger.log('This is a log message');
+logger.info('This is an info');
+logger.warn('This is a warning');
+logger.error('This is an error');
 ```
 
-See the [examples/browser] folder for further examples.
+Run examples in the [examples/node.js](https://github.com/joshfire/woodman/tree/master/examples/node.js) folder to see Woodman in action, e.g.:
+
+```bash
+node examples/node.js/standalone.js
+```
 
 
 ## <a id="amd"></a>Using Woodman as an AMD module
-Woodman exports itself as a module named `woodman` if the `define` function is defined. For instance, to define a module that depends on Woodman:
+
+Woodman is compatible with typical AMD loaders. It exports itself as an AMD module named `woodman` if the `define` function is available. As above, the library needs to be initialized once before it may be used, typically in the first module that gets executed (in a Web browser) or within the first call to `requirejs` (in a node.js application):
+
+```javascript
+requirejs(['woodman'], function (woodman) {
+  // "console" means "console all the things!".
+  // See configuration for details.
+  woodman.load('console');
+  var logger = woodman.getLogger('main');
+  logger.log('Yeepee');
+});
+```
+
+Then, to define a module that depends on Woodman:
 
 ```javascript
 define(['woodman'], function (woodman) {
@@ -83,24 +100,27 @@ define(['woodman'], function (woodman) {
 });
 ```
 
-As above, the library needs to be initialized once before it may be used, typically in the first module that gets executed (in a Web browser) or within the first call to `requirejs` (in a node.js application):
 
-```javascript
-requirejs(['woodman'], function (woodman) {
-  // "console" means "console all the things!". See configuration for details.
-  woodman.load('console');
-  var logger = woodman.getLogger('main');
-  logger.log('Yeepee');
-});
-```
+## <a id="api"></a>The API
 
-## <a id="trace"></a>Trace functions
-Call the `log`, `info`, `warn`, `error` trace functions on a Logger instance to log a message. They mostly behave as those of the usual `console` object, meaning that they can take any number of arguments of basically any type.
+The examples presented in the previous sections cover most of the API exposed by Woodman. The library exposes two main public static functions:
+
+* `load(config)`: loads a configuration object. The configuration describes what gets logged where and how. See [Woodman configuration](config.html#loading-woodman-configuration) for details.
+* `getLogger(name)`: retrieves an instance of a Logger object with the given name. Dots in the name create an logger hierarchy. Again, see [Woodman configuration](config.html#logger) for details.
+* `registerAppender`, `registerLayout`, `registerLevel`: registers an Appender, a Layout or a Log level. You should not need to use these functions unless you want to customize Woodman. See [Contribute](contribute.html) for details.
+
+The Logger instance returned by `getLogger` exposes trace functions similar to those of the `console`:
+
+* `log`: logs a message at the log level
+* `info`: logs a message at the info level
+* `warn`: logs a warning message
+* `error`: logs an error message
+
+These functions mostly behave as those of the usual `console` object, meaning that they can take any number of arguments of basically any type.
 
 There are a couple of differences though:
 
-1. Woodman produces strings. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. Depending on whether the object overrides "toString", the serialization is either the result of running "toString" or a JSON serialization of the first levels of the object.
-
+1. Woodman produces strings. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. Depending on whether the object overrides `toString`, the serialization is either the result of calling `toString` or a JSON serialization of the first levels of the object.
 2. If the first parameter is a string, Woodman replaces the occurrences of `{}` in that string with the string serialization of the remaining parameters.
 
 The code below illustrates these possibilities:
