@@ -120,7 +120,7 @@ These functions mostly behave as those of the usual `console` object, meaning th
 
 There are a couple of differences though:
 
-1. Woodman produces strings. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. Depending on whether the object overrides `toString`, the serialization is either the result of calling `toString` or a JSON serialization of the first levels of the object.
+1. Woodman produces strings by default. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. Depending on whether the object overrides `toString`, the serialization is either the result of calling `toString` or a JSON serialization of the first levels of the object. You may override that behavior to log real objects e.g. within a Web browser console thanks to the `appendStrings` setting. See [Appender definition](config.html#appender-definition) in configuration page for details.
 2. If the first parameter is a string, Woodman replaces the occurrences of `{}` in that string with the string serialization of the remaining parameters.
 
 The code below illustrates these possibilities:
