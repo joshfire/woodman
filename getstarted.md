@@ -3,6 +3,9 @@ title: Get started with Woodman
 layout: page
 ---
 
+Woodman is extremely easy to use: the only real difference with the usual `console` is that you will typically instantiate one logger per JavaScript module that you will then use as if it were the `console`. Controlling what gets logged where and how comes at a later stage through configuration. No need to worry about that to start using Woodman!
+
+
 ## <a id="web"></a>Using Woodman in a Web browser
 
 1. [Download Woodman](https://raw.github.com/joshfire/woodman/master/dist/woodman.js) or copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application.
@@ -101,9 +104,14 @@ define(['woodman'], function (woodman) {
 ```
 
 
+## <a id="web"></a>Using Woodman in other JavaScript runtimes
+
+While not tested at this stage, Woodman should run well in a variety of JavaScript runtimes. Please get in touch through the [issue tracking system](https://github.com/joshfire/woodman/issues) if something needs to be done to properly export Woodman to the runtime of your choice.
+
+
 ## <a id="api"></a>The API
 
-The examples presented in the previous sections cover most of the API exposed by Woodman. The library exposes two main public static functions:
+The examples presented in the previous sections cover most of the API exposed by Woodman. The library exposes the following public static functions:
 
 * `load(config)`: loads a configuration object. The configuration describes what gets logged where and how. See [Woodman configuration](config.html#loading-woodman-configuration) for details.
 * `getLogger(name)`: retrieves an instance of a Logger object with the given name. Dots in the name create an logger hierarchy. Again, see [Woodman configuration](config.html#logger) for details.
@@ -116,12 +124,12 @@ The Logger instance returned by `getLogger` exposes trace functions similar to t
 * `warn`: logs a warning message
 * `error`: logs an error message
 
-These functions mostly behave as those of the usual `console` object, meaning that they can take any number of arguments of basically any type.
+These functions behave as those of the usual `console` object, meaning that they can take any number of arguments of basically any type.
 
 There are a couple of differences though:
 
-1. Woodman produces strings by default. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. Depending on whether the object overrides `toString`, the serialization is either the result of calling `toString` or a JSON serialization of the first levels of the object. You may override that behavior to log real objects e.g. within a Web browser console thanks to the `appendStrings` setting. See [Appender definition](config.html#appender-definition) in configuration page for details.
-2. If the first parameter is a string, Woodman replaces the occurrences of `{}` in that string with the string serialization of the remaining parameters.
+1. If the first parameter is a string, Woodman replaces the occurrences of `{}` in that string with the string serialization of the remaining parameters.
+2. Woodman produces strings by default. If you pass an object, Woodman will not output the object itself but a serialization of that object as a string. If the object overrides `toString`, that serialization is the result of calling `toString`. If not, it is a JSON serialization of the first levels of the object. You may log real objects e.g. within a Web browser console thanks to the `appendStrings` setting. See [Appender definition](config.html#appender-definition) in configuration page for details.
 
 The code below illustrates these possibilities:
 
