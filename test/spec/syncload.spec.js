@@ -17,6 +17,7 @@ define(function (require) {
       log = new LoggerContext();
       log.registerAppender('Console', ConsoleAppender);
       log.registerLayout('pattern', PatternLayout);
+      log.registerStandardLevels();
 
       rootLogger = log.getLogger();
       spyOn(rootLogger, 'traceLogEvent');

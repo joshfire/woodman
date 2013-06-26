@@ -55,6 +55,7 @@ define(function (require) {
       log.registerAppender('ConsoleAppender', Appender);
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
+      log.registerStandardLevels();
       log.load(baseConfig);
 
       var rootLogger = log.getLogger();
@@ -71,6 +72,7 @@ define(function (require) {
       log.registerAppender('ConsoleAppender', Appender);
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
+      log.registerStandardLevels();
 
       var config = JSON.parse(JSON.stringify(baseConfig));
       config.filters[0].mismatch = 'deny';
@@ -90,6 +92,7 @@ define(function (require) {
       log.registerAppender('ConsoleAppender', Appender);
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
+      log.registerStandardLevels();
 
       var config = JSON.parse(JSON.stringify(baseConfig));
       log.load(config);
@@ -108,6 +111,7 @@ define(function (require) {
       log.registerAppender('ConsoleAppender', Appender);
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
+      log.registerStandardLevels();
 
       var config = JSON.parse(JSON.stringify(baseConfig));
       config.loggers[0].filters = [
@@ -133,6 +137,7 @@ define(function (require) {
       log.registerAppender('ConsoleAppender', Appender);
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
+      log.registerStandardLevels();
 
       var config = JSON.parse(JSON.stringify(baseConfig));
       config.appenders[0].filters = [

@@ -6,7 +6,10 @@
 define(function (require) {
   var LogLevel = require('../../lib/loglevel');
 
-  describe('LogLevel enumeration', function () {
+  describe('LogLevel', function () {
+
+    var level = new LogLevel();
+    level.registerStandardLevels();
 
     beforeEach(function () {
       /**
@@ -21,7 +24,7 @@ define(function (require) {
               'to be below "' + expected + '"';
           };
 
-          return LogLevel.isBelow(this.actual, expected);
+          return level.isBelow(this.actual, expected);
         }
       });
     });

@@ -1,13 +1,31 @@
 /**
  * @fileoverview Tests for the LoggerContext class
  */
-/*global define, describe, it, expect*/
+/*global define, describe, it, expect, beforeEach*/
 
-define([
-  '../../lib/loggercontext'
-], function (LoggerContext) {
+define(function (require) {
+  var LoggerContext = require('../../lib/loggercontext');
 
   describe('LoggerContext class', function () {
+
+    beforeEach(function () {
+      /**
+       * Returns true when the Logger instance has the appropriate trace
+       * function.
+       */
+      this.addMatchers({
+        toHaveTraceFunction: function (level) {
+          var not = this.isNot ? 'NOT ': '';
+
+          this.message = function () {
+            return 'Expected "' + level + '" ' + not +
+              'to be a member function of the Logger';
+          };
+
+          return typeof this.actual[level] === 'function';
+        }
+      });
+    });
 
     it('returns the root logger by default', function () {
       var log = new LoggerContext();
@@ -131,6 +149,16 @@ define([
         expect(err).toBeFalsy();
       });
       expect(log).toBeStarted();
+    });
+
+
+    it('propagates trace functions when levels are registered', function () {
+      var log = new LoggerContext();
+      var logger = log.getLogger('logger');
+      expect(logger).not.toHaveTraceFunction('mylevel');
+      log.registerLevel('mylevel');
+      log.initialize();
+      expect(logger).toHaveTraceFunction('mylevel');
     });
   });
 });
