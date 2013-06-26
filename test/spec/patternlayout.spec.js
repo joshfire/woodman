@@ -3,12 +3,11 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/layouts/patternlayout',
-  '../../lib/logevent',
-  '../../lib/loggercontext',
-  '../../lib/message'
-], function (PatternLayout, LogEvent, LoggerContext, Message) {
+define(function (require) {
+  var PatternLayout = require('../../lib/layouts/patternlayout');
+  var LogEvent = require('../../lib/logevent');
+  var LoggerContext = require('../../lib/loggercontext');
+  var Message = require('../../lib/message');
 
   describe('PatternLayout class', function () {
     var loggerContext = new LoggerContext();

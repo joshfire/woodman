@@ -1,7 +1,7 @@
 /**
  * @fileoverview Tests for the Woodman precompiler lib
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
 define(function () {
   var precompile = require('../../../precompile/precompile');

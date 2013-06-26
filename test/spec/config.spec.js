@@ -3,12 +3,11 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/appender',
-  '../../lib/layout',
-  '../../lib/loggercontext',
-  '../../lib/filters/regexfilter'
-], function (Appender, Layout, LoggerContext, RegexFilter) {
+define(function (require) {
+  var Appender = require('../../lib/appender');
+  var Layout = require('../../lib/layout');
+  var LoggerContext = require('../../lib/loggercontext');
+  var RegexFilter = require('../../lib/filters/regexfilter');
 
   describe('Logger initialization', function () {
 

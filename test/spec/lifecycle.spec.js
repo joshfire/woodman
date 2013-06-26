@@ -1,11 +1,10 @@
 /**
  * @fileoverview Tests for the LifeCycle class
  */
-/*global describe, it, expect, beforeEach, jasmine*/
+/*global define, describe, it, expect, beforeEach, jasmine*/
 
-define([
-  '../../lib/lifecycle'
-], function (LifeCycle) {
+define(function (require) {
+  var LifeCycle = require('../../lib/lifecycle');
 
   describe('LifeCycle class', function () {
 

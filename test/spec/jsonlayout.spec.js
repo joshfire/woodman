@@ -3,12 +3,11 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/layouts/jsonlayout',
-  '../../lib/logevent',
-  '../../lib/loggercontext',
-  '../../lib/message'
-], function (JSONLayout, LogEvent, LoggerContext, Message) {
+define(function (require) {
+  var JSONLayout = require('../../lib/layouts/jsonlayout');
+  var LogEvent = require('../../lib/logevent');
+  var LoggerContext = require('../../lib/loggercontext');
+  var Message = require('../../lib/message');
 
   describe('JSONLayout class', function () {
     var loggerContext = new LoggerContext();

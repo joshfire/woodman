@@ -3,10 +3,9 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/logevent',
-  '../../lib/message'
-], function (LogEvent, Message) {
+define(function (require) {
+  var LogEvent = require('../../lib/logevent');
+  var Message = require('../../lib/message');
 
   describe('LogEvent class', function () {
 

@@ -1,13 +1,12 @@
 /**
  * @fileoverview Tests for the LogManager class
  */
-/*global describe, it, expect*/
+/*global describe, it, expect, define*/
 
-define([
-  '../../lib/logmanager',
-  '../../lib/appender',
-  '../../lib/layout'
-], function (LogManager, Appender, Layout) {
+define(function (require) {
+  var LogManager = require('../../lib/logmanager');
+  var Appender = require('../../lib/appender');
+  var Layout = require('../../lib/layout');
 
   describe('LogManager class', function () {
 

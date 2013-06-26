@@ -3,9 +3,8 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/message'
-], function (Message) {
+define(function (require) {
+  var Message = require('../../lib/message');
 
   describe('Message class', function () {
 

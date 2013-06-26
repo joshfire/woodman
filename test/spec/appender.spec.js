@@ -1,12 +1,11 @@
 /**
  * @fileoverview Tests for the Appender class
  */
-/*global describe, it, expect, spyOn*/
+/*global define, describe, it, expect, spyOn*/
 
-define([
-  '../../lib/appender',
-  '../../lib/logevent'
-], function (Appender, LogEvent) {
+define(function (require) {
+  var Appender = require('../../lib/appender');
+  var LogEvent = require('../../lib/logevent');
 
   describe('Appender class', function () {
 

@@ -3,11 +3,10 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/filters/regexfilter',
-  '../../lib/logevent',
-  '../../lib/message'
-], function (RegexFilter, LogEvent, Message) {
+define(function (require) {
+  var RegexFilter = require('../../lib/filters/regexfilter');
+  var LogEvent = require('../../lib/logevent');
+  var Message = require('../../lib/message');
 
   describe('RegexFilter class', function () {
     it('stays neutral for an event that matches the regexp', function () {

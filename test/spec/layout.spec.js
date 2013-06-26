@@ -1,13 +1,12 @@
 /**
  * @fileoverview Tests for the Layout class
  */
-/*global describe, it, expect*/
+/*global define, describe, it, expect*/
 
-define([
-  '../../lib/layout',
-  '../../lib/logevent',
-  '../../lib/message'
-], function (Layout, LogEvent, Message) {
+define(function (require) {
+  var Layout = require('../../lib/layout');
+  var LogEvent = require('../../lib/logevent');
+  var Message = require('../../lib/message');
 
   describe('Layout class', function () {
 

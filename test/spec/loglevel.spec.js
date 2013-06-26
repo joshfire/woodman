@@ -1,11 +1,10 @@
 /**
  * @fileoverview Tests for the LogLevel class
  */
-/*global describe, it, expect, beforeEach*/
+/*global define, describe, it, expect, beforeEach*/
 
-define([
-  '../../lib/loglevel'
-], function (LogLevel) {
+define(function (require) {
+  var LogLevel = require('../../lib/loglevel');
 
   describe('LogLevel enumeration', function () {
 

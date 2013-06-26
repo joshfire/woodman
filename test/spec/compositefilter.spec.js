@@ -3,12 +3,11 @@
  */
 /*global define, describe, it, expect*/
 
-define([
-  '../../lib/filters/compositefilter',
-  '../../lib/filters/regexfilter',
-  '../../lib/logevent',
-  '../../lib/message'
-], function (CompositeFilter, RegexFilter, LogEvent, Message) {
+define(function (require) {
+  var CompositeFilter = require('../../lib/filters/compositefilter');
+  var RegexFilter = require('../../lib/filters/regexfilter');
+  var LogEvent = require('../../lib/logevent');
+  var Message = require('../../lib/message');
 
   describe('CompositeFilter class', function () {
     it('returns the result of the first filter if it matches', function () {

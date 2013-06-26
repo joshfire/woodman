@@ -20,7 +20,6 @@ var path = require('path');
 
 // Ensure require's "define" and Jasmine's "describe", "it", and "expect"
 // are globally available.
-global.define = requirejs;
 global.describe = require('./jasmine').describe;
 global.it = require('./jasmine').it;
 global.expect = require('./jasmine').expect;
@@ -30,27 +29,31 @@ global.jasmine = require('./jasmine').jasmine;
 
 var junit = (process.argv.length > 2) ? (process.argv[2] === 'junit') : false;
 
+requirejs.config({
+  baseUrl: path.join(__dirname, '/../')
+});
+
 
 // Retrieve the different suites of tests and run them, reporting results
 // to the console.
 requirejs([
-  'spec/loglevel.spec',
-  'spec/message.spec',
-  'spec/logevent.spec',
-  'spec/layout.spec',
-  'spec/lifecycle.spec',
-  'spec/appender.spec',
-  'spec/logger.spec',
-  'spec/loggercontext.spec',
-  'spec/logmanager.spec',
-  'spec/config.spec',
-  'spec/patternlayout.spec',
-  'spec/jsonlayout.spec',
-  'spec/regexfilter.spec',
-  'spec/compositefilter.spec',
-  'spec/filtering.spec',
-  'spec/syncload.spec',
-  'spec/precompile/precompile.spec'
+  'test/spec/loglevel.spec',
+  'test/spec/message.spec',
+  'test/spec/logevent.spec',
+  'test/spec/layout.spec',
+  'test/spec/lifecycle.spec',
+  'test/spec/appender.spec',
+  'test/spec/logger.spec',
+  'test/spec/loggercontext.spec',
+  'test/spec/logmanager.spec',
+  'test/spec/config.spec',
+  'test/spec/patternlayout.spec',
+  'test/spec/jsonlayout.spec',
+  'test/spec/regexfilter.spec',
+  'test/spec/compositefilter.spec',
+  'test/spec/filtering.spec',
+  'test/spec/syncload.spec',
+  'test/spec/precompile/precompile.spec'
 ], function () {
 
   var jasmine = require('./jasmine').jasmine;
