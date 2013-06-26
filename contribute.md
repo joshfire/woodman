@@ -149,16 +149,17 @@ LogManager.registerLevel('debug', 'trace');
 LogManager.registerLevel('fatal');
 ```
 
-To actually start logging messages at these new levels, call the `trace` function directly:
+Registering a level creates a trace function with the same name on all Logger instances. You may start to use that new trace function right away:
 
 ```javascript
 var logger = woodman.getLogger();
-logger.trace('debug', 'Logging a message at the "debug" level');
-logger.trace('fatal', 'Argh!');
+logger.debug(Logging a message at the "debug" level');
+logger.fatal('Argh!');
 ```
 
 Note that, if you only want to add new levels to use Woodman in a specific application, you may also directly issue calls such as `woodman.registerLevel('fatal');` from anywhere in your code and use these trace levels afterwards. In other words, you do not need to re-build Woodman to add new trace levels.
 
+Also note that the precompiler only knows about regular log levels for the time being and will not be able to remove calls made to additional trace functions.
 
 ### <a id="build-a-custom-distribution"></a>Build a custom distribution
 If you want to create your own distribution of Woodman, run the following steps:
