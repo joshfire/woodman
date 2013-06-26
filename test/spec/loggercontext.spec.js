@@ -157,7 +157,6 @@ define(function (require) {
       var logger = log.getLogger('logger');
       expect(logger).not.toHaveTraceFunction('mylevel');
       log.registerLevel('mylevel');
-      log.initialize();
       expect(logger).toHaveTraceFunction('mylevel');
     });
   });
