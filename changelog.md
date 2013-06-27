@@ -3,6 +3,12 @@ title: Changelog
 layout: page
 ---
 
+## <a id="v0.8.0"></a>v0.8.0 - 27 June 2013
+
+- `registerLevel` now creates corresponding trace functions on loggers ([#16](https://github.com/joshfire/woodman/issues/16)), meaning you can register the level `fatal` and start calling `logger.fatal` right away
+- Added JUnit XML report file generation to test runner
+
+
 ## <a id="v0.7.0"></a>v0.7.0 - 08 June 2013
 
 - Synchronous use of `woodman.load` possible and encouraged ([#3](https://github.com/joshfire/woodman/issues/3))
