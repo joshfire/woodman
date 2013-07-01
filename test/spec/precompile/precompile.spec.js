@@ -274,6 +274,19 @@ define(function () {
       },
 
       {
+        desc: 'removes calls to Woodman functions (global)',
+        input: 'woodman.registerLevel("fatal");' +
+          'woodman.registerLayout("blah", new Object());' +
+          'woodman.registerStandardLevels();',
+        ref: ''
+      },
+      {
+        desc: 'replaces references to woodman.Error',
+        input: 'if ({} instanceof woodman.Error) {};',
+        ref: 'if ({} instanceof function () {}) {};'
+      },
+
+      {
         desc: 'leaves call to initialize if "woodman" not in globalNames',
         input: 'var wood = require("woodman");' +
           'var config = {};' +
@@ -326,6 +339,35 @@ define(function () {
         desc: 'removes direct calls to trace functions (amd)',
         input: 'define(["woodman"], function (wood) {' +
           'wood.getLogger().log("blah");' +
+          '});',
+        ref: 'define([\'require\'], function (wood) {' +
+          '});'
+      },
+
+      {
+        desc: 'removes calls to unknown trace functions (global)',
+        input: 'var logger = woodman.getLogger("foo");' +
+          'logger.fatal("blah", "foo");' +
+          'logger.logit("blah", "foo");' +
+          'logger.grumpf("blah", "foo");',
+        ref: ''
+      },
+      {
+        desc: 'removes calls to unknown trace functions (require)',
+        input: 'var wood = require("woodman");' +
+          'var logger = wood.getLogger("foo");' +
+          'logger.fatal("blah", "foo");' +
+          'logger.logit("blah", "foo");' +
+          'logger.grumpf("blah", "foo");',
+        ref: ''
+      },
+      {
+        desc: 'removes calls to unknown trace functions (amd)',
+        input: 'define(["woodman"], function (wood) {' +
+          'var logger = wood.getLogger("foo");' +
+          'logger.fatal("blah", "foo");' +
+          'logger.logit("blah", "foo");' +
+          'logger.grumpf("blah", "foo");' +
           '});',
         ref: 'define([\'require\'], function (wood) {' +
           '});'
