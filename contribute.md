@@ -13,7 +13,7 @@ Woodman's [GitHub repository](https://github.com/joshfire/woodman) is organized 
 - The `lib/` folder contains the actual source code of Woodman.
 - The `precompile/` folder contains the precompiler library and command-line interface.
 - The `test/` folder contains unit tests.
-- The `grunt.js` file is a Grunt 0.3 compatible make file that runs the different instructions needed to build Woodman and updates the `dist/` folder accordingly.
+- The `Gruntfile.js` file is a [Grunt](http://gruntjs.com) make file that runs the different instructions needed to build Woodman and update the `dist/` folder accordingly.
 
 To start developing for Woodman, clone the repository and run `npm install` to install the different libraries needed to build Woodman, precompile and/or run tests.
 
