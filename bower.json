@@ -1,0 +1,27 @@
+{
+  "name": "woodman",
+  "version": "0.8.0",
+  "main": "./dist/woodman-browser.js",
+  "homepage": "https://github.com/joshfire/woodman",
+  "authors": [
+    "Joshfire <contact@joshfire.com>"
+  ],
+  "description": "Extensible JavaScript logger utility loosely based on log4j that runs client-side and server-side.",
+  "keywords": [
+    "log4j",
+    "logger",
+    "console",
+    "logging",
+    "log"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "/deps",
+    "/lib",
+    "/precompile",
+    "/test",
+    "Gruntfile.js",
+    "package.json"
+  ]
+}
