@@ -23,7 +23,7 @@ In the end, log4j provides a very good abstraction over `console` that solves th
 ## <a id="differences-with-log4j"></a>Differences with log4j
 While Woodman attempts to follow Apache Log4j 2 as closely as possible, it does not implement all its features. In particular, compared to Apache Log4j 2, Woodman comes with: 
 
-- a restricted number of [Appenders](http://logging.apache.org/log4j/2.x/manual/filters.html)
+- a restricted number of [Appenders](http://logging.apache.org/log4j/2.x/manual/appenders.html)
 - a restricted number of [Layouts](http://logging.apache.org/log4j/2.x/manual/layouts.html)
 - a restricted number of [Filters](http://logging.apache.org/log4j/2.x/manual/filters.html)
 - no support for Appender Reference Filters (fourth type in [Filters](http://logging.apache.org/log4j/2.x/manual/filters.html))
