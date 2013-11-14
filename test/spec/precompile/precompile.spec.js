@@ -381,6 +381,28 @@ define(function () {
       },
 
       {
+        desc: 'supports RequireJS sugar syntax',
+        input: 'define(function (require) {' +
+          'var woodman = require("woodman");' +
+          'var logger = woodman.getLogger("foo");' +
+          'logger.log("I love sugar");' +
+          '});',
+        ref: 'define(function (require) {' +
+          '});'
+      },
+
+      {
+        desc: 'supports RequireJS sugar syntax in compiled scripts',
+        input: 'define("sugar", ["require", "woodman"], function (require) {' +
+          'var woodman = require("woodman");' +
+          'var logger = woodman.getLogger("foo");' +
+          'logger.log("I love sugar");' +
+          '});',
+        ref: 'define("sugar", ["require", \'require\'], function (require) {' +
+          '});'
+      },
+
+      {
         desc: 'returns the initial source if it does not reference Woodman',
         input: 'nowoodman.js',
         ref: 'nowoodman-ref.js'

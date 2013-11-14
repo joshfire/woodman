@@ -269,16 +269,21 @@ module.exports = function (input, opts) {
           tabDefine = node['arguments'][0];
           indArray = 0;
         }
-        if (node['arguments'][1] &&
+        else if (node['arguments'][1] &&
           (node['arguments'][1].type === 'ArrayExpression')) {
           tabDefine = node['arguments'][1];
           indArray = 1;
         }
         interestingNode = node['arguments'][indArray + 1];
-        // Get instance of woodman in function parameters
+        // Get instance of woodman in function parameters.
+        // Note that Woodman is listed as dependency without being
+        // mentioned in the function parameters when sugar syntax is used.
         if (tabDefine.elements) {
           for (var i = 0, c = tabDefine.elements.length; i < c; i++) {
-            if (_.include(opts.depNames, tabDefine.elements[i].value)) {
+            if (_.include(opts.depNames, tabDefine.elements[i].value) &&
+                node['arguments'][indArray + 1] &&
+                node['arguments'][indArray + 1].params &&
+                node['arguments'][indArray + 1].params[i]) {
               instanceName = node['arguments'][indArray + 1].params[i].name;
             }
           }
