@@ -3,6 +3,13 @@ title: Changelog
 layout: page
 ---
 
+## <a id="v0.9.0"></a>v0.9.0 - 14 November 2013
+
+- Woodman throws a "woodman.Error" error when load fails ([#15](https://github.com/joshfire/woodman/issues/15))
+- Woodman available as a Bower package ([#22](https://github.com/joshfire/woodman/issues/22), [#23](https://github.com/joshfire/woodman/issues/23)), thx @elskwid
+- Precompiler supports unknown logger/woodman functions ([#f8edc9a54e](https://github.com/joshfire/woodman/commit/f8edc9a54e156807c3556c3bb66db71ec018a43e))
+- Precompiler crashed when RequireJS sugar syntax was used ([#25](https://github.com/joshfire/woodman/issues/25))
+
 ## <a id="v0.8.0"></a>v0.8.0 - 27 June 2013
 
 - `registerLevel` now creates corresponding trace functions on loggers ([#16](https://github.com/joshfire/woodman/issues/16)), meaning you can register the level `fatal` and start calling `logger.fatal` right away
