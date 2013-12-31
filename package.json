@@ -35,18 +35,18 @@
     }
   ],
   "dependencies": {
-    "amdefine": ">=0.0.4",
-    "socket.io": ">=0.9.13",
-    "requirejs": "2.1.2",
-    "esprima": "1.0.2",
-    "node-fs": "0.1.5",
-    "underscore": "1.4.4"
+    "amdefine": "0.1.0",
+    "socket.io": "0.9.16",
+    "requirejs": "2.1.9",
+    "esprima": "1.0.4",
+    "node-fs": "0.1.7",
+    "underscore": "1.5.2"
   },
   "devDependencies": {
-    "grunt": "0.4.1",
+    "grunt": "0.4.2",
     "grunt-contrib-concat": "0.3.0",
-    "grunt-contrib-requirejs" : "0.4.0",
-    "grunt-contrib-jshint": "0.4.3",
+    "grunt-contrib-requirejs" : "0.4.1",
+    "grunt-contrib-jshint": "0.8.0",
     "jasmine-reporters": "0.2.1"
   }
 }
