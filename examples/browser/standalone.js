@@ -21,12 +21,10 @@ var config = {
   ]
 };
 
-woodman.load(config, function (err) {
-  if (err) throw err;
+woodman.load(config);
 
-  var logger = woodman.getLogger('joshfire.woodman.examples.browser.standalone');
-  logger.log('Welcome to Woodman');
-  logger.info('This is an info message');
-  logger.warn('This is a warning');
-  logger.error('This is an error');
-});
+var logger = woodman.getLogger('joshfire.woodman.examples.browser.standalone');
+logger.log('Welcome to Woodman');
+logger.info('This is an info message');
+logger.warn('This is a warning');
+logger.error('This is an error');

@@ -18,15 +18,13 @@
       The <code>standalone.js</code> file can access it directly:</p>
 
 <pre><code>var config = { ... };
-woodman.load(config, function (err) {
-  if (err) throw err;
+woodman.load(config);
 
-  var logger = woodman.getLogger('browser.main');
-  logger.log('Welcome to Woodman');
-  logger.info('This is an info message');
-  logger.warn('This is a warning');
-  logger.error('This is an error');
-});
+var logger = woodman.getLogger('browser.main');
+logger.log('Welcome to Woodman');
+logger.info('This is an info message');
+logger.warn('This is a warning');
+logger.error('This is an error');
 </code></pre>
 
     <p>Open your console to see the result!</p>
