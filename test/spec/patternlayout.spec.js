@@ -8,6 +8,7 @@ define(function (require) {
   var LogEvent = require('../../lib/logevent');
   var LoggerContext = require('../../lib/loggercontext');
   var Message = require('../../lib/message');
+  var domain = require('domain');
 
   describe('PatternLayout class', function () {
     var loggerContext = new LoggerContext();
@@ -207,5 +208,67 @@ define(function (require) {
       expect(layout.toMessageString(evt)).toEqual(' warn rname.long');
     });
 
+
+    it('outputs the domain if known (%domain)', function () {
+      var layout = new PatternLayout({
+        pattern: '%domain'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var d = domain.create();
+      d.id = 'mydomain';
+      var toMessageString = layout.toMessageString.bind(layout);
+      toMessageString = d.bind(toMessageString);
+      expect(toMessageString(evt)).toEqual('mydomain');
+    });
+
+
+    it('outputs the domain as "global" when no domain (%domain)', function () {
+      var layout = new PatternLayout({
+        pattern: '%domain'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var toMessageString = layout.toMessageString.bind(layout);
+      expect(toMessageString(evt)).toEqual('global');
+    });
+
+
+    it('outputs the domain as "anonymous" if domain has no ID (%domain)', function () {
+      var layout = new PatternLayout({
+        pattern: '%domain'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var d = domain.create();
+      var toMessageString = layout.toMessageString.bind(layout);
+      toMessageString = d.bind(toMessageString);
+      expect(toMessageString(evt)).toEqual('anonymous');
+    });
+
+
+    it('uses the provided ID key to output the domain (%domain)', function () {
+      var layout = new PatternLayout({
+        pattern: '%domain{name}'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var d = domain.create();
+      d.name = 'mydomain';
+      var toMessageString = layout.toMessageString.bind(layout);
+      toMessageString = d.bind(toMessageString);
+      expect(toMessageString(evt)).toEqual('mydomain');
+    });
+
+
+    it('follows nested keys to output the domain (%domain)', function () {
+      var layout = new PatternLayout({
+        pattern: '%domain{nested.name.id}'
+      }, loggerContext);
+      var evt = new LogEvent('loggername', 'warn', new Message('timber!'));
+      var d = domain.create();
+      d.nested = {};
+      d.nested.name = {};
+      d.nested.name.id = 'mydomain';
+      var toMessageString = layout.toMessageString.bind(layout);
+      toMessageString = d.bind(toMessageString);
+      expect(toMessageString(evt)).toEqual('mydomain');
+    });
   });
 });
