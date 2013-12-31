@@ -3,6 +3,18 @@ title: Changelog
 layout: page
 ---
 
+## <a id="v1.0.0"></a>v1.0.0 - 31 December 2013
+
+All known bugs should have been fixed. Time to publish v1.0!
+
+Changelog since v0.9.0:
+
+- Bug fix: Full distribution crashed in an app optimized with r.js ([#20](https://github.com/joshfire/woodman/issues/20))
+- Bug fix: The `disabled` distribution did not support the synchronous variant of the `load` function introduced in [v0.7.0](#v0.7.0) ([#26](https://github.com/joshfire/woodman/issues/26))
+- Bug fix: Raw source version crashed if it was used in a Node.js environment without RequireJS ([#27](https://github.com/joshfire/woodman/issues/27))
+- Upgraded all dependencies to their latest version
+- New `%domain` pattern in `PatternLayout` to output Node.js domain ID if available ([#28](https://github.com/joshfire/woodman/issues/28))
+
 ## <a id="v0.9.0"></a>v0.9.0 - 14 November 2013
 
 - Woodman throws a "woodman.Error" error when load fails ([#15](https://github.com/joshfire/woodman/issues/15))

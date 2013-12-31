@@ -252,10 +252,11 @@ The pattern string is composed of literal text and format control expressions ca
 
 Note that any literal text may be included in the conversion pattern.
 
-The *conversion patterns* supported by the pattern string are based on those defined by the [Apache Log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout), but note Woodman only supports the following conversion patterns:
+With the exception of the `domain` pattern, the *conversion patterns* supported by the pattern string are based on those defined by the [Apache Log4j documentation](http://logging.apache.org/log4j/2.x/manual/layouts.html#PatternLayout). Woodman only supports the following conversion patterns:
 
 - `c` or `logger`: The name of the Logger
 - `d` or `date`: The date of the log event. The actual date format to use may specified in a following set of braces, with predefined values `ABSOLUTE`, `COMPACT`, `DATE`, `ISO8601` and `ISO8601_BASIC`. You may also define formats such as `dd MMM yyyy HH:mm:ss,SSS`.
+- `domain`: The ID of the current Node.js domain if one is defined. This pattern is only available in a Node.js environment. Woodman outputs the value of the `id` property on the active domain by default. Specify the name of a possibly nested property in a following set of braces to override that behavior, for instance: `%domain{name}` or `%domain{nested.name.id}`. The pattern outputs `global` if the code runs in the global domain and `anonymous` if the current domain does not have any ID.
 - `highlight`: To add colors based on the current log event. Colors are added to the pattern string enclosed in a following set of braces, e.g. `%highlight{{ "{%" }}level %message}`.
 - `m` or `message`: The log event message.
 - `n`: A newline.
