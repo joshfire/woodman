@@ -50,6 +50,7 @@ requirejs([
   'test/spec/patternlayout.spec',
   'test/spec/jsonlayout.spec',
   'test/spec/regexfilter.spec',
+  'test/spec/regexloggernamefilter.spec',
   'test/spec/compositefilter.spec',
   'test/spec/filtering.spec',
   'test/spec/syncload.spec',
