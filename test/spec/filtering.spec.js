@@ -56,7 +56,9 @@ define(function (require) {
       log.registerFilter('RegexFilter', RegexFilter);
       log.registerLayout('Layout', Layout);
       log.registerStandardLevels();
-      log.load(baseConfig);
+
+      var config = JSON.parse(JSON.stringify(baseConfig));
+      log.load(config);
 
       var rootLogger = log.getLogger();
       var appender = rootLogger.appenders[0];
