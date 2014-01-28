@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+  <head>
+    <meta charset="utf-8" />
+
+    <title>Faisez des logs avec Woodman</title>
+
+    <meta name="description" content="Présentation de la librairie Woodman pour gérer les logs d'une application JavaScript à ParisJS, le 29 janvier 2014" />
+    <meta name="author" content="François Daoust">
+
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+
+    <link rel="stylesheet" href="css/reveal.min.css" />
+    <link rel="stylesheet" href="css/theme/beige.css" id="theme" />
+
+    <!-- For syntax highlighting -->
+    <link rel="stylesheet" href="lib/css/zenburn.css" />
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Stint+Ultra+Expanded" />
+
+    <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+    <script>
+      document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+    </script>
+
+    <!--[if lt IE 9]>
+    <script src="lib/js/html5shiv.js"></script>
+    <![endif]-->
+
+    <style>
+      .reveal h1 {
+        font-family: 'Stint Ultra Expanded', cursive;
+        font-size: 2em;
+      }
+      .reveal .home img {
+        border: none;
+        box-shadow: none;
+        width: 400px;
+        float: left;
+      }
+      .reveal .home h1 {
+        font-size: 2em;
+        margin-top: 1em;
+      }
+      .reveal .home h3 {
+        color: rgb(158, 158, 158);
+        font-family: 'Stint Ultra Expanded', cursive;
+        font-size: 1em;
+      }
+      .reveal .noway {
+        position: relative;
+      }
+      .reveal .noway span {
+        display: none;
+      }
+      .reveal .noway:after {
+        content: 'X';
+        position: absolute;
+        top: 0;
+        left: 46%;
+        color: red;
+        font-family: sans-serif;
+        font-size: 2em;
+        font-weight: 100;
+        transform: scale(3,1);
+        -webkit-transform:scale(3,1); /* Safari and Chrome */
+        -moz-transform:scale(3,1); /* Firefox */
+        -ms-transform:scale(3,1); /* IE 9 */
+        -o-transform:scale(3,1); /* Opera */
+      }
+    </style>
+  </head>
+
+  <body>
+
+    <div class="reveal">
+
+      <!-- Any section element inside of this container is displayed as a slide -->
+      <div class="slides">
+        <section class="home">
+          <img src="media/woodman.png" alt="" />
+          <h1>Woodman</h1>
+          <h3>Faisez des logs !</h3>
+          <p><small><a href="http://joshfire.github.io/woodman/">http://joshfire.github.io/woodman/</a></small></p>
+          <p><small><a href="http://parisjs.org/">ParisJS</a> – le 29 janvier 2014<br/>
+              <a href="mailto:fd@tidoust.net">François Daoust</a> / <a href="http://twitter.com/tidoust">@tidoust</a><br/>(logo by <a href="http://twitter.com/mauriz">@mauriz</a>)</small>
+          </p>
+        </section>
+
+        <section>
+          <section>
+            <h2>Il était une fois…</h2>
+
+            <aside class="notes">
+              Une petite histoire pour commencer pour planter le décor et vous expliquer pourquoi j’attache de l’importance aux logs dans une application quel que soit le language utilisé.
+            </aside>
+          </section>
+
+          <section>
+            <h2>un moteur de recherche</h2>
+            <h3>pour les opérateurs WAP</h3>
+            <p>Implémentation en C++</p>
+
+            <aside class="notes">
+              J’ai commencé par développer le coeur d’un moteur de recherche pour les opérateurs WAP au début des années 2000.
+            </aside>
+          </section>
+
+          <section>
+            <aside class="notes">
+              A l’époque, le WAP, c’était Matrix, c’était le futur.
+            </aside>
+
+            <img src="media/matrix.jpg" alt="Neo holds a Nokia 8110 in Matrix" />
+          </section>
+
+          <section>
+            <h2>Trouver la meilleure réponse ?</h2>
+
+            <aside class="notes">
+              Un téléphone WAP pouvait typiquement afficher 4 lignes de texte en noir et blanc sur un écran en 96x48. Le moteur de recherche n’avait de moteur de recherche que le nom. Le but du jeu n’était pas de trouver toutes les réponses mais de filtrer toutes les réponses possibles pour n’afficher que la ou les 2 réponses les plus pertinentes. Le moteur avait donc un certain nombre de règles de filtrage.
+            </aside>
+
+            <h3>Règles de filtrage</h3>
+            <ul>
+              <li>ET logique sur les mots-clés entrés</li>
+              <li>Position dans le dictionnaire opérateur</li>
+              <li>Popularité du service</li>
+              <li>Période d’activation</li>
+              <li>Liens sponsorisés</li>
+              <li>Aléatoire</li>
+              <li>…</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>Questions récurrentes</h2>
+
+            <aside class="notes">
+              J’ai travaillé sur ce moteur pendant 5 ans. Un certain nombre de questions revenait quasiment quotidiennement.
+            </aside>
+
+            <ul>
+              <li>“0 réponse pour une recherche sur "<em>paris js</em>", pourquoi ?”</li>
+              <li>“<strong>Hier</strong>, 0 réponse, aujourd’hui 1 réponse, pourquoi ?”</li>
+              <li>“Le serveur <strong>en prod</strong> vient juste de planter, pourquoi ?”</li>
+              <li>“Ca <strong>marche</strong> pas…”</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <h2>Logs !</h2>
+
+          <aside class="notes">
+            Faire des logs permet de répondre à ces questions beaucoup plus facilement et de débusquer des bugs difficiles, par exemple liés au multithreading.
+          </aside>
+        </section>
+
+        <section>
+          <section>
+            <h2>Retour vers le futur…</h2>
+            <h3>2014 – 100% JavaScript</h3>
+
+            <aside class="notes">
+              La mode est au JavaScript, à la fois côté client dans les navigateurs et dans les serveurs et autres utilitaires en ligne de commande via Node.js.
+            </aside>
+          </section>
+
+          <section>
+            <h2>console.log</h2>
+
+            <aside class="notes">
+              En JavaScript, la <code>console</code> semble être l’élément de base de toute trace qui se respecte.
+            </aside>
+          </section>
+
+          <section>
+            <h2 class="noway"><span>Pas de </span>console.log</h2>
+
+            <aside class="notes">
+              Pour des raisons diverses et variées, <code>console.log</code> est peu ou pas utilisé dans les librairies. Problèmes d’incompatibilité avec IE, poids additionnel et/ou simplement une sorte de règle tacite "touche pas à ma console" qui exigerait une console propre dans le navigateur. Il n’y a pas non plus de façon simple de filtrer certaines traces en amont. Au final, il n’est pas rare d’introduire des appels à <code>console.log</code> pendant le développement et de les supprimer avant de faire un commit, ce qui est tout de même un peu dommage.
+            </aside>
+          </section>
+        </section>
+
+        <section>
+          <h2>Besoins</h2>
+
+          <ul>
+            <li><strong>Facile</strong> à utiliser</li>
+            <li>Filtrage en fonction du <strong>niveau</strong></li>
+            <li>Filtrage en fonction du <strong>module</strong></li>
+            <li><strong>Formattage</strong> flexible des messages (<em lang="en">layout</em>)</li>
+            <li>Différentes <strong>cibles</strong> possibles (console, fichier, serveur, etc.)</li>
+            <li><strong>Suppression des logs</strong> avant mise en prod possible</li>
+            <li>Utilisable <strong>partout</strong>, côté client comme côté serveur</li>
+            <li>Facilement extensible</li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>Déjà vu…</h2>
+          <h3>log4j</h3>
+
+          <p><a href="http://logging.apache.org/log4j/2.x/">http://logging.apache.org/log4j/2.x/</a></p>
+
+          <aside class="notes">
+            Quel que soit le language considéré, quand on commence à essayer de formaliser une librairie de logs, on finit par reproduire l'API de log4j, un projet Apache. Plutôt que de réinventer la roue, pourquoi ne pas simplement réutiliser ce qui peut l’être ?
+          </aside>
+        </section>
+
+        <section>
+          <h2>Woodman</h2>
+          <p>Une implémentation de log4j en JavaScript</p> 
+          <p><a href="http://joshfire.github.io/woodman/">http://joshfire.github.io/woodman/</a></p>
+        </section>
+
+        <section>
+          <h2>Installation</h2>
+
+          <pre class="bash"><code data-trim>
+# Pour les fans de npm
+npm install woodman
+
+# Si votre truc, c’est Bower
+bower install woodman
+
+# Si vous êtes plutôt brut de décoffrage
+wget https://raw.github.com/joshfire/woodman/master/dist/woodman.js
+          </code></pre>
+        </section>
+
+        <section>
+          <h2>Facile à utiliser</h2>
+          <pre class="javascript"><code data-trim>
+// Démarrer Woodman avec une configuration de base
+// (à faire une fois pour toutes au chargement de l’application)
+woodman.load('console');
+
+// Récupérer un logger pour le module ou le scope courant
+// (par module/scope à identifier dans les logs)
+var logger = woodman.getLogger('slides');
+
+// Ecrire des messages
+logger.log('Salut Woodman');
+logger.info('Ceci n’est pas une pipe');
+logger.warn('Résultat étonnant', { result: 42, operation: '6x7' });
+logger.error('Oh non !', 'J’ai tout cassé !');
+logger.log('Ceci est {} {}', 'une', 'substitution');
+          </code></pre>
+          <p>Et puis c’est tout.</p>
+        </section>
+
+        <section>
+          <section>
+            <h2>Tout est dans la config</h2>
+            <pre class="javascript"><code data-trim>
+woodman.load({
+  "loggers": [ … ],   // What to log depending on provenance
+  "appenders": [ … ], // Where to log and how
+  "filters": [ … ]    // Additional filters, if needed
+});
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Le raccourci "console"</h2>
+            <pre class="javascript"><code data-trim>
+woodman.load({
+  loggers: [{
+    root: true,
+    level: 'log',
+    appenders: [ 'theconsole' ]
+  }],
+  appenders: [{
+    name: 'theconsole',
+    type: 'Console',
+    appendStrings: false,
+    layout: {
+      type: 'PatternLayout',
+      pattern: '%date{yyyy-MM-dd HH:mm:ss} [%logger] %message%n'
+    }
+  }]
+});
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Changer le niveau</h2>
+            <pre class="javascript"><code data-trim>
+woodman.load({
+  loggers: [{
+    root: true,
+    level: 'warn',
+    appenders: [ 'theconsole' ]
+  }],
+  appenders: [ … ]
+});
+            </code></pre>
+            <pre class="javascript"><code data-trim>
+var logger = woodman.getLogger('slides');
+logger.log('Un log filtré');
+logger.info('Une info filtrée');
+logger.warn('Une alerte affichée');
+logger.error('Une erreur affichée');
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Faire taire un module</h2>
+            <pre class="javascript"><code data-trim>
+woodman.load({
+  loggers: [
+    { level: 'log',  root: true, appenders: [ 'theconsole' ] },
+    { level: 'off',  name: 'slides' },
+    { level: 'warn', name: 'slides.shout' }
+  ],
+  appenders: [ … ]
+});
+            </code></pre>
+            <pre class="javascript"><code data-trim>
+var logger = woodman.getLogger('slides');
+var sublogger = woodman.getLogger('slides.sub');
+var shoutlogger = woodman.getLogger('slides.shout');
+logger.warn('Cette alerte est filtrée');
+sublogger.warn('Cette alerte d’un sous-module est filtrée');
+shoutlogger.warn('Cette alerte du sous-module "shout" n’est pas filtrée');
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Envoyer les traces avec Socket.IO</h2>
+            <pre class="javascript"><code data-trim>
+woodman.load({
+  loggers: [{
+    level: 'log', root: true,
+    appenders: [ 'theconsole', 'remoteserver' ] }
+  ],
+  appenders: [
+    { name: 'theconsole', … },
+    { name: 'remoteserver',
+      type: 'SocketAppender',
+      url: 'http://localhost:40031',
+      layout: {
+        type: 'PatternLayout',
+        pattern: '%date{ISO8601} [%level] %logger - %message'
+      }
+    }
+  ]
+});
+            </code></pre>
+            <p>(sous réserve d’avoir un serveur Socket.IO qui tourne !)</p>
+          </section>
+
+          <section>
+            <h2>Tout est possible</h2>
+
+            <p class="fragment">Les paramètres peuvent se combiner.</p>
+            <p class="fragment">On peut s’y perdre…</p>
+            <p class="fragment">mais la configuration change rarement.</p>
+            <p class="fragment">Et surtout…</p>
+            <p class="fragment"><strong>le code de l’application ne change pas !</strong></p>
+          </section>
+        </section>
+
+
+        <section>
+          <section>
+            <h2>Supprimer les logs avant mise en prod</h2>
+
+            <p>Le <em>précompilateur</em> de Woodman supprime <strong>tout ou une partie</strong> des appels à Woodman présents dans du code javascript.</p>
+
+            <pre class="bash"><code data-trim>
+npm install woodman
+node woodman/precompile/precompiler.js {JSFILE}
+node woodman/precompile/precompiler.js {JSFOLDER} {OUTPUTFOLDER}
+node woodman/precompile/precompiler.js {JSFILE} {OUTPUTFILE} --verbose
+node woodman/precompile/precompiler.js {JSFILE} --keep warn,error
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Usage</h2>
+
+            <pre class="bash"><code data-trim>
+Usage: node precompiler.js [options] &lt;input&gt; [output]
+
+  Description:
+    Removes calls to Woodman from a JavaScript file or folder.
+
+  Parameters:
+    input   Full path to the JS file or folder to update.
+    output  Full path to the JS file or folder to create.
+            Precompiler outputs the result to the console otherwise.
+
+  Options:
+    -h, --help          Outputs usage information.
+    -k, --keep &lt;levels&gt; Keeps specified trace levels in updated file(s).
+                        Comma-separated values.
+                        Possible values: "log", "info", "warn", "error". 
+                        Defaults to an empty list.
+    -v, --verbose       Trace precompiler execution.
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Le précompilateur gère correctement…</h2>
+            <ul>
+              <li>les arborescences de fichiers</li>
+              <li>les modules AMD</li>
+              <li>les modules Node.js</li>
+              <li>les appels aux fonctions de Woodman</li>
+              <li>les conditions d’utilisation "normales" de la librairie</li>
+            </ul>
+          </section>
+
+          <section>
+            <h2>En interne</h2>
+            <ul>
+              <li><a href="http://esprima.org/">Esprima</a> pour générer l’arbre AST</li>
+              <li><a href="https://github.com/substack/node-falafel">Falafel</a> pour ré-écrire le code</li>
+              <li>5 passes sont nécessaires</li>
+              <li>~10 secondes sur un fichier conséquent</li>
+              <li>… peut casser le code dans certaines conditions</li>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h2>Pattern <code>%domain</code> sous Node.js</h2>
+
+            <pre class="javascript"><code data-trim>
+// Tell Woodman to log the message with the domain ID to the console.
+var woodman = require('woodman');
+woodman.load('console Got "%message" from %domain domain.%n');
+
+// Async function that logs two messages using Woodman.
+// The function does not know anything about its underlying domain.
+var logger = woodman.getLogger();
+var func = function () {
+  logger.log('sync message');
+  setTimeout(function () {
+    logger.log('async message');
+  }, 0);
+};
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Pattern <code>%domain</code> sous Node.js</h2>
+            <h3>(suite)</h3>
+
+            <pre class="javascript"><code data-trim>
+// Create two domains with an ID
+var domain = require('domain');
+var firstDomain = domain.create();
+var secondDomain = domain.create();
+firstDomain.id = 'first';
+secondDomain.id = 'second';
+
+// Run async function in both domains
+firstDomain.run(func);
+secondDomain.run(func);
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Pattern <code>%domain</code> sous Node.js</h2>
+            <h3>(fin)</h3>
+            <pre class="javascript"><code data-trim>
+Got "sync message" from first domain.
+Got "sync message" from second domain.
+Got "async message" from first domain.
+Got "async message" from second domain.
+            </code></pre>
+          </section>
+        </section>
+
+        <section>
+          <h2>Evolutions possibles</h2>
+          <ul>
+            <li><code>SyslogAppender</code><br/><small>BSD, RFC 5424</small></li>
+            <li><code>DBAppender</code><br/><small>Mongo, MySQL, etc.</small></li>
+            <li>Intégration avec des plateformes d’agglomération de logs<br/><small>Sentry, Airbrake, Papertrail</small></li>
+            <li>Précompileur en mode <em>full AST</em></li>
+          </ul>
+        </section>
+
+        <section>
+          <h2>logger.log('Merci !');</h2>
+
+          <p><a href="http://joshfire.github.io/woodman/">http://joshfire.github.io/woodman/</a></p>
+        </section>
+      </div>
+    </div>
+
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.min.js"></script>
+    <script src="js/woodman.js"></script>
+
+    <script>
+
+      // Full list of configuration options available here:
+      // https://github.com/hakimel/reveal.js#configuration
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+
+        theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+        transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+        // Parallax scrolling
+        // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+        // parallaxBackgroundSize: '2100px 900px',
+
+        // Optional libraries used to extend on reveal.js
+        dependencies: [
+          { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+          { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+          { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+          { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+        ]
+      });
+
+    </script>
+
+  </body>
+</html>
