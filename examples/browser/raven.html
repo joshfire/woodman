@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Using Raven as a Woodman appender</title>
+  </head>
+  <body>
+    <h1>Using Raven as a Woodman appender</h1>
+
+    <p>This page uses the browser version of Woodman and requires the
+      <a href="https://github.com/getsentry/raven-js">Raven-JS Sentry
+      Client</a> to be available.</p>
+
+    <p>Any log event that reaches the Raven appender is sent to Sentry
+        using Raven. Raven options can be specified as the last
+        argument. The first Argument is the Sentry message, and must be
+        a string.</p>
+
+<pre><code>&lt;script type="text/javascript" src="../../dist/woodman-browser.js">&lt;/script>
+&lt;script type="text/javascript" src="raven-lib.js">&lt;/script>
+&lt;script type="text/javascript" src="raven.js">&lt;/script></code></pre>
+
+    <p>The standalone version exposes Woodman in <code>window.woodman</code>.
+      The <code>raven.js</code> file can access it directly:</p>
+
+<pre><code>
+/*global woodman,Raven*/
+
+// install raven first
+Raven.config("http://sentry_key@sentry_host:sentry_port/sentry_project").install();
+
+var config = {
+  appenders: [ {
+    name: "raven_appender",
+    type: "raven",
+    raven: Raven, /* this must be set to the Raven object from Raven-js */
+    layout: { /* unused, as the raw data must be sent to Sentry, but required by Woodman */
+      type: "pattern",
+      pattern: "%message"
+    }
+  } ],
+  loggers: [ {
+    name: "raven.logger",
+    appenders: ["raven_appender"]
+  } ]
+};
+
+woodman.load(config, function (err) {
+  if (err) throw err;
+
+  var logger = woodman.getLogger('raven.logger');
+  logger.log('Welcome to Woodman');
+  logger.info('This is an info message');
+  logger.warn('This is a warning');
+  logger.error('This is an error');
+
+  logger.error('This is a fatal error', { level: "fatal" });
+  logger.error('This error has tags', { tags: { cdn: "horus", component: "router" } });
+  logger.info('This info has extra data in the option object', { extra: { ticket: "43566" } });
+  logger.info('This info has extra data and no option', 'extra1', 'extra2', 'extra3', null);
+  logger.info('This info has two extras and options', 'extra1', { tags: { foo: "bar"}, extra: { key2: "extra2" } });
+});
+</code></pre>
+
+    <p>Open your console to see the requests sent by Raven to Sentry in the network tab!</p>
+
+    <script type="text/javascript" src="../../dist/woodman-browser.js"></script>
+    <script type="text/javascript" src="raven-lib.js"></script>
+    <script type="text/javascript" src="raven.js"></script>
+  </body>
+</html>
