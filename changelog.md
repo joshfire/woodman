@@ -3,6 +3,13 @@ title: Changelog
 layout: page
 ---
 
+## <a id="v1.1.0"></a>v1.1.0 - 28 January 2014
+
+Changelog since v1.0.0:
+
+- Bug fix: Console appender crashed when given null messages ([#32](https://github.com/joshfire/woodman/issues/32))
+- New `RegexLoggerNameFilter` filter ([#30](https://github.com/joshfire/woodman/issues/30))
+
 ## <a id="v1.0.0"></a>v1.0.0 - 31 December 2013
 
 All known bugs should have been fixed. Time to publish v1.0!

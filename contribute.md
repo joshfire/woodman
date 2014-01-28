@@ -153,7 +153,7 @@ Registering a level creates a trace function with the same name on all Logger in
 
 ```javascript
 var logger = woodman.getLogger();
-logger.debug(Logging a message at the "debug" level');
+logger.debug('Logging a message at the "debug" level');
 logger.fatal('Argh!');
 ```
 

@@ -8,7 +8,7 @@ Woodman is extremely easy to use: the only real difference with the usual `conso
 
 ## <a id="web"></a>Using Woodman in a Web browser
 
-1. [Download Woodman](https://raw.github.com/joshfire/woodman/master/dist/woodman.js) or copy the `dist/woodman.js` file of this project to the JavaScript folder of your Web application.
+1. [Download Woodman](https://raw.github.com/joshfire/woodman/master/dist/woodman.js), install Woodman with [Bower](http://bower.io/), or copy the `dist/woodman.js` file of the Git repository to the JavaScript folder of your Web application.
 2. Reference that file from a `script` tag in the HTML page before any script that is to use Woodman
 3. Load Woodman's configuration
 4. Use Woodman!
