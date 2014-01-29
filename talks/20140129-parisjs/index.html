@@ -222,7 +222,7 @@
         <section>
           <h2>Installation</h2>
 
-          <pre class="bash"><code data-trim>
+          <pre class="bash"><code data-trim contenteditable>
 # Pour les fans de npm
 npm install woodman
 
@@ -236,7 +236,7 @@ wget https://raw.github.com/joshfire/woodman/master/dist/woodman.js
 
         <section>
           <h2>Facile à utiliser</h2>
-          <pre class="javascript"><code data-trim>
+          <pre class="javascript"><code data-trim contenteditable>
 // Démarrer Woodman avec une configuration de base
 // (à faire une fois pour toutes au chargement de l’application)
 woodman.load('console');
@@ -258,7 +258,7 @@ logger.log('Ceci est {} {}', 'une', 'substitution');
         <section>
           <section>
             <h2>Tout est dans la config</h2>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 woodman.load({
   "loggers": [ … ],   // What to log depending on provenance
   "appenders": [ … ], // Where to log and how
@@ -269,7 +269,7 @@ woodman.load({
 
           <section>
             <h2>Le raccourci "console"</h2>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 woodman.load({
   loggers: [{
     root: true,
@@ -291,7 +291,7 @@ woodman.load({
 
           <section>
             <h2>Changer le niveau</h2>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 woodman.load({
   loggers: [{
     root: true,
@@ -301,7 +301,7 @@ woodman.load({
   appenders: [ … ]
 });
             </code></pre>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 var logger = woodman.getLogger('slides');
 logger.log('Un log filtré');
 logger.info('Une info filtrée');
@@ -312,7 +312,7 @@ logger.error('Une erreur affichée');
 
           <section>
             <h2>Faire taire un module</h2>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 woodman.load({
   loggers: [
     { level: 'log',  root: true, appenders: [ 'theconsole' ] },
@@ -322,7 +322,7 @@ woodman.load({
   appenders: [ … ]
 });
             </code></pre>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 var logger = woodman.getLogger('slides');
 var sublogger = woodman.getLogger('slides.sub');
 var shoutlogger = woodman.getLogger('slides.shout');
@@ -334,7 +334,7 @@ shoutlogger.warn('Cette alerte du sous-module "shout" n’est pas filtrée');
 
           <section>
             <h2>Envoyer les traces avec Socket.IO</h2>
-            <pre class="javascript"><code data-trim>
+            <pre class="javascript"><code data-trim contenteditable>
 woodman.load({
   loggers: [{
     level: 'log', root: true,
@@ -374,7 +374,7 @@ woodman.load({
 
             <p>Le <em>précompilateur</em> de Woodman supprime <strong>tout ou une partie</strong> des appels à Woodman présents dans du code javascript.</p>
 
-            <pre class="bash"><code data-trim>
+            <pre class="bash"><code data-trim contenteditable>
 npm install woodman
 node woodman/precompile/precompiler.js {JSFILE}
 node woodman/precompile/precompiler.js {JSFOLDER} {OUTPUTFOLDER}
@@ -386,7 +386,7 @@ node woodman/precompile/precompiler.js {JSFILE} --keep warn,error
           <section>
             <h2>Usage</h2>
 
-            <pre class="bash"><code data-trim>
+            <pre class="bash"><code data-trim contenteditable>
 Usage: node precompiler.js [options] &lt;input&gt; [output]
 
   Description:
@@ -432,16 +432,50 @@ Usage: node precompiler.js [options] &lt;input&gt; [output]
 
         <section>
           <section>
-            <h2>Pattern <code>%domain</code> sous Node.js</h2>
+            <h2>Tracer l’exécution d’une requête ?</h2>
+            <p>Un serveur HTTP traite plusieurs requêtes en parallèle.<br/>Comment séparer les logs ?</p>
+          </section>
 
-            <pre class="javascript"><code data-trim>
+          <section>
+            <h2>But</h2>
+            <ul>
+              <li>Assigner un <strong>ID</strong> à une requête HTTP</li>
+              <li>accessible <strong>partout</strong> dans le code</li>
+              <li>sans devoir <strong>trimballer</strong> cet ID partout</li>
+            </ul>
+
+            <p><br/>Facile sous Apache, IIS via le <em lang="en">local thread storage</em>.<br/>Equivalent sous Node.js ?</p>
+          </section>
+
+          <section>
+            <h2>Les domaines dans Node.js</h2>
+            <pre class="javascript"><code data-trim contenteditable>
+// Create two domains with an ID
+var domain = require('domain');
+var firstDomain = domain.create();
+var secondDomain = domain.create();
+firstDomain.id = 'first';
+secondDomain.id = 'second';
+
+// Some function to execute
+var func = function () { … };
+
+// Run function in both domains
+firstDomain.run(func);
+secondDomain.run(func);
+            </code></pre>
+          </section>
+
+          <section>
+            <h2>Pattern <code>%domain</code> dans Woodman</h2>
+            <pre class="javascript"><code data-trim contenteditable>
 // Tell Woodman to log the message with the domain ID to the console.
 var woodman = require('woodman');
+var logger = woodman.getLogger();
 woodman.load('console Got "%message" from %domain domain.%n');
 
 // Async function that logs two messages using Woodman.
 // The function does not know anything about its underlying domain.
-var logger = woodman.getLogger();
 var func = function () {
   logger.log('sync message');
   setTimeout(function () {
@@ -452,33 +486,54 @@ var func = function () {
           </section>
 
           <section>
-            <h2>Pattern <code>%domain</code> sous Node.js</h2>
-            <h3>(suite)</h3>
-
-            <pre class="javascript"><code data-trim>
-// Create two domains with an ID
-var domain = require('domain');
-var firstDomain = domain.create();
-var secondDomain = domain.create();
-firstDomain.id = 'first';
-secondDomain.id = 'second';
-
-// Run async function in both domains
-firstDomain.run(func);
-secondDomain.run(func);
-            </code></pre>
-          </section>
-
-          <section>
-            <h2>Pattern <code>%domain</code> sous Node.js</h2>
-            <h3>(fin)</h3>
-            <pre class="javascript"><code data-trim>
+            <h2>Pattern <code>%domain</code> dans Woodman</h2>
+            <pre class="javascript"><code data-trim contenteditable>
 Got "sync message" from first domain.
 Got "sync message" from second domain.
 Got "async message" from first domain.
 Got "async message" from second domain.
             </code></pre>
           </section>
+
+          <section>
+            <h2>Exemple de serveur HTTP</h2>
+            <pre class="javascript"><code data-trim contenteditable>
+var connect = require('connect');
+var domain = require('domain');
+var woodman = require('woodman');
+var logger = woodman.getLogger();
+var requestID = 1;
+
+var app = connect()
+  .use(function (req, res, next) {
+    // Code below extends connect-domain (MIT license)
+    // https://github.com/baryshev/connect-domain
+    var reqDomain = domain.create();
+    reqDomain.id = requestID++;
+    reqDomain.bind(res);
+    res.on('finish', function () {
+      reqDomain.dispose();
+    });
+    reqDomain.on('error', function (err) {
+      reqDomain.dispose();
+      next(err);
+    });
+    reqDomain.run(next);
+  })
+  .use(function (req, res) {
+    logger.log('start request processing');
+    setTimeout(function () {
+      logger.log('end request processing');
+      res.end('Hello, see console');
+    }, 2000);
+  })
+  .use(function (err, req, res, next) {
+    res.end(err.message);
+  });
+
+woodman.load('console request %domain - %message%n');
+app.listen(3000);
+            </code></pre>
         </section>
 
         <section>
